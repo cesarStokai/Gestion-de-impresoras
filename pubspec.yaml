@@ -1,0 +1,34 @@
+name: control_impresoras
+description: "A new Flutter project for desktop CRUD de impresoras y tóner."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+# Dependencias principales
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  flutter_riverpod: ^2.6.1
+  drift: ^2.7.0
+  drift_flutter: ^0.2.4
+  path_provider: ^2.0.14
+  excel: ^2.0.1
+  path: ^1.8.2
+  sqlite3_flutter_libs: ^0.5.8
+
+
+# Herramientas de desarrollo para generación de código y pruebas
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  build_runner: ^2.4.0
+  drift_dev: ^2.7.0
+  
+
+flutter:
+  uses-material-design: true
