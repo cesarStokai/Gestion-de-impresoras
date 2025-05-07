@@ -2,7 +2,7 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/excel_service.dart';
-import '../models/impresora.dart';
+import '../models/Impresora.dart';
 import '../models/tonere.dart';
 import '../models/requisicion.dart';
 import '../models/mantenimiento.dart';

@@ -14,4 +14,5 @@ class Mantenimiento {
     this.reemplazoImpresora = false,
     this.nuevaImpresoraId,
   });
+
 }

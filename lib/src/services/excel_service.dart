@@ -3,7 +3,7 @@
 import 'dart:io';
 import 'package:excel/excel.dart';
 import 'package:path/path.dart' as p;
-import '../models/impresora.dart';
+import '../models/Impresora.dart';
 import '../models/tonere.dart';
 import '../models/requisicion.dart';
 import '../models/mantenimiento.dart';
