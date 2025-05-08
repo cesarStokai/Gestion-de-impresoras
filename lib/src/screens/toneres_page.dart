@@ -27,7 +27,7 @@ class _ToneresPageState extends ConsumerState<ToneresPage> {
             final t = list[i];
             return ListTile(
               title: Text('${t.color} (${t.estado})'),
-              subtitle: Text('Impresora ID: ${t.impresoraId}'),
+              subtitle: Text('Impresora ID: ${t.impresoraId} '),
               trailing: IconButton(
                 icon: const Icon(Icons.delete, color: Colors.red),
                 onPressed: () => ref.read(toneresDaoProvider).deleteById(t.id!),

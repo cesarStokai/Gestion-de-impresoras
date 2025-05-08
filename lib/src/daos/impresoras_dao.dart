@@ -19,4 +19,5 @@ class ImpresorasDao extends DatabaseAccessor<AppDatabase>
 
   Future<int> deleteById(int id) =>
     (delete(impresoras)..where((t) => t.id.equals(id))).go();
+  
 }
