@@ -1,9 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'impresoras_page.dart';
 import 'toneres_page.dart';
 import 'requisiciones_page.dart';
 import 'mantenimientos_page.dart';
+import 'historial_page.dart'; // Asegúrate de crear este archivo
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -19,6 +19,7 @@ class _HomePageState extends State<HomePage> {
     ToneresPage(),
     RequisicionesPage(),
     MantenimientosPage(),
+    HistorialPage(), // Nueva página de historial
   ];
 
   @override
@@ -37,7 +38,10 @@ class _HomePageState extends State<HomePage> {
               NavigationRailDestination(icon: Icon(Icons.inbox), label: Text('Tóneres')),
               NavigationRailDestination(icon: Icon(Icons.request_page), label: Text('Requisiciones')),
               NavigationRailDestination(icon: Icon(Icons.build), label: Text('Mantenimientos')),
+              NavigationRailDestination(icon: Icon(Icons.history), label: Text('Historial')),
             ],
+            labelType: NavigationRailLabelType.all, 
+            minWidth: 75,
           ),
           const VerticalDivider(thickness: 1, width: 1),
           Expanded(child: _pages[_selectedIndex]),
@@ -46,5 +50,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
-

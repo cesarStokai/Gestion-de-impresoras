@@ -19,5 +19,15 @@ class ImpresorasDao extends DatabaseAccessor<AppDatabase>
 
   Future<int> deleteById(int id) =>
     (delete(impresoras)..where((t) => t.id.equals(id))).go();
-  
+
+     Future<Impresora?> getImpresoraById(int id) =>
+      (select(impresoras)..where((t) => t.id.equals(id))).getSingleOrNull();
+
+  Future<List<Impresora>> getAllImpresoras() =>
+      select(impresoras).get();
+
+  // Opcional: método para obtener impresoras activas
+  Future<List<Impresora>> getImpresorasActivas() =>
+      (select(impresoras)..where((t) => t.estado.equals('activa'))).get();
+
 }
