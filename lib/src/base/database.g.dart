@@ -354,7 +354,7 @@ class $ToneresTable extends Toneres with TableInfo<$ToneresTable, Tonere> {
       'impresora_id', aliasedName, false,
       type: DriftSqlType.int,
       requiredDuringInsert: true,
-      $customConstraints: 'REFERENCES impresoras(id)');
+      $customConstraints: 'REFERENCES impresoras(id) NOT NULL');
   static const VerificationMeta _colorMeta = const VerificationMeta('color');
   @override
   late final GeneratedColumn<String> color = GeneratedColumn<String>(
@@ -761,7 +761,7 @@ class $RequisicionesTable extends Requisiciones
       'tonere_id', aliasedName, false,
       type: DriftSqlType.int,
       requiredDuringInsert: true,
-      $customConstraints: 'REFERENCES toneres(id)');
+      $customConstraints: 'REFERENCES toneres(id) NOT NULL');
   static const VerificationMeta _fechaPedidoMeta =
       const VerificationMeta('fechaPedido');
   @override
@@ -1108,7 +1108,7 @@ class $MantenimientosTable extends Mantenimientos
       'impresora_id', aliasedName, false,
       type: DriftSqlType.int,
       requiredDuringInsert: true,
-      $customConstraints: 'REFERENCES impresoras(id)');
+      $customConstraints: 'REFERENCES impresoras(id) NOT NULL');
   static const VerificationMeta _fechaMeta = const VerificationMeta('fecha');
   @override
   late final GeneratedColumn<DateTime> fecha = GeneratedColumn<DateTime>(
@@ -1497,6 +1497,37 @@ final class $$ImpresorasTableReferences
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: cache));
   }
+
+  static MultiTypedResultKey<$MantenimientosTable, List<Mantenimiento>>
+      _origenTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.mantenimientos,
+              aliasName: $_aliasNameGenerator(
+                  db.impresoras.id, db.mantenimientos.impresoraId));
+
+  $$MantenimientosTableProcessedTableManager get origen {
+    final manager = $$MantenimientosTableTableManager($_db, $_db.mantenimientos)
+        .filter((f) => f.impresoraId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_origenTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+
+  static MultiTypedResultKey<$MantenimientosTable, List<Mantenimiento>>
+      _reemplazoTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.mantenimientos,
+              aliasName: $_aliasNameGenerator(
+                  db.impresoras.id, db.mantenimientos.nuevaImpresoraId));
+
+  $$MantenimientosTableProcessedTableManager get reemplazo {
+    final manager = $$MantenimientosTableTableManager($_db, $_db.mantenimientos)
+        .filter(
+            (f) => f.nuevaImpresoraId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_reemplazoTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
 }
 
 class $$ImpresorasTableFilterComposer
@@ -1539,6 +1570,48 @@ class $$ImpresorasTableFilterComposer
             $$ToneresTableFilterComposer(
               $db: $db,
               $table: $db.toneres,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<bool> origen(
+      Expression<bool> Function($$MantenimientosTableFilterComposer f) f) {
+    final $$MantenimientosTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.mantenimientos,
+        getReferencedColumn: (t) => t.impresoraId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$MantenimientosTableFilterComposer(
+              $db: $db,
+              $table: $db.mantenimientos,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<bool> reemplazo(
+      Expression<bool> Function($$MantenimientosTableFilterComposer f) f) {
+    final $$MantenimientosTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.mantenimientos,
+        getReferencedColumn: (t) => t.nuevaImpresoraId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$MantenimientosTableFilterComposer(
+              $db: $db,
+              $table: $db.mantenimientos,
               $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
               joinBuilder: joinBuilder,
               $removeJoinBuilderFromRootComposer:
@@ -1623,6 +1696,48 @@ class $$ImpresorasTableAnnotationComposer
             ));
     return f(composer);
   }
+
+  Expression<T> origen<T extends Object>(
+      Expression<T> Function($$MantenimientosTableAnnotationComposer a) f) {
+    final $$MantenimientosTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.mantenimientos,
+        getReferencedColumn: (t) => t.impresoraId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$MantenimientosTableAnnotationComposer(
+              $db: $db,
+              $table: $db.mantenimientos,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<T> reemplazo<T extends Object>(
+      Expression<T> Function($$MantenimientosTableAnnotationComposer a) f) {
+    final $$MantenimientosTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.mantenimientos,
+        getReferencedColumn: (t) => t.nuevaImpresoraId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$MantenimientosTableAnnotationComposer(
+              $db: $db,
+              $table: $db.mantenimientos,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 }
 
 class $$ImpresorasTableTableManager extends RootTableManager<
@@ -1636,7 +1751,7 @@ class $$ImpresorasTableTableManager extends RootTableManager<
     $$ImpresorasTableUpdateCompanionBuilder,
     (Impresora, $$ImpresorasTableReferences),
     Impresora,
-    PrefetchHooks Function({bool toneresRefs})> {
+    PrefetchHooks Function({bool toneresRefs, bool origen, bool reemplazo})> {
   $$ImpresorasTableTableManager(_$AppDatabase db, $ImpresorasTable table)
       : super(TableManagerState(
           db: db,
@@ -1685,10 +1800,15 @@ class $$ImpresorasTableTableManager extends RootTableManager<
                     $$ImpresorasTableReferences(db, table, e)
                   ))
               .toList(),
-          prefetchHooksCallback: ({toneresRefs = false}) {
+          prefetchHooksCallback: (
+              {toneresRefs = false, origen = false, reemplazo = false}) {
             return PrefetchHooks(
               db: db,
-              explicitlyWatchedTables: [if (toneresRefs) db.toneres],
+              explicitlyWatchedTables: [
+                if (toneresRefs) db.toneres,
+                if (origen) db.mantenimientos,
+                if (reemplazo) db.mantenimientos
+              ],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
                 return [
@@ -1704,6 +1824,31 @@ class $$ImpresorasTableTableManager extends RootTableManager<
                         referencedItemsForCurrentItem:
                             (item, referencedItems) => referencedItems
                                 .where((e) => e.impresoraId == item.id),
+                        typedResults: items),
+                  if (origen)
+                    await $_getPrefetchedData<Impresora, $ImpresorasTable,
+                            Mantenimiento>(
+                        currentTable: table,
+                        referencedTable:
+                            $$ImpresorasTableReferences._origenTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$ImpresorasTableReferences(db, table, p0).origen,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.impresoraId == item.id),
+                        typedResults: items),
+                  if (reemplazo)
+                    await $_getPrefetchedData<Impresora, $ImpresorasTable,
+                            Mantenimiento>(
+                        currentTable: table,
+                        referencedTable:
+                            $$ImpresorasTableReferences._reemplazoTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$ImpresorasTableReferences(db, table, p0)
+                                .reemplazo,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.nuevaImpresoraId == item.id),
                         typedResults: items)
                 ];
               },
@@ -1723,7 +1868,7 @@ typedef $$ImpresorasTableProcessedTableManager = ProcessedTableManager<
     $$ImpresorasTableUpdateCompanionBuilder,
     (Impresora, $$ImpresorasTableReferences),
     Impresora,
-    PrefetchHooks Function({bool toneresRefs})>;
+    PrefetchHooks Function({bool toneresRefs, bool origen, bool reemplazo})>;
 typedef $$ToneresTableCreateCompanionBuilder = ToneresCompanion Function({
   Value<int> id,
   required int impresoraId,
