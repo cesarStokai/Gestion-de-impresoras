@@ -92,6 +92,7 @@ class Documentos extends Table {
 }
 
 
+
 @DriftDatabase(
   tables:  [Impresoras, Toneres, Requisiciones, Mantenimientos, Documentos],
   daos:    [ImpresorasDao, ToneresDao, RequisicionesDao, MantenimientosDao, DocumentosDao],
@@ -100,7 +101,27 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2; 
+  int get schemaVersion => 2; //Acabas de subir de 1 a 2
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    // Se lanza la primera vez que se crea la BD
+    onCreate: (m) async {
+      await m.createAll(); 
+    },
+    // Se lanza cuando detecta schemaVersion > versión almacenada
+    onUpgrade: (m, from, to) async {
+      if (from == 1) {
+        // En la versión 1 sólo existían las cuatro tablas originales.
+        // Ahora en la 2 añadimos Documentos, así que la creamos aquí:
+        await m.createTable(documentos); 
+      }
+      // Si en el futuro tienes más versiones:
+      // if (from <= 2 && to >= 3) { /* migraciones de 2→3 */ }
+    },
+    // Opcional: limpiar la base al detectar un downgrade
+    //onDowngrade: (m, from, to) => m.deleteAll(),
+  );
 
   static LazyDatabase _openConnection() {
     return LazyDatabase(() async {
@@ -110,3 +131,4 @@ class AppDatabase extends _$AppDatabase {
     });
   }
 }
+
