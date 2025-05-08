@@ -1,4 +1,3 @@
-/// lib/src/daos/mantenimientos_dao.dart
 import 'package:drift/drift.dart';
 import '../base/database.dart';
 
@@ -10,14 +9,14 @@ class MantenimientosDao extends DatabaseAccessor<AppDatabase>
   MantenimientosDao(AppDatabase db) : super(db);
 
   Stream<List<Mantenimiento>> watchAll() =>
-      select(mantenimientos).watch();
+    select(mantenimientos).watch();
 
   Future<int> insertOne(MantenimientosCompanion entry) =>
-      into(mantenimientos).insert(entry);
+    into(mantenimientos).insert(entry);
 
   Future<bool> updateOne(Insertable<Mantenimiento> data) =>
-      update(mantenimientos).replace(data);
+    update(mantenimientos).replace(data);
 
   Future<int> deleteById(int id) =>
-      (delete(mantenimientos)..where((t) => t.id.equals(id))).go();
+    (delete(mantenimientos)..where((t) => t.id.equals(id))).go();
 }

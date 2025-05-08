@@ -20,7 +20,6 @@ class Impresoras extends Table {
   TextColumn get serie  => text().customConstraint('NOT NULL')();
   TextColumn get area   => text().customConstraint('NOT NULL')();
 
-  // Aquí unimos NOT NULL, DEFAULT y CHECK en la misma customConstraint
   TextColumn get estado => text().customConstraint(
     "NOT NULL "
     "DEFAULT 'activa' "
@@ -77,7 +76,7 @@ class Mantenimientos extends Table {
 
   @ReferenceName('reemplazo')
   IntColumn get nuevaImpresoraId  => integer()
-      .nullable()  // <-- aquí lo hacemos nullable
+      .nullable()  
       .customConstraint('REFERENCES impresoras(id)')();
 }
 
@@ -101,7 +100,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2; // aumentamos la versión
+  int get schemaVersion => 2; 
 
   static LazyDatabase _openConnection() {
     return LazyDatabase(() async {

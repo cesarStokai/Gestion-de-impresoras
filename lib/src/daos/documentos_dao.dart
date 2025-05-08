@@ -17,8 +17,8 @@ class DocumentosDao extends DatabaseAccessor<AppDatabase>
   Stream<List<Documento>> watchFor(String entidad, int entidadId) {
     return (select(documentos)
           ..where((tbl) =>
-              tbl.entidad.equals(entidad) &
-              tbl.entidadId.equals(entidadId)))
+            tbl.entidad.equals(entidad) &
+            tbl.entidadId.equals(entidadId)))
         .watch();
   }
 
@@ -36,8 +36,8 @@ class DocumentosDao extends DatabaseAccessor<AppDatabase>
   Future<int> deleteFor(String entidad, int entidadId) {
     return (delete(documentos)
           ..where((tbl) =>
-              tbl.entidad.equals(entidad) &
-              tbl.entidadId.equals(entidadId)))
+            tbl.entidad.equals(entidad) &
+            tbl.entidadId.equals(entidadId)))
         .go();
   }
 }
