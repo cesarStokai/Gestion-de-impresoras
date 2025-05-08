@@ -1,10 +1,11 @@
+
 class Mantenimiento {
-  int? id;
-  int impresoraId;
-  DateTime fecha;
-  String detalle;
-  bool reemplazoImpresora;
-  int? nuevaImpresoraId;
+  final int? id;
+  final int impresoraId;
+  final DateTime fecha;
+  final String detalle;
+  final bool reemplazoImpresora;
+  final int? nuevaImpresoraId;
 
   Mantenimiento({
     this.id,
@@ -14,5 +15,4 @@ class Mantenimiento {
     this.reemplazoImpresora = false,
     this.nuevaImpresoraId,
   });
-
 }

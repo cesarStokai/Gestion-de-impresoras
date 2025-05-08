@@ -1,17 +1,19 @@
+import 'status_enums.dart';
+
 class Requisicion {
-  int? id;
-  int tonereId;
-  DateTime fechaPedido;
-  DateTime fechaEstimEntrega;
-  String estado;
-  String? proveedor;
+  final int? id;
+  final int tonereId;
+  final DateTime fechaPedido;
+  final DateTime fechaEstimEntrega;
+  final RequisitionStatus estado;
+  final String? proveedor;
 
   Requisicion({
     this.id,
     required this.tonereId,
     required this.fechaPedido,
     required this.fechaEstimEntrega,
-    this.estado = 'pendiente',
+    required this.estado,
     this.proveedor,
   });
 }

@@ -1,4 +1,4 @@
-# control_impresoras
+# Aplicacion de escritorio de control de impresoras 
 
 A new Flutter project.
 

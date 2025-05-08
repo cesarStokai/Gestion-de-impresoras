@@ -1,6 +1,12 @@
+import 'status_enums.dart';
+
 class Impresora {
-  int? id;
-  String marca, modelo, serie, area, estado;
+  final int? id;
+  final String marca;
+  final String modelo;
+  final String serie;
+  final String area;
+  final PrinterStatus estado;
 
   Impresora({
     this.id,
@@ -8,8 +14,6 @@ class Impresora {
     required this.modelo,
     required this.serie,
     required this.area,
-    this.estado = 'activa'
+    required this.estado,
   });
 }
-
-

@@ -22,29 +22,39 @@ class $ImpresorasTable extends Impresoras
   @override
   late final GeneratedColumn<String> marca = GeneratedColumn<String>(
       'marca', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
   static const VerificationMeta _modeloMeta = const VerificationMeta('modelo');
   @override
   late final GeneratedColumn<String> modelo = GeneratedColumn<String>(
       'modelo', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
   static const VerificationMeta _serieMeta = const VerificationMeta('serie');
   @override
   late final GeneratedColumn<String> serie = GeneratedColumn<String>(
       'serie', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
   static const VerificationMeta _areaMeta = const VerificationMeta('area');
   @override
   late final GeneratedColumn<String> area = GeneratedColumn<String>(
       'area', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
   static const VerificationMeta _estadoMeta = const VerificationMeta('estado');
   @override
   late final GeneratedColumn<String> estado = GeneratedColumn<String>(
       'estado', aliasedName, false,
       type: DriftSqlType.string,
       requiredDuringInsert: false,
-      defaultValue: const Constant('activa'));
+      $customConstraints:
+          'NOT NULL DEFAULT \'activa\' CHECK(estado IN (\'activa\',\'pendiente_baja\',\'baja\',\'mantenimiento\'))',
+      defaultValue: const CustomExpression('\'activa\''));
   @override
   List<GeneratedColumn> get $columns =>
       [id, marca, modelo, serie, area, estado];
@@ -354,19 +364,23 @@ class $ToneresTable extends Toneres with TableInfo<$ToneresTable, Tonere> {
       'impresora_id', aliasedName, false,
       type: DriftSqlType.int,
       requiredDuringInsert: true,
-      $customConstraints: 'REFERENCES impresoras(id) NOT NULL');
+      $customConstraints: 'NOT NULL REFERENCES impresoras(id)');
   static const VerificationMeta _colorMeta = const VerificationMeta('color');
   @override
   late final GeneratedColumn<String> color = GeneratedColumn<String>(
       'color', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
   static const VerificationMeta _estadoMeta = const VerificationMeta('estado');
   @override
   late final GeneratedColumn<String> estado = GeneratedColumn<String>(
       'estado', aliasedName, false,
       type: DriftSqlType.string,
       requiredDuringInsert: false,
-      defaultValue: const Constant('almacenado'));
+      $customConstraints:
+          'NOT NULL DEFAULT \'almacenado\' CHECK(estado IN (\'almacenado\',\'instalado\',\'en_pedido\'))',
+      defaultValue: const CustomExpression('\'almacenado\''));
   static const VerificationMeta _fechaInstalacionMeta =
       const VerificationMeta('fechaInstalacion');
   @override
@@ -761,26 +775,32 @@ class $RequisicionesTable extends Requisiciones
       'tonere_id', aliasedName, false,
       type: DriftSqlType.int,
       requiredDuringInsert: true,
-      $customConstraints: 'REFERENCES toneres(id) NOT NULL');
+      $customConstraints: 'NOT NULL REFERENCES toneres(id)');
   static const VerificationMeta _fechaPedidoMeta =
       const VerificationMeta('fechaPedido');
   @override
   late final GeneratedColumn<DateTime> fechaPedido = GeneratedColumn<DateTime>(
       'fecha_pedido', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
   static const VerificationMeta _fechaEstimEntregaMeta =
       const VerificationMeta('fechaEstimEntrega');
   @override
   late final GeneratedColumn<DateTime> fechaEstimEntrega =
       GeneratedColumn<DateTime>('fecha_estim_entrega', aliasedName, false,
-          type: DriftSqlType.dateTime, requiredDuringInsert: true);
+          type: DriftSqlType.dateTime,
+          requiredDuringInsert: true,
+          $customConstraints: 'NOT NULL');
   static const VerificationMeta _estadoMeta = const VerificationMeta('estado');
   @override
   late final GeneratedColumn<String> estado = GeneratedColumn<String>(
       'estado', aliasedName, false,
       type: DriftSqlType.string,
       requiredDuringInsert: false,
-      defaultValue: const Constant('pendiente'));
+      $customConstraints:
+          'NOT NULL DEFAULT \'pendiente\' CHECK(estado IN (\'pendiente\',\'completada\'))',
+      defaultValue: const CustomExpression('\'pendiente\''));
   static const VerificationMeta _proveedorMeta =
       const VerificationMeta('proveedor');
   @override
@@ -1108,18 +1128,22 @@ class $MantenimientosTable extends Mantenimientos
       'impresora_id', aliasedName, false,
       type: DriftSqlType.int,
       requiredDuringInsert: true,
-      $customConstraints: 'REFERENCES impresoras(id) NOT NULL');
+      $customConstraints: 'NOT NULL REFERENCES impresoras(id)');
   static const VerificationMeta _fechaMeta = const VerificationMeta('fecha');
   @override
   late final GeneratedColumn<DateTime> fecha = GeneratedColumn<DateTime>(
       'fecha', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
   static const VerificationMeta _detalleMeta =
       const VerificationMeta('detalle');
   @override
   late final GeneratedColumn<String> detalle = GeneratedColumn<String>(
       'detalle', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
   static const VerificationMeta _reemplazoImpresoraMeta =
       const VerificationMeta('reemplazoImpresora');
   @override
@@ -1127,9 +1151,8 @@ class $MantenimientosTable extends Mantenimientos
       'reemplazo_impresora', aliasedName, false,
       type: DriftSqlType.bool,
       requiredDuringInsert: false,
-      defaultConstraints: GeneratedColumn.constraintIsAlways(
-          'CHECK ("reemplazo_impresora" IN (0, 1))'),
-      defaultValue: const Constant(false));
+      $customConstraints: 'NOT NULL DEFAULT 0',
+      defaultValue: const CustomExpression('0'));
   static const VerificationMeta _nuevaImpresoraIdMeta =
       const VerificationMeta('nuevaImpresoraId');
   @override
@@ -1441,6 +1464,350 @@ class MantenimientosCompanion extends UpdateCompanion<Mantenimiento> {
   }
 }
 
+class $DocumentosTable extends Documentos
+    with TableInfo<$DocumentosTable, Documento> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DocumentosTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _entidadMeta =
+      const VerificationMeta('entidad');
+  @override
+  late final GeneratedColumn<String> entidad = GeneratedColumn<String>(
+      'entidad', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
+  static const VerificationMeta _entidadIdMeta =
+      const VerificationMeta('entidadId');
+  @override
+  late final GeneratedColumn<int> entidadId = GeneratedColumn<int>(
+      'entidad_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
+  static const VerificationMeta _nombreMeta = const VerificationMeta('nombre');
+  @override
+  late final GeneratedColumn<String> nombre = GeneratedColumn<String>(
+      'nombre', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
+  static const VerificationMeta _contenidoMeta =
+      const VerificationMeta('contenido');
+  @override
+  late final GeneratedColumn<Uint8List> contenido = GeneratedColumn<Uint8List>(
+      'contenido', aliasedName, false,
+      type: DriftSqlType.blob,
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
+  static const VerificationMeta _creadoEnMeta =
+      const VerificationMeta('creadoEn');
+  @override
+  late final GeneratedColumn<DateTime> creadoEn = GeneratedColumn<DateTime>(
+      'creado_en', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      $customConstraints: 'NOT NULL DEFAULT CURRENT_TIMESTAMP',
+      defaultValue: const CustomExpression('CURRENT_TIMESTAMP'));
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, entidad, entidadId, nombre, contenido, creadoEn];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'documentos';
+  @override
+  VerificationContext validateIntegrity(Insertable<Documento> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('entidad')) {
+      context.handle(_entidadMeta,
+          entidad.isAcceptableOrUnknown(data['entidad']!, _entidadMeta));
+    } else if (isInserting) {
+      context.missing(_entidadMeta);
+    }
+    if (data.containsKey('entidad_id')) {
+      context.handle(_entidadIdMeta,
+          entidadId.isAcceptableOrUnknown(data['entidad_id']!, _entidadIdMeta));
+    } else if (isInserting) {
+      context.missing(_entidadIdMeta);
+    }
+    if (data.containsKey('nombre')) {
+      context.handle(_nombreMeta,
+          nombre.isAcceptableOrUnknown(data['nombre']!, _nombreMeta));
+    } else if (isInserting) {
+      context.missing(_nombreMeta);
+    }
+    if (data.containsKey('contenido')) {
+      context.handle(_contenidoMeta,
+          contenido.isAcceptableOrUnknown(data['contenido']!, _contenidoMeta));
+    } else if (isInserting) {
+      context.missing(_contenidoMeta);
+    }
+    if (data.containsKey('creado_en')) {
+      context.handle(_creadoEnMeta,
+          creadoEn.isAcceptableOrUnknown(data['creado_en']!, _creadoEnMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Documento map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Documento(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      entidad: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}entidad'])!,
+      entidadId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}entidad_id'])!,
+      nombre: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}nombre'])!,
+      contenido: attachedDatabase.typeMapping
+          .read(DriftSqlType.blob, data['${effectivePrefix}contenido'])!,
+      creadoEn: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}creado_en'])!,
+    );
+  }
+
+  @override
+  $DocumentosTable createAlias(String alias) {
+    return $DocumentosTable(attachedDatabase, alias);
+  }
+}
+
+class Documento extends DataClass implements Insertable<Documento> {
+  final int id;
+  final String entidad;
+  final int entidadId;
+  final String nombre;
+  final Uint8List contenido;
+  final DateTime creadoEn;
+  const Documento(
+      {required this.id,
+      required this.entidad,
+      required this.entidadId,
+      required this.nombre,
+      required this.contenido,
+      required this.creadoEn});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['entidad'] = Variable<String>(entidad);
+    map['entidad_id'] = Variable<int>(entidadId);
+    map['nombre'] = Variable<String>(nombre);
+    map['contenido'] = Variable<Uint8List>(contenido);
+    map['creado_en'] = Variable<DateTime>(creadoEn);
+    return map;
+  }
+
+  DocumentosCompanion toCompanion(bool nullToAbsent) {
+    return DocumentosCompanion(
+      id: Value(id),
+      entidad: Value(entidad),
+      entidadId: Value(entidadId),
+      nombre: Value(nombre),
+      contenido: Value(contenido),
+      creadoEn: Value(creadoEn),
+    );
+  }
+
+  factory Documento.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Documento(
+      id: serializer.fromJson<int>(json['id']),
+      entidad: serializer.fromJson<String>(json['entidad']),
+      entidadId: serializer.fromJson<int>(json['entidadId']),
+      nombre: serializer.fromJson<String>(json['nombre']),
+      contenido: serializer.fromJson<Uint8List>(json['contenido']),
+      creadoEn: serializer.fromJson<DateTime>(json['creadoEn']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'entidad': serializer.toJson<String>(entidad),
+      'entidadId': serializer.toJson<int>(entidadId),
+      'nombre': serializer.toJson<String>(nombre),
+      'contenido': serializer.toJson<Uint8List>(contenido),
+      'creadoEn': serializer.toJson<DateTime>(creadoEn),
+    };
+  }
+
+  Documento copyWith(
+          {int? id,
+          String? entidad,
+          int? entidadId,
+          String? nombre,
+          Uint8List? contenido,
+          DateTime? creadoEn}) =>
+      Documento(
+        id: id ?? this.id,
+        entidad: entidad ?? this.entidad,
+        entidadId: entidadId ?? this.entidadId,
+        nombre: nombre ?? this.nombre,
+        contenido: contenido ?? this.contenido,
+        creadoEn: creadoEn ?? this.creadoEn,
+      );
+  Documento copyWithCompanion(DocumentosCompanion data) {
+    return Documento(
+      id: data.id.present ? data.id.value : this.id,
+      entidad: data.entidad.present ? data.entidad.value : this.entidad,
+      entidadId: data.entidadId.present ? data.entidadId.value : this.entidadId,
+      nombre: data.nombre.present ? data.nombre.value : this.nombre,
+      contenido: data.contenido.present ? data.contenido.value : this.contenido,
+      creadoEn: data.creadoEn.present ? data.creadoEn.value : this.creadoEn,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Documento(')
+          ..write('id: $id, ')
+          ..write('entidad: $entidad, ')
+          ..write('entidadId: $entidadId, ')
+          ..write('nombre: $nombre, ')
+          ..write('contenido: $contenido, ')
+          ..write('creadoEn: $creadoEn')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, entidad, entidadId, nombre,
+      $driftBlobEquality.hash(contenido), creadoEn);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Documento &&
+          other.id == this.id &&
+          other.entidad == this.entidad &&
+          other.entidadId == this.entidadId &&
+          other.nombre == this.nombre &&
+          $driftBlobEquality.equals(other.contenido, this.contenido) &&
+          other.creadoEn == this.creadoEn);
+}
+
+class DocumentosCompanion extends UpdateCompanion<Documento> {
+  final Value<int> id;
+  final Value<String> entidad;
+  final Value<int> entidadId;
+  final Value<String> nombre;
+  final Value<Uint8List> contenido;
+  final Value<DateTime> creadoEn;
+  const DocumentosCompanion({
+    this.id = const Value.absent(),
+    this.entidad = const Value.absent(),
+    this.entidadId = const Value.absent(),
+    this.nombre = const Value.absent(),
+    this.contenido = const Value.absent(),
+    this.creadoEn = const Value.absent(),
+  });
+  DocumentosCompanion.insert({
+    this.id = const Value.absent(),
+    required String entidad,
+    required int entidadId,
+    required String nombre,
+    required Uint8List contenido,
+    this.creadoEn = const Value.absent(),
+  })  : entidad = Value(entidad),
+        entidadId = Value(entidadId),
+        nombre = Value(nombre),
+        contenido = Value(contenido);
+  static Insertable<Documento> custom({
+    Expression<int>? id,
+    Expression<String>? entidad,
+    Expression<int>? entidadId,
+    Expression<String>? nombre,
+    Expression<Uint8List>? contenido,
+    Expression<DateTime>? creadoEn,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (entidad != null) 'entidad': entidad,
+      if (entidadId != null) 'entidad_id': entidadId,
+      if (nombre != null) 'nombre': nombre,
+      if (contenido != null) 'contenido': contenido,
+      if (creadoEn != null) 'creado_en': creadoEn,
+    });
+  }
+
+  DocumentosCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? entidad,
+      Value<int>? entidadId,
+      Value<String>? nombre,
+      Value<Uint8List>? contenido,
+      Value<DateTime>? creadoEn}) {
+    return DocumentosCompanion(
+      id: id ?? this.id,
+      entidad: entidad ?? this.entidad,
+      entidadId: entidadId ?? this.entidadId,
+      nombre: nombre ?? this.nombre,
+      contenido: contenido ?? this.contenido,
+      creadoEn: creadoEn ?? this.creadoEn,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (entidad.present) {
+      map['entidad'] = Variable<String>(entidad.value);
+    }
+    if (entidadId.present) {
+      map['entidad_id'] = Variable<int>(entidadId.value);
+    }
+    if (nombre.present) {
+      map['nombre'] = Variable<String>(nombre.value);
+    }
+    if (contenido.present) {
+      map['contenido'] = Variable<Uint8List>(contenido.value);
+    }
+    if (creadoEn.present) {
+      map['creado_en'] = Variable<DateTime>(creadoEn.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DocumentosCompanion(')
+          ..write('id: $id, ')
+          ..write('entidad: $entidad, ')
+          ..write('entidadId: $entidadId, ')
+          ..write('nombre: $nombre, ')
+          ..write('contenido: $contenido, ')
+          ..write('creadoEn: $creadoEn')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -1448,18 +1815,20 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $ToneresTable toneres = $ToneresTable(this);
   late final $RequisicionesTable requisiciones = $RequisicionesTable(this);
   late final $MantenimientosTable mantenimientos = $MantenimientosTable(this);
+  late final $DocumentosTable documentos = $DocumentosTable(this);
   late final ImpresorasDao impresorasDao = ImpresorasDao(this as AppDatabase);
   late final ToneresDao toneresDao = ToneresDao(this as AppDatabase);
   late final RequisicionesDao requisicionesDao =
       RequisicionesDao(this as AppDatabase);
   late final MantenimientosDao mantenimientosDao =
       MantenimientosDao(this as AppDatabase);
+  late final DocumentosDao documentosDao = DocumentosDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [impresoras, toneres, requisiciones, mantenimientos];
+      [impresoras, toneres, requisiciones, mantenimientos, documentos];
 }
 
 typedef $$ImpresorasTableCreateCompanionBuilder = ImpresorasCompanion Function({
@@ -2898,6 +3267,180 @@ typedef $$MantenimientosTableProcessedTableManager = ProcessedTableManager<
     (Mantenimiento, $$MantenimientosTableReferences),
     Mantenimiento,
     PrefetchHooks Function({bool impresoraId, bool nuevaImpresoraId})>;
+typedef $$DocumentosTableCreateCompanionBuilder = DocumentosCompanion Function({
+  Value<int> id,
+  required String entidad,
+  required int entidadId,
+  required String nombre,
+  required Uint8List contenido,
+  Value<DateTime> creadoEn,
+});
+typedef $$DocumentosTableUpdateCompanionBuilder = DocumentosCompanion Function({
+  Value<int> id,
+  Value<String> entidad,
+  Value<int> entidadId,
+  Value<String> nombre,
+  Value<Uint8List> contenido,
+  Value<DateTime> creadoEn,
+});
+
+class $$DocumentosTableFilterComposer
+    extends Composer<_$AppDatabase, $DocumentosTable> {
+  $$DocumentosTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get entidad => $composableBuilder(
+      column: $table.entidad, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get entidadId => $composableBuilder(
+      column: $table.entidadId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get nombre => $composableBuilder(
+      column: $table.nombre, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<Uint8List> get contenido => $composableBuilder(
+      column: $table.contenido, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get creadoEn => $composableBuilder(
+      column: $table.creadoEn, builder: (column) => ColumnFilters(column));
+}
+
+class $$DocumentosTableOrderingComposer
+    extends Composer<_$AppDatabase, $DocumentosTable> {
+  $$DocumentosTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get entidad => $composableBuilder(
+      column: $table.entidad, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get entidadId => $composableBuilder(
+      column: $table.entidadId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get nombre => $composableBuilder(
+      column: $table.nombre, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<Uint8List> get contenido => $composableBuilder(
+      column: $table.contenido, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get creadoEn => $composableBuilder(
+      column: $table.creadoEn, builder: (column) => ColumnOrderings(column));
+}
+
+class $$DocumentosTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DocumentosTable> {
+  $$DocumentosTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get entidad =>
+      $composableBuilder(column: $table.entidad, builder: (column) => column);
+
+  GeneratedColumn<int> get entidadId =>
+      $composableBuilder(column: $table.entidadId, builder: (column) => column);
+
+  GeneratedColumn<String> get nombre =>
+      $composableBuilder(column: $table.nombre, builder: (column) => column);
+
+  GeneratedColumn<Uint8List> get contenido =>
+      $composableBuilder(column: $table.contenido, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get creadoEn =>
+      $composableBuilder(column: $table.creadoEn, builder: (column) => column);
+}
+
+class $$DocumentosTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $DocumentosTable,
+    Documento,
+    $$DocumentosTableFilterComposer,
+    $$DocumentosTableOrderingComposer,
+    $$DocumentosTableAnnotationComposer,
+    $$DocumentosTableCreateCompanionBuilder,
+    $$DocumentosTableUpdateCompanionBuilder,
+    (Documento, BaseReferences<_$AppDatabase, $DocumentosTable, Documento>),
+    Documento,
+    PrefetchHooks Function()> {
+  $$DocumentosTableTableManager(_$AppDatabase db, $DocumentosTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DocumentosTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DocumentosTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DocumentosTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> entidad = const Value.absent(),
+            Value<int> entidadId = const Value.absent(),
+            Value<String> nombre = const Value.absent(),
+            Value<Uint8List> contenido = const Value.absent(),
+            Value<DateTime> creadoEn = const Value.absent(),
+          }) =>
+              DocumentosCompanion(
+            id: id,
+            entidad: entidad,
+            entidadId: entidadId,
+            nombre: nombre,
+            contenido: contenido,
+            creadoEn: creadoEn,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String entidad,
+            required int entidadId,
+            required String nombre,
+            required Uint8List contenido,
+            Value<DateTime> creadoEn = const Value.absent(),
+          }) =>
+              DocumentosCompanion.insert(
+            id: id,
+            entidad: entidad,
+            entidadId: entidadId,
+            nombre: nombre,
+            contenido: contenido,
+            creadoEn: creadoEn,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$DocumentosTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $DocumentosTable,
+    Documento,
+    $$DocumentosTableFilterComposer,
+    $$DocumentosTableOrderingComposer,
+    $$DocumentosTableAnnotationComposer,
+    $$DocumentosTableCreateCompanionBuilder,
+    $$DocumentosTableUpdateCompanionBuilder,
+    (Documento, BaseReferences<_$AppDatabase, $DocumentosTable, Documento>),
+    Documento,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -2910,4 +3453,6 @@ class $AppDatabaseManager {
       $$RequisicionesTableTableManager(_db, _db.requisiciones);
   $$MantenimientosTableTableManager get mantenimientos =>
       $$MantenimientosTableTableManager(_db, _db.mantenimientos);
+  $$DocumentosTableTableManager get documentos =>
+      $$DocumentosTableTableManager(_db, _db.documentos);
 }
