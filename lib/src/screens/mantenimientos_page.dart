@@ -17,35 +17,33 @@ class _MantenimientosPageState extends ConsumerState<MantenimientosPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Mantenimientos')),
       body: mantAsync.when(
-        data: (list) => ListView.separated(
-          itemCount: list.length,
-          separatorBuilder: (_, __) => const Divider(),
-          itemBuilder: (_, i) {
-            final m = list[i];
+        data: (list)=>ListView.separated(
+          itemCount:list.length,
+          separatorBuilder:(_,__)=>const Divider(),
+          itemBuilder:(_,i){
+            final m=list[i];
             return ListTile(
               title: Text('Impresora: ${m.impresoraId}'),
-              subtitle:
-                  Text('${m.fecha.toLocal().toShortIsoDate()}\n${m.detalle}'),
+              subtitle: Text('${m.fecha.toLocal().toShortIsoDate()}\n${m.detalle}'),
               trailing: IconButton(
                 icon: const Icon(Icons.delete, color: Colors.red),
-                onPressed: () =>
-                    ref.read(mantenimientosDaoProvider).deleteById(m.id!),
+                onPressed: ()=> ref.read(mantenimientosDaoProvider).deleteById(m.id!),
               ),
             );
           },
         ),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        loading:()=>const Center(child:CircularProgressIndicator()),
+        error:(e,_ )=>Center(child:Text('Error: $e')),
       ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.build),
-        onPressed: () => _showForm(),
+        onPressed: ()=> _showForm(),
       ),
     );
   }
 
   void _showForm([Mantenimiento? m]) {
-    final isNew = m == null;
+    final isNew = m==null;
     int? origen = m?.impresoraId;
     DateTime fecha = m?.fecha ?? DateTime.now();
     final detalleC = TextEditingController(text: m?.detalle);
@@ -55,83 +53,72 @@ class _MantenimientosPageState extends ConsumerState<MantenimientosPage> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text(isNew ? 'Nuevo mantenimiento' : 'Editar mantenimiento'),
-        content: StatefulBuilder(builder: (ctx, set) {
+        title: Text(isNew?'Nuevo mantenimiento':'Editar mantenimiento'),
+        content: StatefulBuilder(builder:(ctx,set){
           final printers = ref.watch(impresorasListStreamProvider).value ?? [];
-          return SingleChildScrollView(
-              child: Column(mainAxisSize: MainAxisSize.min, children: [
+          return SingleChildScrollView(child: Column(mainAxisSize:MainAxisSize.min,children:[
             DropdownButtonFormField<int>(
               value: origen,
               decoration: const InputDecoration(labelText: 'Impresora *'),
-              items: printers
-                  .map((p) => DropdownMenuItem(
-                      value: p.id!, child: Text('${p.marca} ${p.modelo}')))
-                  .toList(),
-              onChanged: (v) => set(() => origen = v),
+              items: printers.map((p)=>DropdownMenuItem(
+                value:p.id!, child:Text('${p.marca} ${p.modelo}')
+              )).toList(),
+              onChanged:(v)=> set(()=> origen=v),
             ),
             TextField(
               decoration: const InputDecoration(labelText: 'Fecha'),
-              controller: TextEditingController(
-                  text: fecha.toIso8601String().split('T').first),
-              readOnly: true,
-              onTap: () async {
+              controller: TextEditingController(text: fecha.toIso8601String().split('T').first),
+              readOnly:true,
+              onTap:() async {
                 final d = await showDatePicker(
                   context: context,
                   initialDate: fecha,
                   firstDate: DateTime(2000),
                   lastDate: DateTime(2100),
                 );
-                if (d != null) set(() => fecha = d);
+                if(d!=null) set(()=> fecha=d);
               },
             ),
-            TextField(
-                controller: detalleC,
-                decoration: const InputDecoration(labelText: 'Detalle *')),
-            Row(children: [
+            TextField(controller: detalleC, decoration: const InputDecoration(labelText: 'Detalle *')),
+            Row(children:[
               const Text('Reemplazo impresora'),
-              Checkbox(
-                  value: reemplazo,
-                  onChanged: (b) => set(() => reemplazo = b!)),
+              Checkbox(value: reemplazo, onChanged:(b)=> set(()=> reemplazo=b!)),
             ]),
-            if (reemplazo)
+            if(reemplazo)
               DropdownButtonFormField<int>(
                 value: reemplazoId,
                 decoration: const InputDecoration(labelText: 'Nueva impresora'),
-                items: printers
-                    .map((p) => DropdownMenuItem(
-                        value: p.id!, child: Text('${p.marca} ${p.modelo}')))
-                    .toList(),
-                onChanged: (v) => set(() => reemplazoId = v),
+                items: printers.map((p)=>DropdownMenuItem(
+                  value:p.id!, child:Text('${p.marca} ${p.modelo}')
+                )).toList(),
+                onChanged:(v)=> set(()=> reemplazoId=v),
               ),
           ]));
         }),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar')),
+        actions:[
+          TextButton(onPressed:()=>Navigator.pop(context), child:const Text('Cancelar')),
           ElevatedButton(
-            onPressed: origen != null && detalleC.text.isNotEmpty
-                ? () {
-                    final dao = ref.read(mantenimientosDaoProvider);
-                    final companion = MantenimientosCompanion(
-                      id: isNew ? const Value.absent() : Value(m!.id!),
-                      impresoraId: Value(origen!),
-                      fecha: Value(fecha),
-                      detalle: Value(detalleC.text),
-                      reemplazoImpresora: Value(reemplazo),
-                      nuevaImpresoraId: reemplazo
-                          ? Value(reemplazoId!)
-                          : const Value.absent(),
-                    );
-                    if (isNew) {
-                      dao.insertOne(companion);
-                    } else {
-                      dao.updateOne(companion);
-                    }
-                    Navigator.pop(context);
-                  }
-                : null,
-            child: Text(isNew ? 'Crear' : 'Guardar'),
+            
+ onPressed: origen!=null && detalleC.text.isNotEmpty ? (){
+   final dao = ref.read(mantenimientosDaoProvider);
+   final companion = MantenimientosCompanion(
+     id: isNew ? const Value.absent() : Value(m!.id!),
+     impresoraId: Value(origen!),
+     fecha: Value(fecha),
+     detalle: Value(detalleC.text),
+     reemplazoImpresora: Value(reemplazo),
+     nuevaImpresoraId: reemplazo
+       ? Value(reemplazoId!)
+       : const Value.absent(),
+   );
+   if (isNew) {
+     dao.insertOne(companion);
+   } else {
+     dao.updateOne(companion);
+   }
+   Navigator.pop(context);
+ } : null,
+            child: Text(isNew?'Crear':'Guardar'),
           ),
         ],
       ),
@@ -142,3 +129,11 @@ class _MantenimientosPageState extends ConsumerState<MantenimientosPage> {
 extension _DateShort on DateTime {
   String toShortIsoDate() => toIso8601String().split('T').first;
 }
+
+
+
+
+
+
+
+
