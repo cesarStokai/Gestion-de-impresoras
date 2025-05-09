@@ -8,7 +8,12 @@ Future<void> main() async {
 
   runApp(
     ProviderScope(
-      child: const MyApp(),
+        
+      child: const MyApp(
+        
+      ),
     ),
   );
+
+  
 }

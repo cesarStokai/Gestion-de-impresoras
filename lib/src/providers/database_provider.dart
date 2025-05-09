@@ -1,11 +1,10 @@
-// lib/src/providers/database_provider.dart
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../base/database.dart';
 import '../daos/impresoras_dao.dart';
 import '../daos/toneres_dao.dart';
 import '../daos/requisiciones_dao.dart';
 import '../daos/mantenimientos_dao.dart';
+import '../daos/documentos_dao.dart';
 
 /// Base de datos
 final databaseProvider = Provider<AppDatabase>((ref) {
@@ -27,15 +26,16 @@ final requisicionesDaoProvider = Provider<RequisicionesDao>(
 final mantenimientosDaoProvider = Provider<MantenimientosDao>(
   (ref) => MantenimientosDao(ref.watch(databaseProvider)),
 );
+final documentosDaoProvider = Provider<DocumentosDao>(
+  (ref) => DocumentosDao(ref.watch(databaseProvider)),
+);
 
-/// Streams
 final impresorasListStreamProvider =
     StreamProvider.autoDispose<List<Impresora>>(
   (ref) => ref.watch(impresorasDaoProvider).watchAll(),
 );
 
-final toneresListStreamProvider =
-    StreamProvider.autoDispose<List<Tonere>>(
+final toneresListStreamProvider = StreamProvider.autoDispose<List<Tonere>>(
   (ref) => ref.watch(toneresDaoProvider).watchAll(),
 );
 
@@ -44,8 +44,16 @@ final requisicionesListStreamProvider =
   (ref) => ref.watch(requisicionesDaoProvider).watchAll(),
 );
 
-
 final mantenimientosListStreamProvider =
     StreamProvider.autoDispose<List<Mantenimiento>>(
   (ref) => ref.watch(mantenimientosDaoProvider).watchAll(),
 );
+
+
+
+
+
+final documentosProvider = StreamProvider<List<Documento>>((ref) {
+  final dao = ref.watch(documentosDaoProvider);
+  return dao.watchAll();
+});

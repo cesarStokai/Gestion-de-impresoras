@@ -30,7 +30,7 @@ class _ToneresPageState extends ConsumerState<ToneresPage> {
               subtitle: Text('Impresora ID: ${t.impresoraId} '),
               trailing: IconButton(
                 icon: const Icon(Icons.delete, color: Colors.red),
-                onPressed: () => ref.read(toneresDaoProvider).deleteById(t.id!),
+                onPressed: () => ref.read(toneresDaoProvider).deleteById(t.id),
               ),
               onTap: () => _showForm(t),
             );
@@ -151,7 +151,7 @@ class _ToneresPageState extends ConsumerState<ToneresPage> {
 
                         final dao = ref.read(toneresDaoProvider);
                         final companion = ToneresCompanion(
-                          id: isNew ? const drift.Value.absent() : drift.Value(t!.id!),
+                          id: isNew ? const drift.Value.absent() : drift.Value(t.id),
                           impresoraId: drift.Value(impresoraId!),
                           color: drift.Value(colorC.text),
                           estado: drift.Value(estado),

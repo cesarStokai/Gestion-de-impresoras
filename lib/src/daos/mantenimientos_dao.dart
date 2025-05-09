@@ -6,7 +6,7 @@ part 'mantenimientos_dao.g.dart';
 @DriftAccessor(tables: [Mantenimientos])
 class MantenimientosDao extends DatabaseAccessor<AppDatabase>
     with _$MantenimientosDaoMixin {
-  MantenimientosDao(AppDatabase db) : super(db);
+  MantenimientosDao(super.db);
 
   // Métodos existentes
   Stream<List<Mantenimiento>> watchAll() => select(mantenimientos).watch();

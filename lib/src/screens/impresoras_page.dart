@@ -158,7 +158,7 @@ class _ImpresorasPageState extends ConsumerState<ImpresorasPage> {
                 onPressed: ok ? () {
                   final dao = ref.read(impresorasDaoProvider);
                   final companion = ImpresorasCompanion(
-                    id: isNew ? const drift.Value.absent() : drift.Value(imp!.id!),
+                    id: isNew ? const drift.Value.absent() : drift.Value(imp.id),
                     marca: drift.Value(marcaC.text),
                     modelo: drift.Value(modeloC.text),
                     serie: drift.Value(serieC.text),

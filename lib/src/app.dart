@@ -7,9 +7,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false, 
+
       title: 'Control Impresoras',
       theme: ThemeData(primarySwatch: Colors.blue),
       home: const HomePage(),
     );
   }
+
+  
 }
+

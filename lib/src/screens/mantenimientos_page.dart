@@ -203,7 +203,7 @@ class _MantenimientosPageState extends ConsumerState<MantenimientosPage> {
                   ? () {
                       final dao = ref.read(mantenimientosDaoProvider);
                       final companion = MantenimientosCompanion(
-                        id: isNew ? const Value.absent() : Value(m!.id),
+                        id: isNew ? const Value.absent() : Value(m.id),
                         impresoraId: Value(origen!),
                         fecha: Value(fecha),
                         detalle: Value(detalleC.text),

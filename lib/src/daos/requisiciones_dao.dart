@@ -6,7 +6,7 @@ part 'requisiciones_dao.g.dart';
 @DriftAccessor(tables: [Requisiciones])
 class RequisicionesDao extends DatabaseAccessor<AppDatabase>
     with _$RequisicionesDaoMixin {
-  RequisicionesDao(AppDatabase db) : super(db);
+  RequisicionesDao(super.db);
 
   Stream<List<Requisicione>> watchAll() =>
     select(requisiciones).watch();

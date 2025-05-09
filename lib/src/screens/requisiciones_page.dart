@@ -5,7 +5,7 @@ import '../base/database.dart';
 import '../providers/database_provider.dart';
 
 class RequisicionesPage extends ConsumerStatefulWidget {
-  const RequisicionesPage({Key? key}) : super(key: key);
+  const RequisicionesPage({super.key});
   @override
   ConsumerState<RequisicionesPage> createState() => _RequisicionesPageState();
 }
@@ -31,7 +31,7 @@ class _RequisicionesPageState extends ConsumerState<RequisicionesPage> {
               trailing: IconButton(
                 icon: const Icon(Icons.delete, color: Colors.red),
                 onPressed: () =>
-                    ref.read(requisicionesDaoProvider).deleteById(r.id!),
+                    ref.read(requisicionesDaoProvider).deleteById(r.id),
               ),
             );
           },
@@ -68,7 +68,7 @@ class _RequisicionesPageState extends ConsumerState<RequisicionesPage> {
               decoration: const InputDecoration(labelText: 'Tóner *'),
               items: toners
                   .map((t) => DropdownMenuItem(
-                      value: t.id!,
+                      value: t.id,
                       child: Text('${t.color} (${t.impresoraId})')))
                   .toList(),
               onChanged: (v) => set(() => tonerId = v),
@@ -122,7 +122,7 @@ class _RequisicionesPageState extends ConsumerState<RequisicionesPage> {
                 ? () {
                     final dao = ref.read(requisicionesDaoProvider);
                     final companion = RequisicionesCompanion(
-                      id: isNew ? const Value.absent() : Value(r!.id!),
+                      id: isNew ? const Value.absent() : Value(r.id),
                       tonereId: Value(tonerId!),
                       fechaPedido: Value(DateTime.parse(fechaP.text)),
                       fechaEstimEntrega: Value(DateTime.parse(fechaE.text)),

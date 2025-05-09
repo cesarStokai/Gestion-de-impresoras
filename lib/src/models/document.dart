@@ -16,4 +16,7 @@ class Documento {
     required this.contenido,
     required this.creadoEn,
   });
+
+
+  
 }

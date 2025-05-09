@@ -6,7 +6,7 @@ part 'impresoras_dao.g.dart';
 @DriftAccessor(tables: [Impresoras])
 class ImpresorasDao extends DatabaseAccessor<AppDatabase>
     with _$ImpresorasDaoMixin {
-  ImpresorasDao(AppDatabase db) : super(db);
+  ImpresorasDao(super.db);
 
   Stream<List<Impresora>> watchAll() =>
     select(impresoras).watch();
