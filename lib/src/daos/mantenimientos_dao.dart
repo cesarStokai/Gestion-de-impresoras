@@ -30,4 +30,10 @@ class MantenimientosDao extends DatabaseAccessor<AppDatabase>
   // Métodos para relación con impresoras (si los necesitas)
   Future<List<Mantenimiento>> getMantenimientosByImpresoraId(int impresoraId) =>
       (select(mantenimientos)..where((t) => t.impresoraId.equals(impresoraId))).get();
+
+        Future<Mantenimiento?> getById(int id) => 
+      (select(mantenimientos)..where((t) => t.id.equals(id))).getSingleOrNull();
+
+      Future<List<Mantenimiento>> getAll() => select(mantenimientos).get();
+
 }

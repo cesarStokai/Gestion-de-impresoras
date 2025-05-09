@@ -30,4 +30,10 @@ class ImpresorasDao extends DatabaseAccessor<AppDatabase>
   Future<List<Impresora>> getImpresorasActivas() =>
       (select(impresoras)..where((t) => t.estado.equals('activa'))).get();
 
+      Future<Impresora?> getById(int id) => 
+      (select(impresoras)..where((t) => t.id.equals(id))).getSingleOrNull();
+
+
+Future<List<Impresora>> getAll() => select(impresoras).get();
+
 }

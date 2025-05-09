@@ -1,11 +1,13 @@
+
 import 'dart:io';
+import 'dart:typed_data'; // Para Uint8List
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:drift/drift.dart' as drift;
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
-import '../base/database.dart'; // Solo esta importación de database.dart
+import '../base/database.dart';
 import '../providers/database_provider.dart';
 
 class HistorialPage extends ConsumerStatefulWidget {
@@ -73,7 +75,15 @@ class HistorialPageState extends ConsumerState<HistorialPage> {
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         title: Text(doc.nombre),
-        subtitle: Text('${doc.entidad} #${doc.entidadId} - ${doc.creadoEn}'),
+        subtitle: FutureBuilder<String>(
+          future: _getEntidadNombre(doc.entidad, doc.entidadId),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return Text('${doc.entidad}: ${snapshot.data}');
+            }
+            return Text('${doc.entidad} #${doc.entidadId} - ${doc.creadoEn}');
+          },
+        ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -89,6 +99,33 @@ class HistorialPageState extends ConsumerState<HistorialPage> {
         ),
       ),
     );
+  }
+
+  Future<String> _getEntidadNombre(String entidad, int entidadId) async {
+    switch (entidad) {
+      case 'Impresora':
+        final impresora = await ref.read(impresorasDaoProvider).getById(entidadId);
+        return impresora != null 
+            ? '${impresora.marca} ${impresora.modelo}'
+            : 'ID $entidadId';
+      case 'Tóner':
+        final toner = await ref.read(toneresDaoProvider).getById(entidadId);
+        return toner != null
+            ? '${toner.color ?? 'Sin modelo'} (${toner.color ?? 'Sin color'})'
+            : 'ID $entidadId';
+      case 'Requisición':
+        final req = await ref.read(requisicionesDaoProvider).getById(entidadId);
+        return req != null
+            ? 'Req. #${req.id}'
+            : 'ID $entidadId';
+      case 'Mantenimiento':
+        final mant = await ref.read(mantenimientosDaoProvider).getById(entidadId);
+        return mant != null
+            ? 'Mant. #${mant.id}'
+            : 'ID $entidadId';
+      default:
+        return 'ID $entidadId';
+    }
   }
 
   Future<void> _deleteDocumento(int id) async {
@@ -128,8 +165,7 @@ class HistorialPageState extends ConsumerState<HistorialPage> {
       final file = result.files.first;
       debugPrint('Archivo seleccionado: ${file.name} (${file.size} bytes)');
 
-      // Manejo alternativo para escritorio si file.bytes es null
-      drift.Uint8List? fileBytes = file.bytes;
+      Uint8List? fileBytes = file.bytes;
       if (fileBytes == null || fileBytes.isEmpty) {
         debugPrint('Obteniendo contenido alternativo para escritorio...');
         final filePath = file.path;
@@ -149,18 +185,15 @@ class HistorialPageState extends ConsumerState<HistorialPage> {
         return;
       }
 
-      final entidad = await _showEntityDialog();
-      if (entidad == null || !mounted) return;
-
-      final entidadId = await _showIdDialog(entidad);
-      if (entidadId == null || !mounted) return;
+      final entidadData = await _showEntityDialog();
+      if (entidadData == null || !mounted) return;
 
       final dao = ref.read(documentosDaoProvider);
       debugPrint('Preparando para insertar documento...');
 
       final documentoCompanion = DocumentosCompanion(
-        entidad: drift.Value(entidad),
-        entidadId: drift.Value(entidadId),
+        entidad: drift.Value(entidadData['entidad']),
+        entidadId: drift.Value(entidadData['entidadId']),
         nombre: drift.Value(file.name),
         contenido: drift.Value(fileBytes),
         creadoEn: drift.Value(DateTime.now()),
@@ -188,66 +221,110 @@ class HistorialPageState extends ConsumerState<HistorialPage> {
     }
   }
 
-  Future<String?> _showEntityDialog() async {
+  Future<Map<String, dynamic>?> _showEntityDialog() async {
     if (!mounted) return null;
     
-    return await showDialog<String>(
+    String? selectedEntidad;
+    int? selectedId;
+    List<Map<String, dynamic>> entidades = [];
+
+    return await showDialog<Map<String, dynamic>>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Asociar a'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              title: const Text('Impresora'),
-              onTap: () => Navigator.pop(context, 'Impresora'),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: const Text('Asociar documento a'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  DropdownButtonFormField<String>(
+                    value: selectedEntidad,
+                    decoration: const InputDecoration(labelText: 'Tipo de entidad *'),
+                    items: const [
+                      DropdownMenuItem(value: 'Impresora', child: Text('Impresora')),
+                      DropdownMenuItem(value: 'Tóner', child: Text('Tóner')),
+                      DropdownMenuItem(value: 'Requisición', child: Text('Requisición')),
+                      DropdownMenuItem(value: 'Mantenimiento', child: Text('Mantenimiento')),
+                    ],
+                    onChanged: (value) async {
+                      if (value != null) {
+                        final items = await _getEntidades(value);
+                        setState(() {
+                          selectedEntidad = value;
+                          entidades = items;
+                          selectedId = null;
+                        });
+                      }
+                    },
+                    validator: (value) => value == null ? 'Seleccione un tipo' : null,
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<int>(
+                    value: selectedId,
+                    decoration: const InputDecoration(labelText: 'Seleccione la entidad *'),
+                    items: entidades.map((e) => DropdownMenuItem<int>(
+                      value: e['id'] as int,
+                      child: Text(e['nombre']),
+                    )).toList(),
+                    onChanged: (value) {
+                      setState(() => selectedId = value);
+                    },
+                    validator: (value) => value == null ? 'Seleccione una entidad' : null,
+                  ),
+                ],
+              ),
             ),
-            ListTile(
-              title: const Text('Tóner'),
-              onTap: () => Navigator.pop(context, 'Tóner'),
-            ),
-            ListTile(
-              title: const Text('Requisición'),
-              onTap: () => Navigator.pop(context, 'Requisición'),
-            ),
-            ListTile(
-              title: const Text('Mantenimiento'),
-              onTap: () => Navigator.pop(context, 'Mantenimiento'),
-            ),
-          ],
-        ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancelar'),
+              ),
+              ElevatedButton(
+                onPressed: selectedEntidad != null && selectedId != null
+                    ? () => Navigator.pop(context, {
+                        'entidad': selectedEntidad!,
+                        'entidadId': selectedId!,
+                      })
+                    : null,
+                child: const Text('Seleccionar'),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 
-  Future<int?> _showIdDialog(String entidad) async {
-    if (!mounted) return null;
-    
-    final controller = TextEditingController();
-    return await showDialog<int>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('ID de $entidad'),
-        content: TextField(
-          controller: controller,
-          keyboardType: TextInputType.number,
-          decoration: const InputDecoration(labelText: 'ID'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () {
-              final id = int.tryParse(controller.text);
-              if (id != null) Navigator.pop(context, id);
-            },
-            child: const Text('Aceptar'),
-          ),
-        ],
-      ),
-    );
+  Future<List<Map<String, dynamic>>> _getEntidades(String tipoEntidad) async {
+    switch (tipoEntidad) {
+      case 'Impresora':
+        final impresoras = await ref.read(impresorasDaoProvider).getAll();
+        return impresoras.map((i) => {
+          'id': i.id,
+          'nombre': '${i.marca} ${i.modelo} (${i.serie})'
+        }).toList();
+      case 'Tóner':
+        final toners = await ref.read(toneresDaoProvider).getAll();
+        return toners.map((t) => {
+          'id': t.id,
+          'nombre': '${t.color ?? 'Sin modelo'} (${t.color ?? 'Sin color'})'
+        }).toList();
+      case 'Requisición':
+        final requisiciones = await ref.read(requisicionesDaoProvider).getAll();
+        return requisiciones.map((r) => {
+          'id': r.id,
+          'nombre': 'Req. #${r.id} - ${r.fechaPedido.toLocal().toString().split(' ')[0]}'
+        }).toList();
+      case 'Mantenimiento':
+        final mantenimientos = await ref.read(mantenimientosDaoProvider).getAll();
+        return mantenimientos.map((m) => {
+          'id': m.id,
+          'nombre': 'Mant. #${m.id} - ${m.fecha.toLocal().toString().split(' ')[0]}'
+        }).toList();
+      default:
+        return [];
+    }
   }
 
   Future<void> _openPdf(Documento doc) async {

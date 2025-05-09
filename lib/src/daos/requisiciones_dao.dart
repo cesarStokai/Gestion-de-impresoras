@@ -19,4 +19,11 @@ class RequisicionesDao extends DatabaseAccessor<AppDatabase>
 
   Future<int> deleteById(int id) =>
     (delete(requisiciones)..where((t) => t.id.equals(id))).go();
+
+      Future<Requisicione?> getById(int id) => 
+      (select(requisiciones)..where((t) => t.id.equals(id))).getSingleOrNull();
+
+      Future<List<Requisicione>> getAll() => select(requisiciones).get();
+
+  
 }

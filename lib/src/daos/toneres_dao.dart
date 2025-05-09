@@ -37,4 +37,10 @@ class ToneresDao extends DatabaseAccessor<AppDatabase> with _$ToneresDaoMixin {
 
   Future<int> deleteById(int id) => 
     (delete(toneres)..where((t) => t.id.equals(id))).go();
+
+      Future<Tonere?> getById(int id) => 
+      (select(toneres)..where((t) => t.id.equals(id))).getSingleOrNull();
+  
+  Future<List<Tonere>> getAll() => select(toneres).get();
+
 }

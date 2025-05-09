@@ -130,7 +130,7 @@ class _MantenimientosPageState extends ConsumerState<MantenimientosPage> {
                           ),
                           ...printers.map((p) => DropdownMenuItem(
                                 value: p.id,
-                                child: Text('${p.marca} ${p.modelo} (${p.serie})'),
+                                child: Text('${p.marca} ${p.modelo} ${p.area} (${p.serie}) Area en la que se encuentra:${p.area}'),
                               )),
                         ],
                   onChanged: (v) => setState(() => origen = v),
