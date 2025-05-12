@@ -5,11 +5,10 @@ part 'toneres_dao.g.dart';
 
 @DriftAccessor(tables: [Toneres])
 class ToneresDao extends DatabaseAccessor<AppDatabase> with _$ToneresDaoMixin {
-  ToneresDao(super.db);  // Corregido el parámetro db con super
+  ToneresDao(super.db); 
 
-  // Método CORRECTO para contar tóneres por estado
+
   Future<Map<String, int>> countTonersByState() async {
-    // Consulta personalizada para contar por estado
     final query = customSelect(
       'SELECT estado, COUNT(id) as count FROM toneres GROUP BY estado',
       readsFrom: {toneres},
@@ -17,7 +16,6 @@ class ToneresDao extends DatabaseAccessor<AppDatabase> with _$ToneresDaoMixin {
 
     final results = await query.get();
 
-    // Procesamos los resultados
     final countMap = <String, int>{};
     for (final row in results) {
       final estado = row.read<String>('estado');
@@ -28,7 +26,6 @@ class ToneresDao extends DatabaseAccessor<AppDatabase> with _$ToneresDaoMixin {
     return countMap;
   }
 
-  // Métodos básicos del DAO
   Stream<List<Tonere>> watchAll() => select(toneres).watch();
 
   Future<int> insertOne(ToneresCompanion entry) => into(toneres).insert(entry);

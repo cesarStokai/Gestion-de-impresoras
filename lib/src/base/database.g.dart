@@ -46,6 +46,16 @@ class $ImpresorasTable extends Impresoras
       type: DriftSqlType.string,
       requiredDuringInsert: true,
       $customConstraints: 'NOT NULL');
+  static const VerificationMeta _esAColorMeta =
+      const VerificationMeta('esAColor');
+  @override
+  late final GeneratedColumn<bool> esAColor = GeneratedColumn<bool>(
+      'es_a_color', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("es_a_color" IN (0, 1))'),
+      defaultValue: const Constant(false));
   static const VerificationMeta _estadoMeta = const VerificationMeta('estado');
   @override
   late final GeneratedColumn<String> estado = GeneratedColumn<String>(
@@ -57,7 +67,7 @@ class $ImpresorasTable extends Impresoras
       defaultValue: const CustomExpression('\'activa\''));
   @override
   List<GeneratedColumn> get $columns =>
-      [id, marca, modelo, serie, area, estado];
+      [id, marca, modelo, serie, area, esAColor, estado];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -95,6 +105,10 @@ class $ImpresorasTable extends Impresoras
     } else if (isInserting) {
       context.missing(_areaMeta);
     }
+    if (data.containsKey('es_a_color')) {
+      context.handle(_esAColorMeta,
+          esAColor.isAcceptableOrUnknown(data['es_a_color']!, _esAColorMeta));
+    }
     if (data.containsKey('estado')) {
       context.handle(_estadoMeta,
           estado.isAcceptableOrUnknown(data['estado']!, _estadoMeta));
@@ -118,6 +132,8 @@ class $ImpresorasTable extends Impresoras
           .read(DriftSqlType.string, data['${effectivePrefix}serie'])!,
       area: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}area'])!,
+      esAColor: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}es_a_color'])!,
       estado: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}estado'])!,
     );
@@ -135,6 +151,7 @@ class Impresora extends DataClass implements Insertable<Impresora> {
   final String modelo;
   final String serie;
   final String area;
+  final bool esAColor;
   final String estado;
   const Impresora(
       {required this.id,
@@ -142,6 +159,7 @@ class Impresora extends DataClass implements Insertable<Impresora> {
       required this.modelo,
       required this.serie,
       required this.area,
+      required this.esAColor,
       required this.estado});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -151,6 +169,7 @@ class Impresora extends DataClass implements Insertable<Impresora> {
     map['modelo'] = Variable<String>(modelo);
     map['serie'] = Variable<String>(serie);
     map['area'] = Variable<String>(area);
+    map['es_a_color'] = Variable<bool>(esAColor);
     map['estado'] = Variable<String>(estado);
     return map;
   }
@@ -162,6 +181,7 @@ class Impresora extends DataClass implements Insertable<Impresora> {
       modelo: Value(modelo),
       serie: Value(serie),
       area: Value(area),
+      esAColor: Value(esAColor),
       estado: Value(estado),
     );
   }
@@ -175,6 +195,7 @@ class Impresora extends DataClass implements Insertable<Impresora> {
       modelo: serializer.fromJson<String>(json['modelo']),
       serie: serializer.fromJson<String>(json['serie']),
       area: serializer.fromJson<String>(json['area']),
+      esAColor: serializer.fromJson<bool>(json['esAColor']),
       estado: serializer.fromJson<String>(json['estado']),
     );
   }
@@ -187,6 +208,7 @@ class Impresora extends DataClass implements Insertable<Impresora> {
       'modelo': serializer.toJson<String>(modelo),
       'serie': serializer.toJson<String>(serie),
       'area': serializer.toJson<String>(area),
+      'esAColor': serializer.toJson<bool>(esAColor),
       'estado': serializer.toJson<String>(estado),
     };
   }
@@ -197,6 +219,7 @@ class Impresora extends DataClass implements Insertable<Impresora> {
           String? modelo,
           String? serie,
           String? area,
+          bool? esAColor,
           String? estado}) =>
       Impresora(
         id: id ?? this.id,
@@ -204,6 +227,7 @@ class Impresora extends DataClass implements Insertable<Impresora> {
         modelo: modelo ?? this.modelo,
         serie: serie ?? this.serie,
         area: area ?? this.area,
+        esAColor: esAColor ?? this.esAColor,
         estado: estado ?? this.estado,
       );
   Impresora copyWithCompanion(ImpresorasCompanion data) {
@@ -213,6 +237,7 @@ class Impresora extends DataClass implements Insertable<Impresora> {
       modelo: data.modelo.present ? data.modelo.value : this.modelo,
       serie: data.serie.present ? data.serie.value : this.serie,
       area: data.area.present ? data.area.value : this.area,
+      esAColor: data.esAColor.present ? data.esAColor.value : this.esAColor,
       estado: data.estado.present ? data.estado.value : this.estado,
     );
   }
@@ -225,13 +250,15 @@ class Impresora extends DataClass implements Insertable<Impresora> {
           ..write('modelo: $modelo, ')
           ..write('serie: $serie, ')
           ..write('area: $area, ')
+          ..write('esAColor: $esAColor, ')
           ..write('estado: $estado')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, marca, modelo, serie, area, estado);
+  int get hashCode =>
+      Object.hash(id, marca, modelo, serie, area, esAColor, estado);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -241,6 +268,7 @@ class Impresora extends DataClass implements Insertable<Impresora> {
           other.modelo == this.modelo &&
           other.serie == this.serie &&
           other.area == this.area &&
+          other.esAColor == this.esAColor &&
           other.estado == this.estado);
 }
 
@@ -250,6 +278,7 @@ class ImpresorasCompanion extends UpdateCompanion<Impresora> {
   final Value<String> modelo;
   final Value<String> serie;
   final Value<String> area;
+  final Value<bool> esAColor;
   final Value<String> estado;
   const ImpresorasCompanion({
     this.id = const Value.absent(),
@@ -257,6 +286,7 @@ class ImpresorasCompanion extends UpdateCompanion<Impresora> {
     this.modelo = const Value.absent(),
     this.serie = const Value.absent(),
     this.area = const Value.absent(),
+    this.esAColor = const Value.absent(),
     this.estado = const Value.absent(),
   });
   ImpresorasCompanion.insert({
@@ -265,6 +295,7 @@ class ImpresorasCompanion extends UpdateCompanion<Impresora> {
     required String modelo,
     required String serie,
     required String area,
+    this.esAColor = const Value.absent(),
     this.estado = const Value.absent(),
   })  : marca = Value(marca),
         modelo = Value(modelo),
@@ -276,6 +307,7 @@ class ImpresorasCompanion extends UpdateCompanion<Impresora> {
     Expression<String>? modelo,
     Expression<String>? serie,
     Expression<String>? area,
+    Expression<bool>? esAColor,
     Expression<String>? estado,
   }) {
     return RawValuesInsertable({
@@ -284,6 +316,7 @@ class ImpresorasCompanion extends UpdateCompanion<Impresora> {
       if (modelo != null) 'modelo': modelo,
       if (serie != null) 'serie': serie,
       if (area != null) 'area': area,
+      if (esAColor != null) 'es_a_color': esAColor,
       if (estado != null) 'estado': estado,
     });
   }
@@ -294,6 +327,7 @@ class ImpresorasCompanion extends UpdateCompanion<Impresora> {
       Value<String>? modelo,
       Value<String>? serie,
       Value<String>? area,
+      Value<bool>? esAColor,
       Value<String>? estado}) {
     return ImpresorasCompanion(
       id: id ?? this.id,
@@ -301,6 +335,7 @@ class ImpresorasCompanion extends UpdateCompanion<Impresora> {
       modelo: modelo ?? this.modelo,
       serie: serie ?? this.serie,
       area: area ?? this.area,
+      esAColor: esAColor ?? this.esAColor,
       estado: estado ?? this.estado,
     );
   }
@@ -323,6 +358,9 @@ class ImpresorasCompanion extends UpdateCompanion<Impresora> {
     if (area.present) {
       map['area'] = Variable<String>(area.value);
     }
+    if (esAColor.present) {
+      map['es_a_color'] = Variable<bool>(esAColor.value);
+    }
     if (estado.present) {
       map['estado'] = Variable<String>(estado.value);
     }
@@ -337,6 +375,7 @@ class ImpresorasCompanion extends UpdateCompanion<Impresora> {
           ..write('modelo: $modelo, ')
           ..write('serie: $serie, ')
           ..write('area: $area, ')
+          ..write('esAColor: $esAColor, ')
           ..write('estado: $estado')
           ..write(')'))
         .toString();
@@ -1837,6 +1876,7 @@ typedef $$ImpresorasTableCreateCompanionBuilder = ImpresorasCompanion Function({
   required String modelo,
   required String serie,
   required String area,
+  Value<bool> esAColor,
   Value<String> estado,
 });
 typedef $$ImpresorasTableUpdateCompanionBuilder = ImpresorasCompanion Function({
@@ -1845,6 +1885,7 @@ typedef $$ImpresorasTableUpdateCompanionBuilder = ImpresorasCompanion Function({
   Value<String> modelo,
   Value<String> serie,
   Value<String> area,
+  Value<bool> esAColor,
   Value<String> estado,
 });
 
@@ -1922,6 +1963,9 @@ class $$ImpresorasTableFilterComposer
 
   ColumnFilters<String> get area => $composableBuilder(
       column: $table.area, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get esAColor => $composableBuilder(
+      column: $table.esAColor, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get estado => $composableBuilder(
       column: $table.estado, builder: (column) => ColumnFilters(column));
@@ -2014,6 +2058,9 @@ class $$ImpresorasTableOrderingComposer
   ColumnOrderings<String> get area => $composableBuilder(
       column: $table.area, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<bool> get esAColor => $composableBuilder(
+      column: $table.esAColor, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get estado => $composableBuilder(
       column: $table.estado, builder: (column) => ColumnOrderings(column));
 }
@@ -2041,6 +2088,9 @@ class $$ImpresorasTableAnnotationComposer
 
   GeneratedColumn<String> get area =>
       $composableBuilder(column: $table.area, builder: (column) => column);
+
+  GeneratedColumn<bool> get esAColor =>
+      $composableBuilder(column: $table.esAColor, builder: (column) => column);
 
   GeneratedColumn<String> get estado =>
       $composableBuilder(column: $table.estado, builder: (column) => column);
@@ -2137,6 +2187,7 @@ class $$ImpresorasTableTableManager extends RootTableManager<
             Value<String> modelo = const Value.absent(),
             Value<String> serie = const Value.absent(),
             Value<String> area = const Value.absent(),
+            Value<bool> esAColor = const Value.absent(),
             Value<String> estado = const Value.absent(),
           }) =>
               ImpresorasCompanion(
@@ -2145,6 +2196,7 @@ class $$ImpresorasTableTableManager extends RootTableManager<
             modelo: modelo,
             serie: serie,
             area: area,
+            esAColor: esAColor,
             estado: estado,
           ),
           createCompanionCallback: ({
@@ -2153,6 +2205,7 @@ class $$ImpresorasTableTableManager extends RootTableManager<
             required String modelo,
             required String serie,
             required String area,
+            Value<bool> esAColor = const Value.absent(),
             Value<String> estado = const Value.absent(),
           }) =>
               ImpresorasCompanion.insert(
@@ -2161,6 +2214,7 @@ class $$ImpresorasTableTableManager extends RootTableManager<
             modelo: modelo,
             serie: serie,
             area: area,
+            esAColor: esAColor,
             estado: estado,
           ),
           withReferenceMapper: (p0) => p0

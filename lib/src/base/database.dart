@@ -18,10 +18,12 @@ class Impresoras extends Table {
   TextColumn get modelo => text().customConstraint('NOT NULL')();
   TextColumn get serie => text().customConstraint('NOT NULL')();
   TextColumn get area => text().customConstraint('NOT NULL')();
+  BoolColumn get esAColor => boolean().withDefault(const Constant(false))();
   TextColumn get estado => text().customConstraint("NOT NULL "
       "DEFAULT 'activa' "
       "CHECK(estado IN ('activa','pendiente_baja','baja','mantenimiento'))")();
 }
+
 
 class Toneres extends Table {
   IntColumn get id => integer().autoIncrement()();
@@ -35,6 +37,7 @@ class Toneres extends Table {
   DateTimeColumn get fechaEstimEntrega => dateTime().nullable()();
   DateTimeColumn get fechaEntregaReal => dateTime().nullable()();
 }
+
 
 class Requisiciones extends Table {
   IntColumn get id => integer().autoIncrement()();
@@ -87,20 +90,27 @@ class Documentos extends Table {
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
-  @override
-  int get schemaVersion => 2;
 
   @override
-  MigrationStrategy get migration => MigrationStrategy(
-        onCreate: (m) async {
-          await m.createAll();
-        },
-        onUpgrade: (m, from, to) async {
-          if (from == 1) {
-            await m.createTable(documentos);
-          }
-        },
-      );
+ int get schemaVersion => 3; 
+
+
+@override
+MigrationStrategy get migration => MigrationStrategy(
+  onCreate: (m) async {
+    await m.createAll();
+  },
+  onUpgrade: (m, from, to) async {
+    if (from == 1) {
+      await m.createTable(documentos);
+      from = 2;
+    }
+    if (from == 2) {
+      await m.addColumn(impresoras, impresoras.esAColor);
+    }
+  },
+);
+
 
   static LazyDatabase _openConnection() {
     return LazyDatabase(() async {

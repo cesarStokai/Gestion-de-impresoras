@@ -8,6 +8,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false, 
+      showPerformanceOverlay: false,
 
       title: 'Control Impresoras',
       theme: ThemeData(primarySwatch: Colors.blue),

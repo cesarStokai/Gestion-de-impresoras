@@ -12,12 +12,7 @@ class ImpresorasPage extends ConsumerStatefulWidget {
 }
 
 class _ImpresorasPageState extends ConsumerState<ImpresorasPage> {
-  static const _printerStates = [
-    'activa',
-    'pendiente_baja',
-    'baja',
-    'mantenimiento'
-  ];
+  static const _printerStates = ['activa', 'pendiente_baja', 'baja', 'mantenimiento'];
 
   @override
   Widget build(BuildContext context) {
@@ -33,22 +28,33 @@ class _ImpresorasPageState extends ConsumerState<ImpresorasPage> {
             separatorBuilder: (_, __) => const Divider(),
             itemBuilder: (_, i) {
               final imp = impresoras[i];
-              final tonerCount = toners.where((t) => t.impresoraId == imp.id).length;
-              final backgroundColor = tonerCount == 0 ? Colors.yellow.withOpacity(0.3) : Colors.transparent;
-
-              return Container(
-                color: backgroundColor,
-                child: ListTile(
-                  title: Text('${imp.marca} • ${imp.modelo}'),
-                  subtitle: Text(
-                    'Área: ${imp.area}\nEstado: ${imp.estado}\nNúmero de serie: ${imp.serie}'
-                  ),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: () => _confirmDelete(imp.id),
-                  ),
-                  onTap: () => _showForm(imp),
+              final impToners = toners.where((t) => t.impresoraId == imp.id).toList();
+              
+              return ListTile(
+                title: Text('${imp.marca} • ${imp.modelo}'),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Área: ${imp.area}\nEstado: ${imp.estado}\nNúmero de serie: ${imp.serie}'),
+                    if (imp.esAColor) 
+                      Wrap(
+                        spacing: 8,
+                        children: [
+                          _buildTonerIndicator('Cian', _hasToner(impToners, 'Cian')),
+                          _buildTonerIndicator('Magenta', _hasToner(impToners, 'Magenta')),
+                          _buildTonerIndicator('Negro', _hasToner(impToners, 'Negro')),
+                          _buildTonerIndicator('Amarillo', _hasToner(impToners, 'Amarillo')),
+                        ],
+                      )
+                    else if (imp.marca.toLowerCase() == 'ricoh')
+                      _buildTonerIndicator('Negro', _hasToner(impToners, 'Negro')),
+                  ],
                 ),
+                trailing: IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () => _confirmDelete(imp.id),
+                ),
+                onTap: () => _showForm(imp),
               );
             },
           ),
@@ -62,6 +68,30 @@ class _ImpresorasPageState extends ConsumerState<ImpresorasPage> {
         child: const Icon(Icons.add),
         onPressed: () => _showForm(),
       ),
+    );
+  }
+
+  bool _hasToner(List<Tonere> toners, String color) {
+    return toners.any((t) => t.color.toLowerCase() == color.toLowerCase());
+  }
+
+  Widget _buildTonerIndicator(String color, bool disponible) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          disponible ? Icons.check_box : Icons.check_box_outline_blank,
+          color: disponible ? Colors.green : Colors.grey,
+          size: 20,
+        ),
+        Text(
+          color,
+          style: TextStyle(
+            color: disponible ? Colors.green : Colors.grey,
+            fontSize: 12,
+          ),
+        ),
+      ],
     );
   }
 
@@ -101,6 +131,7 @@ class _ImpresorasPageState extends ConsumerState<ImpresorasPage> {
     final serieC = TextEditingController(text: imp?.serie);
     final areaC = TextEditingController(text: imp?.area);
     String estado = imp?.estado ?? _printerStates.first;
+    bool esAColor = imp?.esAColor ?? false;
 
     showDialog(
       context: context,
@@ -146,6 +177,12 @@ class _ImpresorasPageState extends ConsumerState<ImpresorasPage> {
                         .toList(),
                     onChanged: (v) => setState(() => estado = v!),
                   ),
+                  const SizedBox(height: 12),
+                  CheckboxListTile(
+                    title: const Text('Impresora a color (HP/Lexmark)'),
+                    value: esAColor,
+                    onChanged: (value) => setState(() => esAColor = value ?? false),
+                  ),
                 ],
               ),
             ),
@@ -155,7 +192,7 @@ class _ImpresorasPageState extends ConsumerState<ImpresorasPage> {
                 child: const Text('Cancelar'),
               ),
               ElevatedButton(
-                onPressed: ok ? () {
+                onPressed: ok ? () async {
                   final dao = ref.read(impresorasDaoProvider);
                   final companion = ImpresorasCompanion(
                     id: isNew ? const drift.Value.absent() : drift.Value(imp.id),
@@ -164,14 +201,25 @@ class _ImpresorasPageState extends ConsumerState<ImpresorasPage> {
                     serie: drift.Value(serieC.text),
                     area: drift.Value(areaC.text),
                     estado: drift.Value(estado),
+                    esAColor: drift.Value(esAColor),
                   );
 
                   if (isNew) {
-                    dao.insertOne(companion);
+                    final id = await dao.insertOne(companion);
+                    // Si es Ricoh, crear automáticamente tóner negro
+                    if (marcaC.text.toLowerCase() == 'ricoh') {
+                      await ref.read(toneresDaoProvider).insertOne(
+                        ToneresCompanion(
+                          impresoraId: drift.Value(id),
+                          color: drift.Value('Negro'),
+                          estado: drift.Value('almacenado'),
+                        ),
+                      );
+                    }
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Impresora creada')));
                   } else {
-                    dao.updateOne(companion);
+                    await dao.updateOne(companion);
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Impresora actualizada')));
                   }

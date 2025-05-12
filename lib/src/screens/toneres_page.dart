@@ -1,40 +1,60 @@
-import 'package:drift/drift.dart' as drift;  // Alias para drift
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:drift/drift.dart' as drift;
 import '../base/database.dart';
 import '../providers/database_provider.dart';
 
 class ToneresPage extends ConsumerStatefulWidget {
-  const ToneresPage({super.key});  // Corregido el parámetro key
-  
+  const ToneresPage({super.key});
+
   @override
   ConsumerState<ToneresPage> createState() => _ToneresPageState();
 }
 
 class _ToneresPageState extends ConsumerState<ToneresPage> {
   static const _tonerStates = ['almacenado', 'instalado', 'en_pedido'];
+  static const _tonerColors = ['Negro', 'Cian', 'Magenta', 'Amarillo'];
 
   @override
   Widget build(BuildContext context) {
     final tonerAsync = ref.watch(toneresListStreamProvider);
+    final printersAsync = ref.watch(impresorasListStreamProvider);
+    
     return Scaffold(
       appBar: AppBar(title: const Text('Tóneres')),
       body: tonerAsync.when(
-        data: (list) => ListView.separated(
-          itemCount: list.length,
-          separatorBuilder: (_, __) => const Divider(),
-          itemBuilder: (_, i) {
-            final t = list[i];
-            return ListTile(
-              title: Text('${t.color} (${t.estado})'),
-              subtitle: Text('Impresora ID: ${t.impresoraId} '),
-              trailing: IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
-                onPressed: () => ref.read(toneresDaoProvider).deleteById(t.id),
-              ),
-              onTap: () => _showForm(t),
-            );
-          },
+        data: (toners) => printersAsync.when(
+          data: (printers) => ListView.separated(
+            itemCount: toners.length,
+            separatorBuilder: (_, __) => const Divider(),
+            itemBuilder: (_, i) {
+              final t = toners[i];
+              final printer = printers.firstWhere(
+                (p) => p.id == t.impresoraId,
+                orElse: () => Impresora(
+                  id: 0,
+                  marca: 'Desconocida',
+                  modelo: '',
+                  serie: '',
+                  area: '',
+                  estado: '',
+                  esAColor: false,
+                ),
+              );
+              
+              return ListTile(
+                title: Text('${t.color} (${t.estado})'),
+                subtitle: Text('Impresora: ${printer.marca} ${printer.modelo}\nÁrea: ${printer.area}'),
+                trailing: IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () => _confirmDelete(t.id),
+                ),
+                onTap: () => _showForm(t),
+              );
+            },
+          ),
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, _) => Center(child: Text('Error: $e')),
         ),
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error: $e')),
@@ -46,17 +66,37 @@ class _ToneresPageState extends ConsumerState<ToneresPage> {
     );
   }
 
+  void _confirmDelete(int id) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Confirmar eliminación'),
+        content: const Text('¿Seguro que quieres eliminar este tóner?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              ref.read(toneresDaoProvider).deleteById(id);
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Tóner eliminado')));
+            },
+            child: const Text('Eliminar'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showForm([Tonere? t]) {
     final isNew = t == null;
     final colorC = TextEditingController(text: t?.color);
-    final fechaEstC = TextEditingController(
-      text: t?.fechaEstimEntrega?.toIso8601String() ?? '',
-    );
     int? impresoraId = t?.impresoraId;
     String estado = t?.estado ?? _tonerStates.first;
-
-    // Estado de habilitación del botón "Guardar"
-    bool isButtonEnabled = impresoraId != null && colorC.text.isNotEmpty;
+    String? selectedColor = t?.color;
 
     showDialog(
       context: context,
@@ -64,131 +104,115 @@ class _ToneresPageState extends ConsumerState<ToneresPage> {
         builder: (context, setState) {
           return AlertDialog(
             title: Text(isNew ? 'Nuevo tóner' : 'Editar tóner'),
-            content: Consumer(builder: (ctx, ref, _) {
-              final printersAsync = ref.watch(impresorasListStreamProvider);
-
-              return printersAsync.when(
-                loading: () => const SizedBox(
-                  height: 80,
-                  child: Center(child: CircularProgressIndicator()),
-                ),
-                error: (e, _) => Text('Error al cargar impresoras: $e'),
-                data: (printers) {
-                  final selectedPrinter = printers.firstWhereOrNull((p) => p.id == impresoraId);
-
-                  return Column(  // Ahora usa el Column de Flutter sin conflicto
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      DropdownButtonFormField<int>(
-                        value: impresoraId,
-                        decoration: const InputDecoration(labelText: 'Impresora *'),
-                        items: printers.map((p) {
-                          return DropdownMenuItem(
-                            value: p.id,
-                            child: Text('${p.marca} ${p.modelo}'),
-                          );
-                        }).toList(),
-                        onChanged: (v) {
-                          setState(() {
-                            impresoraId = v;
-                            isButtonEnabled = impresoraId != null && colorC.text.isNotEmpty;
-                          });
-                          debugPrint("Nuevo impresoraId seleccionado: $impresoraId");
-                        },
-                      ),
-                      if (selectedPrinter != null) ...[
-                        const SizedBox(height: 8),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            'Modelo: ${selectedPrinter.modelo}',
-                            style: const TextStyle(fontSize: 14, color: Colors.grey),
-                          ),
+            content: Consumer(
+              builder: (ctx, ref, _) {
+                final printersAsync = ref.watch(impresorasListStreamProvider);
+                
+                return printersAsync.when(
+                  loading: () => const Center(child: CircularProgressIndicator()),
+                  error: (e, _) => Text('Error: $e'),
+                  data: (printers) {
+                    final selectedPrinter = printers.firstWhereOrNull((p) => p.id == impresoraId);
+                    final isRicoh = selectedPrinter?.marca.toLowerCase() == 'ricoh';
+                    
+                    // Si es Ricoh, forzar color negro
+                    if (isRicoh && isNew) {
+                      selectedColor = 'Negro';
+                      colorC.text = 'Negro';
+                    }
+                    
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        DropdownButtonFormField<int>(
+                          value: impresoraId,
+                          decoration: const InputDecoration(labelText: 'Impresora *'),
+                          items: printers.map((p) {
+                            return DropdownMenuItem(
+                              value: p.id,
+                              child: Text('${p.marca} ${p.modelo}'),
+                            );
+                          }).toList(),
+                          onChanged: (v) {
+                            setState(() {
+                              impresoraId = v;
+                              final printer = printers.firstWhere((p) => p.id == v);
+                              if (printer.marca.toLowerCase() == 'ricoh') {
+                                selectedColor = 'Negro';
+                                colorC.text = 'Negro';
+                              }
+                            });
+                          },
                         ),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            'Área: ${selectedPrinter.area}',
-                            style: const TextStyle(fontSize: 14, color: Colors.grey),
+                        const SizedBox(height: 12),
+                        if (selectedPrinter != null && 
+                            selectedPrinter.marca.toLowerCase() != 'ricoh')
+                          DropdownButtonFormField<String>(
+                            value: selectedColor,
+                            decoration: const InputDecoration(labelText: 'Color *'),
+                            items: _tonerColors.map((color) {
+                              return DropdownMenuItem(
+                                value: color,
+                                child: Text(color),
+                              );
+                            }).toList(),
+                            onChanged: (v) {
+                              setState(() {
+                                selectedColor = v;
+                                colorC.text = v ?? '';
+                              });
+                            },
+                          )
+                        else
+                          TextField(
+                            controller: colorC,
+                            decoration: const InputDecoration(labelText: 'Color'),
+                            enabled: false,
                           ),
+                        const SizedBox(height: 12),
+                        DropdownButtonFormField<String>(
+                          value: estado,
+                          decoration: const InputDecoration(labelText: 'Estado *'),
+                          items: _tonerStates.map((state) {
+                            return DropdownMenuItem(
+                              value: state,
+                              child: Text(state),
+                            );
+                          }).toList(),
+                          onChanged: (v) => setState(() => estado = v!),
                         ),
                       ],
-                      const SizedBox(height: 12),
-                      TextField(
-                        controller: colorC,
-                        decoration: const InputDecoration(labelText: 'Color *'),
-                        onChanged: (value) {
-                          setState(() {
-                            isButtonEnabled = value.isNotEmpty && impresoraId != null;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 12),
-                      DropdownButtonFormField<String>(
-                        value: estado,
-                        decoration: const InputDecoration(labelText: 'Estado'),
-                        items: _tonerStates
-                            .map((s) => DropdownMenuItem(value: s, child: Text(s)))
-                            .toList(),
-                        onChanged: (v) => setState(() => estado = v!),
-                      ),
-                      const SizedBox(height: 12),
-                    ],
-                  );
-                },
-              );
-            }),
+                    );
+                  },
+                );
+              },
+            ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: const Text('Cancelar'),
               ),
               ElevatedButton(
-                onPressed: isButtonEnabled
+                onPressed: impresoraId != null && colorC.text.isNotEmpty
                     ? () async {
-                        debugPrint("Intentando guardar o actualizar el tóner...");
-                        debugPrint("Fecha estimada: ${fechaEstC.text}");
-
                         final dao = ref.read(toneresDaoProvider);
                         final companion = ToneresCompanion(
                           id: isNew ? const drift.Value.absent() : drift.Value(t.id),
                           impresoraId: drift.Value(impresoraId!),
                           color: drift.Value(colorC.text),
                           estado: drift.Value(estado),
-                          fechaEstimEntrega: fechaEstC.text.isEmpty
-                              ? const drift.Value.absent()
-                              : drift.Value(DateTime.parse(fechaEstC.text)),
                         );
-
-                        debugPrint("Datos para insertar/actualizar: $companion");
-
-                        try {
-                          if (isNew) {
-                            await dao.insertOne(companion);
-                            if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Tóner creado')),
-                              );
-                            }
-                          } else {
-                            await dao.updateOne(companion);
-                            if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Tóner actualizado')),
-                              );
-                            }
-                          }
-                          if (mounted) {
-                            Navigator.pop(context);
-                          }
-                        } catch (e) {
-                          debugPrint("Error al guardar el tóner: $e");
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Error al guardar el tóner')),
-                            );
-                          }
+                        
+                        if (isNew) {
+                          await dao.insertOne(companion);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Tóner creado')));
+                        } else {
+                          await dao.updateOne(companion);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Tóner actualizado')));
                         }
+                        Navigator.pop(context);
                       }
                     : null,
                 child: Text(isNew ? 'Crear' : 'Guardar'),
