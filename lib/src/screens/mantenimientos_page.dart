@@ -18,31 +18,136 @@ class _MantenimientosPageState extends ConsumerState<MantenimientosPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Mantenimientos')),
       body: mantAsync.when(
-        data: (list) => ListView.separated(
-          itemCount: list.length,
-          separatorBuilder: (_, __) => const Divider(),
-          itemBuilder: (_, i) {
-            final m = list[i];
-            return ListTile(
-              title: FutureBuilder<Impresora?>(
-                future: ref.read(impresorasDaoProvider).getImpresoraById(m.impresoraId),
-                builder: (_, snapshot) {
-                  if (snapshot.hasData && snapshot.data != null) {
-                    final impresora = snapshot.data!;
-                    return Text('${impresora.marca} ${impresora.modelo}');
-                  }
-                  return Text('Impresora ID: ${m.impresoraId}');
-                },
+        data: (list) {
+          // Filtrar mantenimientos con reemplazo
+          final reemplazos = list.where((m) => m.reemplazoImpresora == true && m.nuevaImpresoraId != null).toList();
+          return Column(
+            children: [
+              Expanded(
+                child: ListView.separated(
+                  padding: const EdgeInsets.all(12),
+                  itemCount: list.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 10),
+                  itemBuilder: (_, i) {
+                    final m = list[i];
+                    return Card(
+                      elevation: 3,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                        leading: const Icon(Icons.build, color: Colors.blueAccent, size: 32),
+                        title: FutureBuilder<Impresora?>(
+                          future: ref.read(impresorasDaoProvider).getImpresoraById(m.impresoraId),
+                          builder: (_, snapshot) {
+                            if (snapshot.hasData && snapshot.data != null) {
+                              final impresora = snapshot.data!;
+                              return Text(
+                                '${impresora.marca} ${impresora.modelo}',
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                              );
+                            }
+                            return Text('Impresora ID: ${m.impresoraId}', style: const TextStyle(fontWeight: FontWeight.bold));
+                          },
+                        ),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
+                                const SizedBox(width: 4),
+                                Text(
+                                  m.fecha.toLocal().toShortIsoDate(),
+                                  style: const TextStyle(color: Colors.grey, fontSize: 13),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              m.detalle,
+                              style: const TextStyle(fontSize: 15),
+                            ),
+                            if (m.reemplazoImpresora == true && m.nuevaImpresoraId != null) ...[
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  const Icon(Icons.swap_horiz, color: Colors.orange, size: 18),
+                                  const SizedBox(width: 4),
+                                  FutureBuilder<Impresora?>(
+                                    future: ref.read(impresorasDaoProvider).getImpresoraById(m.nuevaImpresoraId!),
+                                    builder: (_, snap) {
+                                      if (snap.hasData && snap.data != null) {
+                                        final nueva = snap.data!;
+                                        return Text(
+                                          'Reemplazada por: ${nueva.marca} ${nueva.modelo}',
+                                          style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.w500),
+                                        );
+                                      }
+                                      return const Text('Reemplazo registrado', style: TextStyle(color: Colors.orange));
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ],
+                        ),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          tooltip: 'Eliminar mantenimiento',
+                          onPressed: () => _confirmDelete(m.id),
+                        ),
+                        onTap: () => _showForm(m),
+                      ),
+                    );
+                  },
+                ),
               ),
-              subtitle: Text('${m.fecha.toLocal().toShortIsoDate()}\n${m.detalle}'),
-              trailing: IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
-                onPressed: () => _confirmDelete(m.id),
-              ),
-              onTap: () => _showForm(m),
-            );
-          },
-        ),
+              if (reemplazos.isNotEmpty) ...[
+                const Divider(),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Text('Historial de reemplazos de impresoras', style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
+                SizedBox(
+                  height: 180,
+                  child: ListView.separated(
+                    itemCount: reemplazos.length,
+                    separatorBuilder: (_, __) => const Divider(),
+                    itemBuilder: (_, i) {
+                      final m = reemplazos[i];
+                      return FutureBuilder<List<Impresora?>> (
+                        future: Future.wait([
+                          ref.read(impresorasDaoProvider).getImpresoraById(m.impresoraId),
+                          ref.read(impresorasDaoProvider).getImpresoraById(m.nuevaImpresoraId!),
+                        ]),
+                        builder: (_, snap) {
+                          final vieja = snap.hasData && snap.data![0] != null ? snap.data![0]! : null;
+                          final nueva = snap.hasData && snap.data![1] != null ? snap.data![1]! : null;
+                          final area = nueva?.area ?? vieja?.area ?? '-';
+                          return ListTile(
+                            leading: const Icon(Icons.swap_horiz, color: Colors.orange),
+                            title: Text(
+                              'De: ${vieja != null ? '${vieja.marca} ${vieja.modelo} (${vieja.serie})' : 'Desconocida'}\nA: ${nueva != null ? '${nueva.marca} ${nueva.modelo} (${nueva.serie})' : 'Desconocida'}',
+                              style: const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Fecha: ${m.fecha.toLocal().toShortIsoDate()}'),
+                                Text('Departamento: $area'),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ],
+          );
+        },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error: $e')),
       ),
@@ -108,14 +213,27 @@ class _MantenimientosPageState extends ConsumerState<MantenimientosPage> {
       context: context,
       builder: (_) => StatefulBuilder(builder: (ctx, setState) {
         return AlertDialog(
-          title: Text(isNew ? 'Nuevo mantenimiento' : 'Editar mantenimiento'),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+          contentPadding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
+          actionsPadding: const EdgeInsets.all(16),
+          title: Text(
+            isNew ? 'Nuevo Mantenimiento' : 'Editar Mantenimiento',
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+          ),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 DropdownButtonFormField<int?>(
                   value: origen,
-                  decoration: const InputDecoration(labelText: 'Impresora *'),
+                  decoration: InputDecoration(
+                    labelText: 'Impresora *',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                  ),
                   items: printers.isEmpty
                       ? [
                           const DropdownMenuItem(
@@ -130,15 +248,21 @@ class _MantenimientosPageState extends ConsumerState<MantenimientosPage> {
                           ),
                           ...printers.map((p) => DropdownMenuItem(
                                 value: p.id,
-                                child: Text('${p.marca} ${p.modelo} ${p.area} (${p.serie}) Area en la que se encuentra:${p.area}'),
+                                child: Text('${p.marca} ${p.modelo} ${p.area} (${p.serie})'),
                               )),
                         ],
                   onChanged: (v) => setState(() => origen = v),
                   validator: (value) => value == null ? 'Seleccione una impresora' : null,
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
                 TextField(
-                  decoration: const InputDecoration(labelText: 'Fecha'),
+                  decoration: InputDecoration(
+                    labelText: 'Fecha',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                    prefixIcon: const Icon(Icons.calendar_today),
+                  ),
                   controller: fechaController,
                   readOnly: true,
                   onTap: () async {
@@ -156,14 +280,22 @@ class _MantenimientosPageState extends ConsumerState<MantenimientosPage> {
                     }
                   },
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
                 TextField(
                   controller: detalleC,
-                  decoration: const InputDecoration(labelText: 'Detalle *'),
+                  decoration: InputDecoration(
+                    labelText: 'Detalle *',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                    prefixIcon: const Icon(Icons.description),
+                  ),
                   maxLines: 3,
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
                 Row(children: [
+                  const Icon(Icons.swap_horiz, color: Colors.orange),
+                  const SizedBox(width: 6),
                   const Text('Reemplazo impresora'),
                   Checkbox(
                     value: reemplazo,
@@ -176,10 +308,15 @@ class _MantenimientosPageState extends ConsumerState<MantenimientosPage> {
                   ),
                 ]),
                 if (reemplazo) ...[
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                   DropdownButtonFormField<int?>(
                     value: reemplazoId,
-                    decoration: const InputDecoration(labelText: 'Nueva impresora'),
+                    decoration: InputDecoration(
+                      labelText: 'Nueva impresora',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                    ),
                     items: printers
                         .where((p) => p.id != origen)
                         .map((p) => DropdownMenuItem(
@@ -194,21 +331,33 @@ class _MantenimientosPageState extends ConsumerState<MantenimientosPage> {
             ),
           ),
           actions: [
-            TextButton(
+            OutlinedButton(
               onPressed: () => Navigator.pop(context),
+              style: OutlinedButton.styleFrom(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                side: const BorderSide(color: Colors.grey),
+              ),
               child: const Text('Cancelar'),
             ),
             ElevatedButton(
-              onPressed: origen != null && detalleC.text.isNotEmpty
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).primaryColor,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+              onPressed: origen != null && detalleC.text.isNotEmpty && (!reemplazo || (reemplazo && reemplazoId != null))
                   ? () {
+                      if (!reemplazo) {
+                        reemplazoId = null;
+                      }
                       final dao = ref.read(mantenimientosDaoProvider);
                       final companion = MantenimientosCompanion(
                         id: isNew ? const Value.absent() : Value(m.id),
                         impresoraId: Value(origen!),
                         fecha: Value(fecha),
                         detalle: Value(detalleC.text),
-                        reemplazoImpresora: Value(reemplazo),
-                        nuevaImpresoraId: reemplazo && reemplazoId != null
+                        reemplazoImpresora: Value(reemplazo && reemplazoId != null),
+                        nuevaImpresoraId: (reemplazo && reemplazoId != null)
                             ? Value(reemplazoId!)
                             : const Value.absent(),
                       );
@@ -226,7 +375,7 @@ class _MantenimientosPageState extends ConsumerState<MantenimientosPage> {
                       Navigator.pop(context);
                     }
                   : null,
-              child: Text(isNew ? 'Crear' : 'Guardar'),
+              child: Text(isNew ? 'Crear' : 'Guardar', style: const TextStyle(color: Colors.white)),
             ),
           ],
         );

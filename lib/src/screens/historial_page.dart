@@ -1,4 +1,3 @@
-
 import 'dart:io';
 import 'dart:typed_data'; 
 import 'package:flutter/material.dart';
@@ -23,17 +22,17 @@ class HistorialPageState extends ConsumerState<HistorialPage> {
     final documentosAsync = ref.watch(documentosProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Historial de Archivos')),
+      appBar: AppBar(
+        title: const Text('Historial de Archivos', style: TextStyle(fontWeight: FontWeight.bold)),
+        centerTitle: true,
+        elevation: 2,
+      ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(12.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'Historial de Archivos',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 8),
             Expanded(
               child: documentosAsync.when(
                 loading: () => const Center(child: CircularProgressIndicator()),
@@ -44,55 +43,72 @@ class HistorialPageState extends ConsumerState<HistorialPage> {
                   }
                   return RefreshIndicator(
                     onRefresh: () => ref.refresh(documentosProvider.future),
-                    child: ListView.builder(
+                    child: ListView.separated(
                       itemCount: documentos.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 10),
                       itemBuilder: (context, index) {
                         final doc = documentos[index];
                         return _buildDocumentoItem(doc);
                       },
-                    ),
+                    )
                   );
                 },
               ),
             ),
-            _buildUploadButton(),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildUploadButton() {
-    return ElevatedButton.icon(
-      icon: const Icon(Icons.upload_file),
-      label: const Text('Subir PDF'),
-      onPressed: () => _uploadPdf(),
+      floatingActionButton: FloatingActionButton.extended(
+        icon: const Icon(Icons.upload_file),
+        label: const Text('Subir PDF'),
+        onPressed: () => _uploadPdf(),
+        backgroundColor: Colors.blueAccent,
+      ),
     );
   }
 
   Widget _buildDocumentoItem(Documento doc) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 8),
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: ListTile(
-        title: Text(doc.nombre),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+        leading: const Icon(Icons.picture_as_pdf, color: Colors.red, size: 32),
+        title: Text(doc.nombre, style: const TextStyle(fontWeight: FontWeight.bold)),
         subtitle: FutureBuilder<String>(
           future: _getEntidadNombre(doc.entidad, doc.entidadId),
           builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return Text('${doc.entidad}: ${snapshot.data}');
-            }
-            return Text('${doc.entidad} #${doc.entidadId} - ${doc.creadoEn}');
+            final entidadStr = snapshot.hasData ? snapshot.data! : '${doc.entidad} #${doc.entidadId}';
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(entidadStr, style: const TextStyle(fontSize: 14)),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    const Icon(Icons.calendar_today, size: 14, color: Colors.grey),
+                    const SizedBox(width: 4),
+                    Text(
+                      doc.creadoEn.toLocal().toString().split(' ')[0],
+                      style: const TextStyle(color: Colors.grey, fontSize: 13),
+                    ),
+                  ],
+                ),
+              ],
+            );
           },
         ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              icon: const Icon(Icons.picture_as_pdf),
+              icon: const Icon(Icons.visibility, color: Colors.blueAccent),
+              tooltip: 'Ver PDF',
               onPressed: () => _openPdf(doc),
             ),
             IconButton(
-              icon: const Icon(Icons.delete),
+              icon: const Icon(Icons.delete, color: Colors.red),
+              tooltip: 'Eliminar',
               onPressed: () => _deleteDocumento(doc.id),
             ),
           ],
@@ -111,7 +127,7 @@ class HistorialPageState extends ConsumerState<HistorialPage> {
       case 'Tóner':
         final toner = await ref.read(toneresDaoProvider).getById(entidadId);
         return toner != null
-            ? '${toner.color ?? 'Sin modelo'} (${toner.color ?? 'Sin color'})'
+            ? '${toner.color} (${toner.color})'
             : 'ID $entidadId';
       case 'Requisición':
         final req = await ref.read(requisicionesDaoProvider).getById(entidadId);
@@ -245,7 +261,7 @@ class HistorialPageState extends ConsumerState<HistorialPage> {
                       DropdownMenuItem(value: 'Impresora', child: Text('Impresora')),
                       DropdownMenuItem(value: 'Tóner', child: Text('Tóner')),
                       DropdownMenuItem(value: 'Requisición', child: Text('Requisición')),
-                      DropdownMenuItem(value: 'Mantenimiento', child: Text('Mantenimiento')),
+                      DropdownMenuItem(value: 'Mantenimiento', child: Text('.mantenimiento')),
                     ],
                     onChanged: (value) async {
                       if (value != null) {
@@ -308,7 +324,7 @@ class HistorialPageState extends ConsumerState<HistorialPage> {
         final toners = await ref.read(toneresDaoProvider).getAll();
         return toners.map((t) => {
           'id': t.id,
-          'nombre': '${t.color ?? 'Sin modelo'} (${t.color ?? 'Sin color'})'
+          'nombre': '${t.color} (${t.color})'
         }).toList();
       case 'Requisición':
         final requisiciones = await ref.read(requisicionesDaoProvider).getAll();
@@ -320,7 +336,8 @@ class HistorialPageState extends ConsumerState<HistorialPage> {
         final mantenimientos = await ref.read(mantenimientosDaoProvider).getAll();
         return mantenimientos.map((m) => {
           'id': m.id,
-          'nombre': 'Mant. #${m.id} - ${m.fecha.toLocal().toString().split(' ')[0]}'
+          'descripcion': m.detalle,
+          'nombre': ' Mant. #${m.id} - ${m.detalle} ${m.fecha.toLocal().toString().split(' ')[0]}'
         }).toList();
       default:
         return [];
