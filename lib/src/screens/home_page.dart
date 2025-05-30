@@ -3,7 +3,8 @@ import 'impresoras_page.dart';
 import 'toneres_page.dart';
 import 'requisiciones_page.dart';
 import 'mantenimientos_page.dart';
-import 'historial_page.dart'; // Asegúrate de crear este archivo
+import 'historial_page.dart';
+import 'exportar_datos_page.dart'; // Asegúrate de crear este archivo
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -19,7 +20,8 @@ class _HomePageState extends State<HomePage> {
     ToneresPage(),
     RequisicionesPage(),
     MantenimientosPage(),
-    HistorialPage(), // Nueva página de historial
+    HistorialPage(),
+    ExportarDatosPage(), // Nueva página de exportación
   ];
 
   @override
@@ -60,6 +62,7 @@ class _HomePageState extends State<HomePage> {
                 NavigationRailDestination(icon: Icon(Icons.request_page), label: Text('Requisiciones')),
                 NavigationRailDestination(icon: Icon(Icons.build), label: Text('Mantenimientos')),
                 NavigationRailDestination(icon: Icon(Icons.history), label: Text('Historial')),
+                NavigationRailDestination(icon: Icon(Icons.file_download), label: Text('Exportar')),
               ],
               labelType: NavigationRailLabelType.all,
               minWidth: 75,

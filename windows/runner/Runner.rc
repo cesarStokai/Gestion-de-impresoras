@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "control_impresoras" "\0"
+            VALUE "CompanyName", "Tokai de México" "\0"
+            VALUE "FileDescription", "Tokai Print Manager" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "control_impresoras" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2025 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "control_impresoras.exe" "\0"
-            VALUE "ProductName", "control_impresoras" "\0"
+            VALUE "InternalName", "Tokai Print Manager" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2025 Tokai de México. All rights reserved." "\0"
+            VALUE "OriginalFilename", "TokaiPrintManager.exe" "\0"
+            VALUE "ProductName", "Tokai Print Manager" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END
