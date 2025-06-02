@@ -107,10 +107,12 @@ class _ToneresPageState extends ConsumerState<ToneresPage> {
               Text(label, style: TextStyle(fontSize: 12, color: color)),
             ],
           ),
+
         ],
       ),
-    );
-  }
+    );    
+  
+    }
 
   Widget _buildTonerList(List<Tonere> toners, List<Impresora> printers) {
     if (toners.isEmpty) {
@@ -556,6 +558,72 @@ class _ToneresPageState extends ConsumerState<ToneresPage> {
         );
       },
     );
+  }
+
+  void _deleteOrphanToners() {
+    final dao = ref.read(toneresDaoProvider);
+    final printersAsync = ref.read(impresorasListStreamProvider);
+    final tonersAsync = ref.read(toneresListStreamProvider);
+
+    printersAsync.whenData((printers) {
+      tonersAsync.whenData((toners) {
+        for (final toner in toners) {
+          final printerExists = printers.any((printer) => printer.id == toner.impresoraId);
+          if (!printerExists) {
+            dao.deleteById(toner.id);
+          }
+        }
+      });
+    });
+  }
+
+  void _deletePrinterAndAssociatedToners(int printerId) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Confirmar eliminación'),
+        content: const Text('¿Seguro que quieres eliminar esta impresora y sus tóneres asociados?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final printerDao = ref.read(impresorasDaoProvider);
+              final tonerDao = ref.read(toneresDaoProvider);
+
+              // Eliminar impresora
+              printerDao.deleteById(printerId);
+
+              // Eliminar tóneres asociados
+              ref.read(toneresListStreamProvider).whenData((toners) {
+                for (final toner in toners) {
+                  if (toner.impresoraId == printerId) {
+                    tonerDao.deleteById(toner.id);
+                  }
+                }
+              });
+
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Impresora y tóneres asociados eliminados'),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+            child: const Text('Eliminar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _deleteOrphanToners();
   }
 }
 

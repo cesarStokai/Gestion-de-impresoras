@@ -86,11 +86,20 @@ class _RequisicionesPageState extends ConsumerState<RequisicionesPage> {
                                     Text('Estimado: $fechaEntregaStr'),
                                   ],
                                 ),
-                                trailing: IconButton(
-                                  icon: const Icon(Icons.delete, color: Colors.red),
-                                  onPressed: () => _confirmarEliminacion(r.id),
+                                trailing: DropdownButton<String>(
+                                  value: r.estado,
+                                  items: _reqStates.map((estado) {
+                                    return DropdownMenuItem(
+                                      value: estado,
+                                      child: Text(estado),
+                                    );
+                                  }).toList(),
+                                  onChanged: (nuevoEstado) {
+                                    if (nuevoEstado != null && nuevoEstado != r.estado) {
+                                      _cambiarEstadoRequisicion(r.id, nuevoEstado);
+                                    }
+                                  },
                                 ),
-                                onTap: () => _showForm(r),
                               ),
                             );
                           },
@@ -423,6 +432,49 @@ class _RequisicionesPageState extends ConsumerState<RequisicionesPage> {
         ],
       ),
     );
+  }
+
+  void _cambiarEstadoRequisicion(int id, String nuevoEstado) async {
+    try {
+      final dao = ref.read(requisicionesDaoProvider);
+      final tonersDao = ref.read(toneresDaoProvider);
+
+      // Actualizar el estado de la requisición
+      await dao.updateOne(
+        RequisicionesCompanion(
+          id: Value(id),
+          estado: Value(nuevoEstado),
+        ),
+      );
+
+      // Si se marca como completada, actualizar el tóner asociado
+      if (nuevoEstado == 'completada') {
+        final requisicion = await dao.getById(id);
+        if (requisicion != null) {
+          final toner = await tonersDao.getById(requisicion.tonereId);
+          if (toner != null) {
+            await tonersDao.updateOne(
+              ToneresCompanion(
+                id: Value(toner.id),
+                estado: Value('almacenado'),
+              ),
+            );
+          }
+        }
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Estado actualizado a $nuevoEstado')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al actualizar estado: $e')),
+        );
+      }
+    }
   }
 }
 

@@ -1,8 +1,10 @@
 name: control_impresoras
-description: "A new Flutter project for desktop CRUD de impresoras y tóner."
+description: "Este es un proyecto que se desarrollo especificamente para la empresa de tokai de mexico , Donde la finalidad de esto es optimizar y tener mas eficiencia con las impreosoras CRUD de impresoras y tóner."
 publish_to: 'none'
 
-version: 1.0.0+1
+# Para más información sobre cómo configurar tu proyecto, visita:
+# https://flutter.dev/docs/development/packages-and-plugins/developing-packages
+version: 1.14.5+1
 
 environment:
   sdk: ">=3.0.0 <4.0.0"

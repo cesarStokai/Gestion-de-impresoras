@@ -134,7 +134,21 @@ class _ImpresorasPageState extends ConsumerState<ImpresorasPage> {
                                   ),
                                 ),
                                 const SizedBox(height: 12),
-                                if (imp.esAColor) 
+                                if (impToners.isEmpty)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.warning, color: Colors.red),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'Sin tóneres registrados',
+                                        style: TextStyle(
+                                          color: Colors.red[700],
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                else if (imp.esAColor) 
                                   Wrap(
                                     spacing: 8,
                                     runSpacing: 4,
@@ -202,6 +216,7 @@ class _ImpresorasPageState extends ConsumerState<ImpresorasPage> {
         ],
       ),
     );
+
   }
 
   Widget _buildStatusBadge(String status) {
