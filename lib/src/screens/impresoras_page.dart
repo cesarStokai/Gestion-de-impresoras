@@ -148,19 +148,33 @@ class _ImpresorasPageState extends ConsumerState<ImpresorasPage> {
                                       ),
                                     ],
                                   )
-                                else if (imp.esAColor) 
-                                  Wrap(
-                                    spacing: 8,
-                                    runSpacing: 4,
+                                else
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      _buildTonerIndicator('Cian', _hasToner(impToners, 'Cian')),
-                                      _buildTonerIndicator('Magenta', _hasToner(impToners, 'Magenta')),
-                                      _buildTonerIndicator('Negro', _hasToner(impToners, 'Negro')),
-                                      _buildTonerIndicator('Amarillo', _hasToner(impToners, 'Amarillo')),
+                                      const Text(
+                                        'Tóneres asociados:',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      ...impToners.map((toner) => Padding(
+                                            padding: const EdgeInsets.symmetric(vertical: 4),
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.circle,
+                                                  color: _getTonerColor(toner.color),
+                                                  size: 16,
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Text('${toner.color} - ${toner.estado} - ${imp.marca} ${imp.modelo}'),
+                                              ],
+                                            ),
+                                          )),
                                     ],
-                                  )
-                                else if (imp.marca.toLowerCase() == 'ricoh')
-                                  _buildTonerIndicator('Negro', _hasToner(impToners, 'Negro')),
+                                  ),
                                 const SizedBox(height: 8),
                                 Align(
                                   alignment: Alignment.centerRight,
@@ -252,36 +266,6 @@ class _ImpresorasPageState extends ConsumerState<ImpresorasPage> {
           fontSize: 12,
           fontWeight: FontWeight.bold,
         ),
-      ),
-    );
-  }
-
-  bool _hasToner(List<Tonere> toners, String color) {
-    // Solo cuenta los toners cuyo estado es 'almacenado'
-    return toners.any((t) => t.color.toLowerCase() == color.toLowerCase() && t.estado == 'almacenado');
-  }
-
-  Widget _buildTonerIndicator(String color, bool disponible) {
-    return Chip(
-      backgroundColor: disponible ? Colors.green[50] : Colors.grey[200],
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-        side: BorderSide(
-          color: disponible ? Colors.green : Colors.grey,
-          width: 1,
-        ),
-      ),
-      label: Text(
-        color,
-        style: TextStyle(
-          color: disponible ? Colors.green[800] : Colors.grey[600],
-          fontSize: 12,
-        ),
-      ),
-      avatar: Icon(
-        disponible ? Icons.check_circle : Icons.circle_outlined,
-        color: disponible ? Colors.green : Colors.grey,
-        size: 16,
       ),
     );
   }
@@ -499,6 +483,21 @@ class _ImpresorasPageState extends ConsumerState<ImpresorasPage> {
         },
       ),
     );
+  }
+
+  Color _getTonerColor(String color) {
+    switch (color.toLowerCase()) {
+      case 'cian':
+        return Colors.cyan;
+      case 'magenta':
+        return Colors.pink;
+      case 'amarillo':
+        return Colors.yellow;
+      case 'negro':
+        return Colors.black;
+      default:
+        return Colors.grey;
+    }
   }
 }
 
