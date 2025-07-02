@@ -269,6 +269,11 @@ class _RequisicionesPageState extends ConsumerState<RequisicionesPage> {
                                       })
                                   : null,
                             )),
+                        if (selectedColors.isEmpty)
+                          const Text(
+                            'Seleccione al menos un color',
+                            style: TextStyle(color: Colors.red),
+                          ),
                         const SizedBox(height: 16),
                         TextFormField(
                           controller: fechaP,
@@ -363,6 +368,14 @@ class _RequisicionesPageState extends ConsumerState<RequisicionesPage> {
                   return;
                 }
 
+                if (fechaE.text.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('La fecha estimada de entrega es obligatoria')),
+                  );
+                  return;
+                }
+
                 final dao = ref.read(requisicionesDaoProvider);
                 final tonersDao = ref.read(toneresDaoProvider);
 
@@ -395,9 +408,7 @@ class _RequisicionesPageState extends ConsumerState<RequisicionesPage> {
                       id: isNew ? const Value.absent() : Value(r.id),
                       tonereId: Value(toner.id),
                       fechaPedido: Value(DateTime.parse(fechaP.text)),
-                      fechaEstimEntrega: fechaE.text.isEmpty
-                          ? const Value.absent()
-                          : Value(DateTime.parse(fechaE.text)),
+                      fechaEstimEntrega: Value(DateTime.parse(fechaE.text)),
                       estado: Value(estado),
                     );
 
@@ -439,27 +450,39 @@ class _RequisicionesPageState extends ConsumerState<RequisicionesPage> {
       final dao = ref.read(requisicionesDaoProvider);
       final tonersDao = ref.read(toneresDaoProvider);
 
+      // Obtener la requisición existente
+      final requisicion = await dao.getById(id);
+      if (requisicion == null) {
+        throw Exception('Requisición no encontrada');
+      }
+
       // Actualizar el estado de la requisición
       await dao.updateOne(
         RequisicionesCompanion(
           id: Value(id),
+          tonereId: Value(requisicion.tonereId),
+          fechaPedido: Value(requisicion.fechaPedido),
+          fechaEstimEntrega: Value(requisicion.fechaEstimEntrega),
           estado: Value(nuevoEstado),
+          proveedor: Value(requisicion.proveedor),
         ),
       );
 
       // Si se marca como completada, actualizar el tóner asociado
       if (nuevoEstado == 'completada') {
-        final requisicion = await dao.getById(id);
-        if (requisicion != null) {
-          final toner = await tonersDao.getById(requisicion.tonereId);
-          if (toner != null) {
-            await tonersDao.updateOne(
-              ToneresCompanion(
-                id: Value(toner.id),
-                estado: Value('almacenado'),
-              ),
-            );
-          }
+        final toner = await tonersDao.getById(requisicion.tonereId);
+        if (toner != null) {
+          await tonersDao.updateOne(
+            ToneresCompanion(
+              id: Value(toner.id),
+              impresoraId: Value(toner.impresoraId), // Asegurar que se incluya impresoraId
+              color: Value(toner.color), // Asegurar que se incluya color
+              estado: Value('almacenado'),
+              fechaInstalacion: toner.fechaInstalacion != null ? Value(toner.fechaInstalacion!) : const Value.absent(),
+              fechaEstimEntrega: toner.fechaEstimEntrega != null ? Value(toner.fechaEstimEntrega!) : const Value.absent(),
+              fechaEntregaReal: toner.fechaEntregaReal != null ? Value(toner.fechaEntregaReal!) : const Value.absent(),
+            ),
+          );
         }
       }
 

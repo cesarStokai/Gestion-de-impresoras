@@ -76,15 +76,25 @@ class Documentos extends Table {
       dateTime().customConstraint('NOT NULL DEFAULT CURRENT_TIMESTAMP')();
 }
 
+class Contadores extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get impresoraId => integer().customConstraint('NOT NULL REFERENCES impresoras(id)')();
+  TextColumn get mes => text().customConstraint('NOT NULL')(); // Formato: YYYY-MM
+  IntColumn get contador => integer().customConstraint('NOT NULL')();
+  DateTimeColumn get fechaRegistro => dateTime().withDefault(currentDateAndTime)();
+  TextColumn get observaciones => text().nullable()();
+}
+
 
 @DriftDatabase(
-  tables: [Impresoras, Toneres, Requisiciones, Mantenimientos, Documentos],
+  tables: [Impresoras, Toneres, Requisiciones, Mantenimientos, Documentos, Contadores],
   daos: [
     ImpresorasDao,
     ToneresDao,
     RequisicionesDao,
     MantenimientosDao,
     DocumentosDao
+    // Puedes agregar un ContadoresDao si lo necesitas
   ],
 )
 class AppDatabase extends _$AppDatabase {

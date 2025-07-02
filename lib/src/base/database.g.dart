@@ -1847,6 +1847,360 @@ class DocumentosCompanion extends UpdateCompanion<Documento> {
   }
 }
 
+class $ContadoresTable extends Contadores
+    with TableInfo<$ContadoresTable, Contadore> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ContadoresTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _impresoraIdMeta =
+      const VerificationMeta('impresoraId');
+  @override
+  late final GeneratedColumn<int> impresoraId = GeneratedColumn<int>(
+      'impresora_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL REFERENCES impresoras(id)');
+  static const VerificationMeta _mesMeta = const VerificationMeta('mes');
+  @override
+  late final GeneratedColumn<String> mes = GeneratedColumn<String>(
+      'mes', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
+  static const VerificationMeta _contadorMeta =
+      const VerificationMeta('contador');
+  @override
+  late final GeneratedColumn<int> contador = GeneratedColumn<int>(
+      'contador', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
+  static const VerificationMeta _fechaRegistroMeta =
+      const VerificationMeta('fechaRegistro');
+  @override
+  late final GeneratedColumn<DateTime> fechaRegistro =
+      GeneratedColumn<DateTime>('fecha_registro', aliasedName, false,
+          type: DriftSqlType.dateTime,
+          requiredDuringInsert: false,
+          defaultValue: currentDateAndTime);
+  static const VerificationMeta _observacionesMeta =
+      const VerificationMeta('observaciones');
+  @override
+  late final GeneratedColumn<String> observaciones = GeneratedColumn<String>(
+      'observaciones', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, impresoraId, mes, contador, fechaRegistro, observaciones];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'contadores';
+  @override
+  VerificationContext validateIntegrity(Insertable<Contadore> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('impresora_id')) {
+      context.handle(
+          _impresoraIdMeta,
+          impresoraId.isAcceptableOrUnknown(
+              data['impresora_id']!, _impresoraIdMeta));
+    } else if (isInserting) {
+      context.missing(_impresoraIdMeta);
+    }
+    if (data.containsKey('mes')) {
+      context.handle(
+          _mesMeta, mes.isAcceptableOrUnknown(data['mes']!, _mesMeta));
+    } else if (isInserting) {
+      context.missing(_mesMeta);
+    }
+    if (data.containsKey('contador')) {
+      context.handle(_contadorMeta,
+          contador.isAcceptableOrUnknown(data['contador']!, _contadorMeta));
+    } else if (isInserting) {
+      context.missing(_contadorMeta);
+    }
+    if (data.containsKey('fecha_registro')) {
+      context.handle(
+          _fechaRegistroMeta,
+          fechaRegistro.isAcceptableOrUnknown(
+              data['fecha_registro']!, _fechaRegistroMeta));
+    }
+    if (data.containsKey('observaciones')) {
+      context.handle(
+          _observacionesMeta,
+          observaciones.isAcceptableOrUnknown(
+              data['observaciones']!, _observacionesMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Contadore map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Contadore(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      impresoraId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}impresora_id'])!,
+      mes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}mes'])!,
+      contador: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}contador'])!,
+      fechaRegistro: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}fecha_registro'])!,
+      observaciones: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}observaciones']),
+    );
+  }
+
+  @override
+  $ContadoresTable createAlias(String alias) {
+    return $ContadoresTable(attachedDatabase, alias);
+  }
+}
+
+class Contadore extends DataClass implements Insertable<Contadore> {
+  final int id;
+  final int impresoraId;
+  final String mes;
+  final int contador;
+  final DateTime fechaRegistro;
+  final String? observaciones;
+  const Contadore(
+      {required this.id,
+      required this.impresoraId,
+      required this.mes,
+      required this.contador,
+      required this.fechaRegistro,
+      this.observaciones});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['impresora_id'] = Variable<int>(impresoraId);
+    map['mes'] = Variable<String>(mes);
+    map['contador'] = Variable<int>(contador);
+    map['fecha_registro'] = Variable<DateTime>(fechaRegistro);
+    if (!nullToAbsent || observaciones != null) {
+      map['observaciones'] = Variable<String>(observaciones);
+    }
+    return map;
+  }
+
+  ContadoresCompanion toCompanion(bool nullToAbsent) {
+    return ContadoresCompanion(
+      id: Value(id),
+      impresoraId: Value(impresoraId),
+      mes: Value(mes),
+      contador: Value(contador),
+      fechaRegistro: Value(fechaRegistro),
+      observaciones: observaciones == null && nullToAbsent
+          ? const Value.absent()
+          : Value(observaciones),
+    );
+  }
+
+  factory Contadore.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Contadore(
+      id: serializer.fromJson<int>(json['id']),
+      impresoraId: serializer.fromJson<int>(json['impresoraId']),
+      mes: serializer.fromJson<String>(json['mes']),
+      contador: serializer.fromJson<int>(json['contador']),
+      fechaRegistro: serializer.fromJson<DateTime>(json['fechaRegistro']),
+      observaciones: serializer.fromJson<String?>(json['observaciones']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'impresoraId': serializer.toJson<int>(impresoraId),
+      'mes': serializer.toJson<String>(mes),
+      'contador': serializer.toJson<int>(contador),
+      'fechaRegistro': serializer.toJson<DateTime>(fechaRegistro),
+      'observaciones': serializer.toJson<String?>(observaciones),
+    };
+  }
+
+  Contadore copyWith(
+          {int? id,
+          int? impresoraId,
+          String? mes,
+          int? contador,
+          DateTime? fechaRegistro,
+          Value<String?> observaciones = const Value.absent()}) =>
+      Contadore(
+        id: id ?? this.id,
+        impresoraId: impresoraId ?? this.impresoraId,
+        mes: mes ?? this.mes,
+        contador: contador ?? this.contador,
+        fechaRegistro: fechaRegistro ?? this.fechaRegistro,
+        observaciones:
+            observaciones.present ? observaciones.value : this.observaciones,
+      );
+  Contadore copyWithCompanion(ContadoresCompanion data) {
+    return Contadore(
+      id: data.id.present ? data.id.value : this.id,
+      impresoraId:
+          data.impresoraId.present ? data.impresoraId.value : this.impresoraId,
+      mes: data.mes.present ? data.mes.value : this.mes,
+      contador: data.contador.present ? data.contador.value : this.contador,
+      fechaRegistro: data.fechaRegistro.present
+          ? data.fechaRegistro.value
+          : this.fechaRegistro,
+      observaciones: data.observaciones.present
+          ? data.observaciones.value
+          : this.observaciones,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Contadore(')
+          ..write('id: $id, ')
+          ..write('impresoraId: $impresoraId, ')
+          ..write('mes: $mes, ')
+          ..write('contador: $contador, ')
+          ..write('fechaRegistro: $fechaRegistro, ')
+          ..write('observaciones: $observaciones')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, impresoraId, mes, contador, fechaRegistro, observaciones);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Contadore &&
+          other.id == this.id &&
+          other.impresoraId == this.impresoraId &&
+          other.mes == this.mes &&
+          other.contador == this.contador &&
+          other.fechaRegistro == this.fechaRegistro &&
+          other.observaciones == this.observaciones);
+}
+
+class ContadoresCompanion extends UpdateCompanion<Contadore> {
+  final Value<int> id;
+  final Value<int> impresoraId;
+  final Value<String> mes;
+  final Value<int> contador;
+  final Value<DateTime> fechaRegistro;
+  final Value<String?> observaciones;
+  const ContadoresCompanion({
+    this.id = const Value.absent(),
+    this.impresoraId = const Value.absent(),
+    this.mes = const Value.absent(),
+    this.contador = const Value.absent(),
+    this.fechaRegistro = const Value.absent(),
+    this.observaciones = const Value.absent(),
+  });
+  ContadoresCompanion.insert({
+    this.id = const Value.absent(),
+    required int impresoraId,
+    required String mes,
+    required int contador,
+    this.fechaRegistro = const Value.absent(),
+    this.observaciones = const Value.absent(),
+  })  : impresoraId = Value(impresoraId),
+        mes = Value(mes),
+        contador = Value(contador);
+  static Insertable<Contadore> custom({
+    Expression<int>? id,
+    Expression<int>? impresoraId,
+    Expression<String>? mes,
+    Expression<int>? contador,
+    Expression<DateTime>? fechaRegistro,
+    Expression<String>? observaciones,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (impresoraId != null) 'impresora_id': impresoraId,
+      if (mes != null) 'mes': mes,
+      if (contador != null) 'contador': contador,
+      if (fechaRegistro != null) 'fecha_registro': fechaRegistro,
+      if (observaciones != null) 'observaciones': observaciones,
+    });
+  }
+
+  ContadoresCompanion copyWith(
+      {Value<int>? id,
+      Value<int>? impresoraId,
+      Value<String>? mes,
+      Value<int>? contador,
+      Value<DateTime>? fechaRegistro,
+      Value<String?>? observaciones}) {
+    return ContadoresCompanion(
+      id: id ?? this.id,
+      impresoraId: impresoraId ?? this.impresoraId,
+      mes: mes ?? this.mes,
+      contador: contador ?? this.contador,
+      fechaRegistro: fechaRegistro ?? this.fechaRegistro,
+      observaciones: observaciones ?? this.observaciones,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (impresoraId.present) {
+      map['impresora_id'] = Variable<int>(impresoraId.value);
+    }
+    if (mes.present) {
+      map['mes'] = Variable<String>(mes.value);
+    }
+    if (contador.present) {
+      map['contador'] = Variable<int>(contador.value);
+    }
+    if (fechaRegistro.present) {
+      map['fecha_registro'] = Variable<DateTime>(fechaRegistro.value);
+    }
+    if (observaciones.present) {
+      map['observaciones'] = Variable<String>(observaciones.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ContadoresCompanion(')
+          ..write('id: $id, ')
+          ..write('impresoraId: $impresoraId, ')
+          ..write('mes: $mes, ')
+          ..write('contador: $contador, ')
+          ..write('fechaRegistro: $fechaRegistro, ')
+          ..write('observaciones: $observaciones')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -1855,6 +2209,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $RequisicionesTable requisiciones = $RequisicionesTable(this);
   late final $MantenimientosTable mantenimientos = $MantenimientosTable(this);
   late final $DocumentosTable documentos = $DocumentosTable(this);
+  late final $ContadoresTable contadores = $ContadoresTable(this);
   late final ImpresorasDao impresorasDao = ImpresorasDao(this as AppDatabase);
   late final ToneresDao toneresDao = ToneresDao(this as AppDatabase);
   late final RequisicionesDao requisicionesDao =
@@ -1866,8 +2221,14 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [impresoras, toneres, requisiciones, mantenimientos, documentos];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+        impresoras,
+        toneres,
+        requisiciones,
+        mantenimientos,
+        documentos,
+        contadores
+      ];
 }
 
 typedef $$ImpresorasTableCreateCompanionBuilder = ImpresorasCompanion Function({
@@ -1935,6 +2296,21 @@ final class $$ImpresorasTableReferences
             (f) => f.nuevaImpresoraId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_reemplazoTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+
+  static MultiTypedResultKey<$ContadoresTable, List<Contadore>>
+      _contadoresRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.contadores,
+              aliasName: $_aliasNameGenerator(
+                  db.impresoras.id, db.contadores.impresoraId));
+
+  $$ContadoresTableProcessedTableManager get contadoresRefs {
+    final manager = $$ContadoresTableTableManager($_db, $_db.contadores)
+        .filter((f) => f.impresoraId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_contadoresRefsTable($_db));
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: cache));
   }
@@ -2025,6 +2401,27 @@ class $$ImpresorasTableFilterComposer
             $$MantenimientosTableFilterComposer(
               $db: $db,
               $table: $db.mantenimientos,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<bool> contadoresRefs(
+      Expression<bool> Function($$ContadoresTableFilterComposer f) f) {
+    final $$ContadoresTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.contadores,
+        getReferencedColumn: (t) => t.impresoraId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ContadoresTableFilterComposer(
+              $db: $db,
+              $table: $db.contadores,
               $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
               joinBuilder: joinBuilder,
               $removeJoinBuilderFromRootComposer:
@@ -2157,6 +2554,27 @@ class $$ImpresorasTableAnnotationComposer
             ));
     return f(composer);
   }
+
+  Expression<T> contadoresRefs<T extends Object>(
+      Expression<T> Function($$ContadoresTableAnnotationComposer a) f) {
+    final $$ContadoresTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.contadores,
+        getReferencedColumn: (t) => t.impresoraId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ContadoresTableAnnotationComposer(
+              $db: $db,
+              $table: $db.contadores,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 }
 
 class $$ImpresorasTableTableManager extends RootTableManager<
@@ -2170,7 +2588,8 @@ class $$ImpresorasTableTableManager extends RootTableManager<
     $$ImpresorasTableUpdateCompanionBuilder,
     (Impresora, $$ImpresorasTableReferences),
     Impresora,
-    PrefetchHooks Function({bool toneresRefs, bool origen, bool reemplazo})> {
+    PrefetchHooks Function(
+        {bool toneresRefs, bool origen, bool reemplazo, bool contadoresRefs})> {
   $$ImpresorasTableTableManager(_$AppDatabase db, $ImpresorasTable table)
       : super(TableManagerState(
           db: db,
@@ -2224,13 +2643,17 @@ class $$ImpresorasTableTableManager extends RootTableManager<
                   ))
               .toList(),
           prefetchHooksCallback: (
-              {toneresRefs = false, origen = false, reemplazo = false}) {
+              {toneresRefs = false,
+              origen = false,
+              reemplazo = false,
+              contadoresRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [
                 if (toneresRefs) db.toneres,
                 if (origen) db.mantenimientos,
-                if (reemplazo) db.mantenimientos
+                if (reemplazo) db.mantenimientos,
+                if (contadoresRefs) db.contadores
               ],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
@@ -2272,6 +2695,19 @@ class $$ImpresorasTableTableManager extends RootTableManager<
                         referencedItemsForCurrentItem:
                             (item, referencedItems) => referencedItems
                                 .where((e) => e.nuevaImpresoraId == item.id),
+                        typedResults: items),
+                  if (contadoresRefs)
+                    await $_getPrefetchedData<Impresora, $ImpresorasTable,
+                            Contadore>(
+                        currentTable: table,
+                        referencedTable: $$ImpresorasTableReferences
+                            ._contadoresRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$ImpresorasTableReferences(db, table, p0)
+                                .contadoresRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.impresoraId == item.id),
                         typedResults: items)
                 ];
               },
@@ -2291,7 +2727,8 @@ typedef $$ImpresorasTableProcessedTableManager = ProcessedTableManager<
     $$ImpresorasTableUpdateCompanionBuilder,
     (Impresora, $$ImpresorasTableReferences),
     Impresora,
-    PrefetchHooks Function({bool toneresRefs, bool origen, bool reemplazo})>;
+    PrefetchHooks Function(
+        {bool toneresRefs, bool origen, bool reemplazo, bool contadoresRefs})>;
 typedef $$ToneresTableCreateCompanionBuilder = ToneresCompanion Function({
   Value<int> id,
   required int impresoraId,
@@ -3495,6 +3932,290 @@ typedef $$DocumentosTableProcessedTableManager = ProcessedTableManager<
     (Documento, BaseReferences<_$AppDatabase, $DocumentosTable, Documento>),
     Documento,
     PrefetchHooks Function()>;
+typedef $$ContadoresTableCreateCompanionBuilder = ContadoresCompanion Function({
+  Value<int> id,
+  required int impresoraId,
+  required String mes,
+  required int contador,
+  Value<DateTime> fechaRegistro,
+  Value<String?> observaciones,
+});
+typedef $$ContadoresTableUpdateCompanionBuilder = ContadoresCompanion Function({
+  Value<int> id,
+  Value<int> impresoraId,
+  Value<String> mes,
+  Value<int> contador,
+  Value<DateTime> fechaRegistro,
+  Value<String?> observaciones,
+});
+
+final class $$ContadoresTableReferences
+    extends BaseReferences<_$AppDatabase, $ContadoresTable, Contadore> {
+  $$ContadoresTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $ImpresorasTable _impresoraIdTable(_$AppDatabase db) =>
+      db.impresoras.createAlias(
+          $_aliasNameGenerator(db.contadores.impresoraId, db.impresoras.id));
+
+  $$ImpresorasTableProcessedTableManager get impresoraId {
+    final $_column = $_itemColumn<int>('impresora_id')!;
+
+    final manager = $$ImpresorasTableTableManager($_db, $_db.impresoras)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_impresoraIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$ContadoresTableFilterComposer
+    extends Composer<_$AppDatabase, $ContadoresTable> {
+  $$ContadoresTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get mes => $composableBuilder(
+      column: $table.mes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get contador => $composableBuilder(
+      column: $table.contador, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get fechaRegistro => $composableBuilder(
+      column: $table.fechaRegistro, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get observaciones => $composableBuilder(
+      column: $table.observaciones, builder: (column) => ColumnFilters(column));
+
+  $$ImpresorasTableFilterComposer get impresoraId {
+    final $$ImpresorasTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.impresoraId,
+        referencedTable: $db.impresoras,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ImpresorasTableFilterComposer(
+              $db: $db,
+              $table: $db.impresoras,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$ContadoresTableOrderingComposer
+    extends Composer<_$AppDatabase, $ContadoresTable> {
+  $$ContadoresTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get mes => $composableBuilder(
+      column: $table.mes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get contador => $composableBuilder(
+      column: $table.contador, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get fechaRegistro => $composableBuilder(
+      column: $table.fechaRegistro,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get observaciones => $composableBuilder(
+      column: $table.observaciones,
+      builder: (column) => ColumnOrderings(column));
+
+  $$ImpresorasTableOrderingComposer get impresoraId {
+    final $$ImpresorasTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.impresoraId,
+        referencedTable: $db.impresoras,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ImpresorasTableOrderingComposer(
+              $db: $db,
+              $table: $db.impresoras,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$ContadoresTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ContadoresTable> {
+  $$ContadoresTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get mes =>
+      $composableBuilder(column: $table.mes, builder: (column) => column);
+
+  GeneratedColumn<int> get contador =>
+      $composableBuilder(column: $table.contador, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get fechaRegistro => $composableBuilder(
+      column: $table.fechaRegistro, builder: (column) => column);
+
+  GeneratedColumn<String> get observaciones => $composableBuilder(
+      column: $table.observaciones, builder: (column) => column);
+
+  $$ImpresorasTableAnnotationComposer get impresoraId {
+    final $$ImpresorasTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.impresoraId,
+        referencedTable: $db.impresoras,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ImpresorasTableAnnotationComposer(
+              $db: $db,
+              $table: $db.impresoras,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$ContadoresTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $ContadoresTable,
+    Contadore,
+    $$ContadoresTableFilterComposer,
+    $$ContadoresTableOrderingComposer,
+    $$ContadoresTableAnnotationComposer,
+    $$ContadoresTableCreateCompanionBuilder,
+    $$ContadoresTableUpdateCompanionBuilder,
+    (Contadore, $$ContadoresTableReferences),
+    Contadore,
+    PrefetchHooks Function({bool impresoraId})> {
+  $$ContadoresTableTableManager(_$AppDatabase db, $ContadoresTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ContadoresTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ContadoresTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ContadoresTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<int> impresoraId = const Value.absent(),
+            Value<String> mes = const Value.absent(),
+            Value<int> contador = const Value.absent(),
+            Value<DateTime> fechaRegistro = const Value.absent(),
+            Value<String?> observaciones = const Value.absent(),
+          }) =>
+              ContadoresCompanion(
+            id: id,
+            impresoraId: impresoraId,
+            mes: mes,
+            contador: contador,
+            fechaRegistro: fechaRegistro,
+            observaciones: observaciones,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required int impresoraId,
+            required String mes,
+            required int contador,
+            Value<DateTime> fechaRegistro = const Value.absent(),
+            Value<String?> observaciones = const Value.absent(),
+          }) =>
+              ContadoresCompanion.insert(
+            id: id,
+            impresoraId: impresoraId,
+            mes: mes,
+            contador: contador,
+            fechaRegistro: fechaRegistro,
+            observaciones: observaciones,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$ContadoresTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({impresoraId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (impresoraId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.impresoraId,
+                    referencedTable:
+                        $$ContadoresTableReferences._impresoraIdTable(db),
+                    referencedColumn:
+                        $$ContadoresTableReferences._impresoraIdTable(db).id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$ContadoresTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $ContadoresTable,
+    Contadore,
+    $$ContadoresTableFilterComposer,
+    $$ContadoresTableOrderingComposer,
+    $$ContadoresTableAnnotationComposer,
+    $$ContadoresTableCreateCompanionBuilder,
+    $$ContadoresTableUpdateCompanionBuilder,
+    (Contadore, $$ContadoresTableReferences),
+    Contadore,
+    PrefetchHooks Function({bool impresoraId})>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -3509,4 +4230,6 @@ class $AppDatabaseManager {
       $$MantenimientosTableTableManager(_db, _db.mantenimientos);
   $$DocumentosTableTableManager get documentos =>
       $$DocumentosTableTableManager(_db, _db.documentos);
+  $$ContadoresTableTableManager get contadores =>
+      $$ContadoresTableTableManager(_db, _db.contadores);
 }

@@ -5,6 +5,9 @@ import 'requisiciones_page.dart';
 import 'mantenimientos_page.dart';
 import 'historial_page.dart';
 import 'exportar_datos_page.dart'; // Asegúrate de crear este archivo
+import 'importar_datos_page.dart';
+import 'respaldo_datos_page.dart';
+import 'contadores_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -21,7 +24,10 @@ class _HomePageState extends State<HomePage> {
     RequisicionesPage(),
     MantenimientosPage(),
     HistorialPage(),
-    ExportarDatosPage(), // Nueva página de exportación
+    ExportarDatosPage(),
+    ImportarDatosPage(),
+    RespaldoDatosPage(), // Nueva página de respaldo/restauración
+    ContadoresPage(),    // Nueva página de contadores mensuales
   ];
 
   @override
@@ -63,6 +69,9 @@ class _HomePageState extends State<HomePage> {
                 NavigationRailDestination(icon: Icon(Icons.build), label: Text('Mantenimientos')),
                 NavigationRailDestination(icon: Icon(Icons.history), label: Text('Historial')),
                 NavigationRailDestination(icon: Icon(Icons.file_download), label: Text('Exportar')),
+                NavigationRailDestination(icon: Icon(Icons.file_upload), label: Text('Importar')),
+                NavigationRailDestination(icon: Icon(Icons.backup), label: Text('Respaldo')), // Nueva opción
+                NavigationRailDestination(icon: Icon(Icons.countertops), label: Text('Contadores')), // Nueva opción
               ],
               labelType: NavigationRailLabelType.all,
               minWidth: 75,
