@@ -24,11 +24,24 @@ class Impresoras extends Table {
       "CHECK(estado IN ('activa','pendiente_baja','baja','mantenimiento'))")();
 }
 
+// Tabla de modelos de tóner
+class ModelosTonner extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get nombre => text().customConstraint('NOT NULL')();
+}
+
+// Tabla de compatibilidad modelo impresora <-> modelo tóner
+class ModeloTonnerCompatible extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get modeloImpresora => text().customConstraint('NOT NULL')();
+  IntColumn get modeloTonnerId => integer().customConstraint('NOT NULL REFERENCES modelos_tonner(id)')();
+}
 
 class Toneres extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get impresoraId =>
       integer().customConstraint('NOT NULL REFERENCES impresoras(id)')();
+  IntColumn get modeloTonnerId => integer().nullable().customConstraint('REFERENCES modelos_tonner(id)')();
   TextColumn get color => text().customConstraint('NOT NULL')();
   TextColumn get estado => text().customConstraint("NOT NULL "
       "DEFAULT 'almacenado' "
@@ -87,7 +100,7 @@ class Contadores extends Table {
 
 
 @DriftDatabase(
-  tables: [Impresoras, Toneres, Requisiciones, Mantenimientos, Documentos, Contadores],
+  tables: [Impresoras, Toneres, ModelosTonner, ModeloTonnerCompatible, Requisiciones, Mantenimientos, Documentos, Contadores],
   daos: [
     ImpresorasDao,
     ToneresDao,

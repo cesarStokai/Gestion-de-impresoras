@@ -36,4 +36,32 @@ class MantenimientosDao extends DatabaseAccessor<AppDatabase>
 
       Future<List<Mantenimiento>> getAll() => select(mantenimientos).get();
 
+  /// Obtiene todos los mantenimientos (con datos de impresora) en un rango de fechas
+  Future<List<Map<String, dynamic>>> getMantenimientosPorRangoFechas(DateTime desde, DateTime hasta) async {
+    final query = select(mantenimientos).join([
+      leftOuterJoin(impresoras, impresoras.id.equalsExp(mantenimientos.impresoraId)),
+    ])
+      ..where(mantenimientos.fecha.isBiggerOrEqualValue(desde))
+      ..where(mantenimientos.fecha.isSmallerOrEqualValue(hasta));
+
+    final rows = await query.get();
+    return rows.map((row) {
+      final mant = row.readTable(mantenimientos);
+      final imp = row.readTableOrNull(impresoras);
+      return {
+        'id': mant.id,
+        'impresoraId': mant.impresoraId,
+        'fecha': mant.fecha,
+        'detalle': mant.detalle,
+        'reemplazoImpresora': mant.reemplazoImpresora,
+        'nuevaImpresoraId': mant.nuevaImpresoraId,
+        'marca': imp?.marca,
+        'modelo': imp?.modelo,
+        'area': imp?.area,
+        'serie': imp?.serie,
+        'tipo': 'mantenimiento',
+      };
+    }).toList();
+  }
+
 }

@@ -8,6 +8,7 @@ import 'exportar_datos_page.dart'; // Asegúrate de crear este archivo
 import 'importar_datos_page.dart';
 import 'respaldo_datos_page.dart';
 import 'contadores_page.dart';
+import 'contadores_historial_page.dart'; // Importa la nueva página
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -26,8 +27,9 @@ class _HomePageState extends State<HomePage> {
     HistorialPage(),
     ExportarDatosPage(),
     ImportarDatosPage(),
-    RespaldoDatosPage(), // Nueva página de respaldo/restauración
-    ContadoresPage(),    // Nueva página de contadores mensuales
+    RespaldoDatosPage(),
+    ContadoresPage(),
+    ContadoresHistorialPage(), // Nueva página de historial de contadores
   ];
 
   @override
@@ -72,6 +74,7 @@ class _HomePageState extends State<HomePage> {
                 NavigationRailDestination(icon: Icon(Icons.file_upload), label: Text('Importar')),
                 NavigationRailDestination(icon: Icon(Icons.backup), label: Text('Respaldo')), // Nueva opción
                 NavigationRailDestination(icon: Icon(Icons.countertops), label: Text('Contadores')), // Nueva opción
+                NavigationRailDestination(icon: Icon(Icons.history_edu), label: Text('Historial Contadores')), // Nueva opción
               ],
               labelType: NavigationRailLabelType.all,
               minWidth: 75,

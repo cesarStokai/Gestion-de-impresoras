@@ -6,6 +6,7 @@ import '../daos/requisiciones_dao.dart';
 import '../daos/mantenimientos_dao.dart';
 import '../daos/documentos_dao.dart';
 import '../daos/contadores_dao.dart';
+import '../daos/modelos_tonner_dao.dart';
 
 /// Base de datos
 final databaseProvider = Provider<AppDatabase>((ref) {
@@ -30,6 +31,9 @@ final mantenimientosDaoProvider = Provider<MantenimientosDao>(
 final documentosDaoProvider = Provider<DocumentosDao>(
   (ref) => DocumentosDao(ref.watch(databaseProvider)),
 );
+final modelosTonnerDaoProvider = Provider<ModelosTonnerDao>(
+  (ref) => ModelosTonnerDao(ref.watch(databaseProvider)),
+);
 
 final impresorasListStreamProvider =
     StreamProvider.autoDispose<List<Impresora>>(
@@ -53,10 +57,6 @@ final mantenimientosListStreamProvider =
     StreamProvider.autoDispose<List<Mantenimiento>>(
   (ref) => ref.watch(mantenimientosDaoProvider).watchAll(),
 );
-
-
-
-
 
 final documentosProvider = StreamProvider<List<Documento>>((ref) {
   final dao = ref.watch(documentosDaoProvider);

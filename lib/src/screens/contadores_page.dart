@@ -66,6 +66,7 @@ class _ContadoresPageState extends ConsumerState<ContadoresPage> {
   @override
   Widget build(BuildContext context) {
     final impresorasAsync = ref.watch(impresorasDaoProvider).getAllImpresoras().asStream();
+    final contadoresDao = ref.read(contadoresDaoProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Contadores mensuales'),
@@ -104,13 +105,18 @@ class _ContadoresPageState extends ConsumerState<ContadoresPage> {
             ),
             const SizedBox(height: 24),
             Expanded(
-              child: StreamBuilder<List>(
-                stream: impresorasAsync,
+              child: FutureBuilder<List>(
+                future: Future.wait([
+                  impresorasAsync.first,
+                  contadoresDao.getByMes(mesString),
+                ]),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
                     return const Center(child: CircularProgressIndicator());
                   }
-                  final impresoras = snapshot.data!;
+                  final impresoras = snapshot.data![0] as List;
+                  final contadores = snapshot.data![1] as List;
+                  final contadoresMap = {for (var c in contadores) c.impresoraId: c};
                   if (impresoras.isEmpty) {
                     return const Center(child: Text('No hay impresoras registradas.'));
                   }
@@ -119,18 +125,26 @@ class _ContadoresPageState extends ConsumerState<ContadoresPage> {
                     separatorBuilder: (_, __) => const Divider(),
                     itemBuilder: (context, i) {
                       final imp = impresoras[i];
-                      _controllers.putIfAbsent(imp.id, () => TextEditingController());
+                      final contadorExistente = contadoresMap[imp.id];
+                      final controller = _controllers.putIfAbsent(imp.id, () => TextEditingController());
+                      if (contadorExistente != null) {
+                        controller.text = contadorExistente.contador.toString();
+                      } else {
+                        controller.text = '';
+                      }
                       return ListTile(
                         title: Text('${imp.marca} ${imp.modelo}'),
-                        subtitle: Text('Área: ${imp.area} | Serie: ${imp.serie}'),
+                        subtitle: Text('Área: ${imp.area} | Serie: ${imp.serie}' + (contadorExistente != null ? '  |  Ya registrado' : '')),
                         trailing: SizedBox(
-                          width: 100,
+                          width: 120,
                           child: TextField(
-                            controller: _controllers[imp.id],
+                            controller: controller,
                             keyboardType: TextInputType.number,
-                            decoration: const InputDecoration(
+                            enabled: contadorExistente == null,
+                            decoration: InputDecoration(
                               labelText: 'Contador',
-                              border: OutlineInputBorder(),
+                              border: const OutlineInputBorder(),
+                              suffixIcon: contadorExistente != null ? const Icon(Icons.lock, size: 18) : null,
                             ),
                           ),
                         ),

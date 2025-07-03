@@ -382,6 +382,188 @@ class ImpresorasCompanion extends UpdateCompanion<Impresora> {
   }
 }
 
+class $ModelosTonnerTable extends ModelosTonner
+    with TableInfo<$ModelosTonnerTable, ModelosTonnerData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ModelosTonnerTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _nombreMeta = const VerificationMeta('nombre');
+  @override
+  late final GeneratedColumn<String> nombre = GeneratedColumn<String>(
+      'nombre', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
+  @override
+  List<GeneratedColumn> get $columns => [id, nombre];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'modelos_tonner';
+  @override
+  VerificationContext validateIntegrity(Insertable<ModelosTonnerData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('nombre')) {
+      context.handle(_nombreMeta,
+          nombre.isAcceptableOrUnknown(data['nombre']!, _nombreMeta));
+    } else if (isInserting) {
+      context.missing(_nombreMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ModelosTonnerData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ModelosTonnerData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      nombre: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}nombre'])!,
+    );
+  }
+
+  @override
+  $ModelosTonnerTable createAlias(String alias) {
+    return $ModelosTonnerTable(attachedDatabase, alias);
+  }
+}
+
+class ModelosTonnerData extends DataClass
+    implements Insertable<ModelosTonnerData> {
+  final int id;
+  final String nombre;
+  const ModelosTonnerData({required this.id, required this.nombre});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['nombre'] = Variable<String>(nombre);
+    return map;
+  }
+
+  ModelosTonnerCompanion toCompanion(bool nullToAbsent) {
+    return ModelosTonnerCompanion(
+      id: Value(id),
+      nombre: Value(nombre),
+    );
+  }
+
+  factory ModelosTonnerData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ModelosTonnerData(
+      id: serializer.fromJson<int>(json['id']),
+      nombre: serializer.fromJson<String>(json['nombre']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'nombre': serializer.toJson<String>(nombre),
+    };
+  }
+
+  ModelosTonnerData copyWith({int? id, String? nombre}) => ModelosTonnerData(
+        id: id ?? this.id,
+        nombre: nombre ?? this.nombre,
+      );
+  ModelosTonnerData copyWithCompanion(ModelosTonnerCompanion data) {
+    return ModelosTonnerData(
+      id: data.id.present ? data.id.value : this.id,
+      nombre: data.nombre.present ? data.nombre.value : this.nombre,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ModelosTonnerData(')
+          ..write('id: $id, ')
+          ..write('nombre: $nombre')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, nombre);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ModelosTonnerData &&
+          other.id == this.id &&
+          other.nombre == this.nombre);
+}
+
+class ModelosTonnerCompanion extends UpdateCompanion<ModelosTonnerData> {
+  final Value<int> id;
+  final Value<String> nombre;
+  const ModelosTonnerCompanion({
+    this.id = const Value.absent(),
+    this.nombre = const Value.absent(),
+  });
+  ModelosTonnerCompanion.insert({
+    this.id = const Value.absent(),
+    required String nombre,
+  }) : nombre = Value(nombre);
+  static Insertable<ModelosTonnerData> custom({
+    Expression<int>? id,
+    Expression<String>? nombre,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (nombre != null) 'nombre': nombre,
+    });
+  }
+
+  ModelosTonnerCompanion copyWith({Value<int>? id, Value<String>? nombre}) {
+    return ModelosTonnerCompanion(
+      id: id ?? this.id,
+      nombre: nombre ?? this.nombre,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (nombre.present) {
+      map['nombre'] = Variable<String>(nombre.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ModelosTonnerCompanion(')
+          ..write('id: $id, ')
+          ..write('nombre: $nombre')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $ToneresTable extends Toneres with TableInfo<$ToneresTable, Tonere> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -404,6 +586,14 @@ class $ToneresTable extends Toneres with TableInfo<$ToneresTable, Tonere> {
       type: DriftSqlType.int,
       requiredDuringInsert: true,
       $customConstraints: 'NOT NULL REFERENCES impresoras(id)');
+  static const VerificationMeta _modeloTonnerIdMeta =
+      const VerificationMeta('modeloTonnerId');
+  @override
+  late final GeneratedColumn<int> modeloTonnerId = GeneratedColumn<int>(
+      'modelo_tonner_id', aliasedName, true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      $customConstraints: 'REFERENCES modelos_tonner(id)');
   static const VerificationMeta _colorMeta = const VerificationMeta('color');
   @override
   late final GeneratedColumn<String> color = GeneratedColumn<String>(
@@ -442,6 +632,7 @@ class $ToneresTable extends Toneres with TableInfo<$ToneresTable, Tonere> {
   List<GeneratedColumn> get $columns => [
         id,
         impresoraId,
+        modeloTonnerId,
         color,
         estado,
         fechaInstalacion,
@@ -468,6 +659,12 @@ class $ToneresTable extends Toneres with TableInfo<$ToneresTable, Tonere> {
               data['impresora_id']!, _impresoraIdMeta));
     } else if (isInserting) {
       context.missing(_impresoraIdMeta);
+    }
+    if (data.containsKey('modelo_tonner_id')) {
+      context.handle(
+          _modeloTonnerIdMeta,
+          modeloTonnerId.isAcceptableOrUnknown(
+              data['modelo_tonner_id']!, _modeloTonnerIdMeta));
     }
     if (data.containsKey('color')) {
       context.handle(
@@ -510,6 +707,8 @@ class $ToneresTable extends Toneres with TableInfo<$ToneresTable, Tonere> {
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       impresoraId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}impresora_id'])!,
+      modeloTonnerId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}modelo_tonner_id']),
       color: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}color'])!,
       estado: attachedDatabase.typeMapping
@@ -532,6 +731,7 @@ class $ToneresTable extends Toneres with TableInfo<$ToneresTable, Tonere> {
 class Tonere extends DataClass implements Insertable<Tonere> {
   final int id;
   final int impresoraId;
+  final int? modeloTonnerId;
   final String color;
   final String estado;
   final DateTime? fechaInstalacion;
@@ -540,6 +740,7 @@ class Tonere extends DataClass implements Insertable<Tonere> {
   const Tonere(
       {required this.id,
       required this.impresoraId,
+      this.modeloTonnerId,
       required this.color,
       required this.estado,
       this.fechaInstalacion,
@@ -550,6 +751,9 @@ class Tonere extends DataClass implements Insertable<Tonere> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['impresora_id'] = Variable<int>(impresoraId);
+    if (!nullToAbsent || modeloTonnerId != null) {
+      map['modelo_tonner_id'] = Variable<int>(modeloTonnerId);
+    }
     map['color'] = Variable<String>(color);
     map['estado'] = Variable<String>(estado);
     if (!nullToAbsent || fechaInstalacion != null) {
@@ -568,6 +772,9 @@ class Tonere extends DataClass implements Insertable<Tonere> {
     return ToneresCompanion(
       id: Value(id),
       impresoraId: Value(impresoraId),
+      modeloTonnerId: modeloTonnerId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(modeloTonnerId),
       color: Value(color),
       estado: Value(estado),
       fechaInstalacion: fechaInstalacion == null && nullToAbsent
@@ -588,6 +795,7 @@ class Tonere extends DataClass implements Insertable<Tonere> {
     return Tonere(
       id: serializer.fromJson<int>(json['id']),
       impresoraId: serializer.fromJson<int>(json['impresoraId']),
+      modeloTonnerId: serializer.fromJson<int?>(json['modeloTonnerId']),
       color: serializer.fromJson<String>(json['color']),
       estado: serializer.fromJson<String>(json['estado']),
       fechaInstalacion:
@@ -604,6 +812,7 @@ class Tonere extends DataClass implements Insertable<Tonere> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'impresoraId': serializer.toJson<int>(impresoraId),
+      'modeloTonnerId': serializer.toJson<int?>(modeloTonnerId),
       'color': serializer.toJson<String>(color),
       'estado': serializer.toJson<String>(estado),
       'fechaInstalacion': serializer.toJson<DateTime?>(fechaInstalacion),
@@ -615,6 +824,7 @@ class Tonere extends DataClass implements Insertable<Tonere> {
   Tonere copyWith(
           {int? id,
           int? impresoraId,
+          Value<int?> modeloTonnerId = const Value.absent(),
           String? color,
           String? estado,
           Value<DateTime?> fechaInstalacion = const Value.absent(),
@@ -623,6 +833,8 @@ class Tonere extends DataClass implements Insertable<Tonere> {
       Tonere(
         id: id ?? this.id,
         impresoraId: impresoraId ?? this.impresoraId,
+        modeloTonnerId:
+            modeloTonnerId.present ? modeloTonnerId.value : this.modeloTonnerId,
         color: color ?? this.color,
         estado: estado ?? this.estado,
         fechaInstalacion: fechaInstalacion.present
@@ -640,6 +852,9 @@ class Tonere extends DataClass implements Insertable<Tonere> {
       id: data.id.present ? data.id.value : this.id,
       impresoraId:
           data.impresoraId.present ? data.impresoraId.value : this.impresoraId,
+      modeloTonnerId: data.modeloTonnerId.present
+          ? data.modeloTonnerId.value
+          : this.modeloTonnerId,
       color: data.color.present ? data.color.value : this.color,
       estado: data.estado.present ? data.estado.value : this.estado,
       fechaInstalacion: data.fechaInstalacion.present
@@ -659,6 +874,7 @@ class Tonere extends DataClass implements Insertable<Tonere> {
     return (StringBuffer('Tonere(')
           ..write('id: $id, ')
           ..write('impresoraId: $impresoraId, ')
+          ..write('modeloTonnerId: $modeloTonnerId, ')
           ..write('color: $color, ')
           ..write('estado: $estado, ')
           ..write('fechaInstalacion: $fechaInstalacion, ')
@@ -669,14 +885,15 @@ class Tonere extends DataClass implements Insertable<Tonere> {
   }
 
   @override
-  int get hashCode => Object.hash(id, impresoraId, color, estado,
-      fechaInstalacion, fechaEstimEntrega, fechaEntregaReal);
+  int get hashCode => Object.hash(id, impresoraId, modeloTonnerId, color,
+      estado, fechaInstalacion, fechaEstimEntrega, fechaEntregaReal);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Tonere &&
           other.id == this.id &&
           other.impresoraId == this.impresoraId &&
+          other.modeloTonnerId == this.modeloTonnerId &&
           other.color == this.color &&
           other.estado == this.estado &&
           other.fechaInstalacion == this.fechaInstalacion &&
@@ -687,6 +904,7 @@ class Tonere extends DataClass implements Insertable<Tonere> {
 class ToneresCompanion extends UpdateCompanion<Tonere> {
   final Value<int> id;
   final Value<int> impresoraId;
+  final Value<int?> modeloTonnerId;
   final Value<String> color;
   final Value<String> estado;
   final Value<DateTime?> fechaInstalacion;
@@ -695,6 +913,7 @@ class ToneresCompanion extends UpdateCompanion<Tonere> {
   const ToneresCompanion({
     this.id = const Value.absent(),
     this.impresoraId = const Value.absent(),
+    this.modeloTonnerId = const Value.absent(),
     this.color = const Value.absent(),
     this.estado = const Value.absent(),
     this.fechaInstalacion = const Value.absent(),
@@ -704,6 +923,7 @@ class ToneresCompanion extends UpdateCompanion<Tonere> {
   ToneresCompanion.insert({
     this.id = const Value.absent(),
     required int impresoraId,
+    this.modeloTonnerId = const Value.absent(),
     required String color,
     this.estado = const Value.absent(),
     this.fechaInstalacion = const Value.absent(),
@@ -714,6 +934,7 @@ class ToneresCompanion extends UpdateCompanion<Tonere> {
   static Insertable<Tonere> custom({
     Expression<int>? id,
     Expression<int>? impresoraId,
+    Expression<int>? modeloTonnerId,
     Expression<String>? color,
     Expression<String>? estado,
     Expression<DateTime>? fechaInstalacion,
@@ -723,6 +944,7 @@ class ToneresCompanion extends UpdateCompanion<Tonere> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (impresoraId != null) 'impresora_id': impresoraId,
+      if (modeloTonnerId != null) 'modelo_tonner_id': modeloTonnerId,
       if (color != null) 'color': color,
       if (estado != null) 'estado': estado,
       if (fechaInstalacion != null) 'fecha_instalacion': fechaInstalacion,
@@ -734,6 +956,7 @@ class ToneresCompanion extends UpdateCompanion<Tonere> {
   ToneresCompanion copyWith(
       {Value<int>? id,
       Value<int>? impresoraId,
+      Value<int?>? modeloTonnerId,
       Value<String>? color,
       Value<String>? estado,
       Value<DateTime?>? fechaInstalacion,
@@ -742,6 +965,7 @@ class ToneresCompanion extends UpdateCompanion<Tonere> {
     return ToneresCompanion(
       id: id ?? this.id,
       impresoraId: impresoraId ?? this.impresoraId,
+      modeloTonnerId: modeloTonnerId ?? this.modeloTonnerId,
       color: color ?? this.color,
       estado: estado ?? this.estado,
       fechaInstalacion: fechaInstalacion ?? this.fechaInstalacion,
@@ -758,6 +982,9 @@ class ToneresCompanion extends UpdateCompanion<Tonere> {
     }
     if (impresoraId.present) {
       map['impresora_id'] = Variable<int>(impresoraId.value);
+    }
+    if (modeloTonnerId.present) {
+      map['modelo_tonner_id'] = Variable<int>(modeloTonnerId.value);
     }
     if (color.present) {
       map['color'] = Variable<String>(color.value);
@@ -782,11 +1009,251 @@ class ToneresCompanion extends UpdateCompanion<Tonere> {
     return (StringBuffer('ToneresCompanion(')
           ..write('id: $id, ')
           ..write('impresoraId: $impresoraId, ')
+          ..write('modeloTonnerId: $modeloTonnerId, ')
           ..write('color: $color, ')
           ..write('estado: $estado, ')
           ..write('fechaInstalacion: $fechaInstalacion, ')
           ..write('fechaEstimEntrega: $fechaEstimEntrega, ')
           ..write('fechaEntregaReal: $fechaEntregaReal')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ModeloTonnerCompatibleTable extends ModeloTonnerCompatible
+    with TableInfo<$ModeloTonnerCompatibleTable, ModeloTonnerCompatibleData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ModeloTonnerCompatibleTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _modeloImpresoraMeta =
+      const VerificationMeta('modeloImpresora');
+  @override
+  late final GeneratedColumn<String> modeloImpresora = GeneratedColumn<String>(
+      'modelo_impresora', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
+  static const VerificationMeta _modeloTonnerIdMeta =
+      const VerificationMeta('modeloTonnerId');
+  @override
+  late final GeneratedColumn<int> modeloTonnerId = GeneratedColumn<int>(
+      'modelo_tonner_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL REFERENCES modelos_tonner(id)');
+  @override
+  List<GeneratedColumn> get $columns => [id, modeloImpresora, modeloTonnerId];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'modelo_tonner_compatible';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<ModeloTonnerCompatibleData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('modelo_impresora')) {
+      context.handle(
+          _modeloImpresoraMeta,
+          modeloImpresora.isAcceptableOrUnknown(
+              data['modelo_impresora']!, _modeloImpresoraMeta));
+    } else if (isInserting) {
+      context.missing(_modeloImpresoraMeta);
+    }
+    if (data.containsKey('modelo_tonner_id')) {
+      context.handle(
+          _modeloTonnerIdMeta,
+          modeloTonnerId.isAcceptableOrUnknown(
+              data['modelo_tonner_id']!, _modeloTonnerIdMeta));
+    } else if (isInserting) {
+      context.missing(_modeloTonnerIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ModeloTonnerCompatibleData map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ModeloTonnerCompatibleData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      modeloImpresora: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}modelo_impresora'])!,
+      modeloTonnerId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}modelo_tonner_id'])!,
+    );
+  }
+
+  @override
+  $ModeloTonnerCompatibleTable createAlias(String alias) {
+    return $ModeloTonnerCompatibleTable(attachedDatabase, alias);
+  }
+}
+
+class ModeloTonnerCompatibleData extends DataClass
+    implements Insertable<ModeloTonnerCompatibleData> {
+  final int id;
+  final String modeloImpresora;
+  final int modeloTonnerId;
+  const ModeloTonnerCompatibleData(
+      {required this.id,
+      required this.modeloImpresora,
+      required this.modeloTonnerId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['modelo_impresora'] = Variable<String>(modeloImpresora);
+    map['modelo_tonner_id'] = Variable<int>(modeloTonnerId);
+    return map;
+  }
+
+  ModeloTonnerCompatibleCompanion toCompanion(bool nullToAbsent) {
+    return ModeloTonnerCompatibleCompanion(
+      id: Value(id),
+      modeloImpresora: Value(modeloImpresora),
+      modeloTonnerId: Value(modeloTonnerId),
+    );
+  }
+
+  factory ModeloTonnerCompatibleData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ModeloTonnerCompatibleData(
+      id: serializer.fromJson<int>(json['id']),
+      modeloImpresora: serializer.fromJson<String>(json['modeloImpresora']),
+      modeloTonnerId: serializer.fromJson<int>(json['modeloTonnerId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'modeloImpresora': serializer.toJson<String>(modeloImpresora),
+      'modeloTonnerId': serializer.toJson<int>(modeloTonnerId),
+    };
+  }
+
+  ModeloTonnerCompatibleData copyWith(
+          {int? id, String? modeloImpresora, int? modeloTonnerId}) =>
+      ModeloTonnerCompatibleData(
+        id: id ?? this.id,
+        modeloImpresora: modeloImpresora ?? this.modeloImpresora,
+        modeloTonnerId: modeloTonnerId ?? this.modeloTonnerId,
+      );
+  ModeloTonnerCompatibleData copyWithCompanion(
+      ModeloTonnerCompatibleCompanion data) {
+    return ModeloTonnerCompatibleData(
+      id: data.id.present ? data.id.value : this.id,
+      modeloImpresora: data.modeloImpresora.present
+          ? data.modeloImpresora.value
+          : this.modeloImpresora,
+      modeloTonnerId: data.modeloTonnerId.present
+          ? data.modeloTonnerId.value
+          : this.modeloTonnerId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ModeloTonnerCompatibleData(')
+          ..write('id: $id, ')
+          ..write('modeloImpresora: $modeloImpresora, ')
+          ..write('modeloTonnerId: $modeloTonnerId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, modeloImpresora, modeloTonnerId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ModeloTonnerCompatibleData &&
+          other.id == this.id &&
+          other.modeloImpresora == this.modeloImpresora &&
+          other.modeloTonnerId == this.modeloTonnerId);
+}
+
+class ModeloTonnerCompatibleCompanion
+    extends UpdateCompanion<ModeloTonnerCompatibleData> {
+  final Value<int> id;
+  final Value<String> modeloImpresora;
+  final Value<int> modeloTonnerId;
+  const ModeloTonnerCompatibleCompanion({
+    this.id = const Value.absent(),
+    this.modeloImpresora = const Value.absent(),
+    this.modeloTonnerId = const Value.absent(),
+  });
+  ModeloTonnerCompatibleCompanion.insert({
+    this.id = const Value.absent(),
+    required String modeloImpresora,
+    required int modeloTonnerId,
+  })  : modeloImpresora = Value(modeloImpresora),
+        modeloTonnerId = Value(modeloTonnerId);
+  static Insertable<ModeloTonnerCompatibleData> custom({
+    Expression<int>? id,
+    Expression<String>? modeloImpresora,
+    Expression<int>? modeloTonnerId,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (modeloImpresora != null) 'modelo_impresora': modeloImpresora,
+      if (modeloTonnerId != null) 'modelo_tonner_id': modeloTonnerId,
+    });
+  }
+
+  ModeloTonnerCompatibleCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? modeloImpresora,
+      Value<int>? modeloTonnerId}) {
+    return ModeloTonnerCompatibleCompanion(
+      id: id ?? this.id,
+      modeloImpresora: modeloImpresora ?? this.modeloImpresora,
+      modeloTonnerId: modeloTonnerId ?? this.modeloTonnerId,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (modeloImpresora.present) {
+      map['modelo_impresora'] = Variable<String>(modeloImpresora.value);
+    }
+    if (modeloTonnerId.present) {
+      map['modelo_tonner_id'] = Variable<int>(modeloTonnerId.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ModeloTonnerCompatibleCompanion(')
+          ..write('id: $id, ')
+          ..write('modeloImpresora: $modeloImpresora, ')
+          ..write('modeloTonnerId: $modeloTonnerId')
           ..write(')'))
         .toString();
   }
@@ -2205,7 +2672,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $ImpresorasTable impresoras = $ImpresorasTable(this);
+  late final $ModelosTonnerTable modelosTonner = $ModelosTonnerTable(this);
   late final $ToneresTable toneres = $ToneresTable(this);
+  late final $ModeloTonnerCompatibleTable modeloTonnerCompatible =
+      $ModeloTonnerCompatibleTable(this);
   late final $RequisicionesTable requisiciones = $RequisicionesTable(this);
   late final $MantenimientosTable mantenimientos = $MantenimientosTable(this);
   late final $DocumentosTable documentos = $DocumentosTable(this);
@@ -2223,7 +2693,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
         impresoras,
+        modelosTonner,
         toneres,
+        modeloTonnerCompatible,
         requisiciones,
         mantenimientos,
         documentos,
@@ -2729,9 +3201,299 @@ typedef $$ImpresorasTableProcessedTableManager = ProcessedTableManager<
     Impresora,
     PrefetchHooks Function(
         {bool toneresRefs, bool origen, bool reemplazo, bool contadoresRefs})>;
+typedef $$ModelosTonnerTableCreateCompanionBuilder = ModelosTonnerCompanion
+    Function({
+  Value<int> id,
+  required String nombre,
+});
+typedef $$ModelosTonnerTableUpdateCompanionBuilder = ModelosTonnerCompanion
+    Function({
+  Value<int> id,
+  Value<String> nombre,
+});
+
+final class $$ModelosTonnerTableReferences extends BaseReferences<_$AppDatabase,
+    $ModelosTonnerTable, ModelosTonnerData> {
+  $$ModelosTonnerTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$ToneresTable, List<Tonere>> _toneresRefsTable(
+          _$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(db.toneres,
+          aliasName: $_aliasNameGenerator(
+              db.modelosTonner.id, db.toneres.modeloTonnerId));
+
+  $$ToneresTableProcessedTableManager get toneresRefs {
+    final manager = $$ToneresTableTableManager($_db, $_db.toneres)
+        .filter((f) => f.modeloTonnerId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_toneresRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+
+  static MultiTypedResultKey<$ModeloTonnerCompatibleTable,
+      List<ModeloTonnerCompatibleData>> _modeloTonnerCompatibleRefsTable(
+          _$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(db.modeloTonnerCompatible,
+          aliasName: $_aliasNameGenerator(
+              db.modelosTonner.id, db.modeloTonnerCompatible.modeloTonnerId));
+
+  $$ModeloTonnerCompatibleTableProcessedTableManager
+      get modeloTonnerCompatibleRefs {
+    final manager = $$ModeloTonnerCompatibleTableTableManager(
+            $_db, $_db.modeloTonnerCompatible)
+        .filter((f) => f.modeloTonnerId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache =
+        $_typedResult.readTableOrNull(_modeloTonnerCompatibleRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+}
+
+class $$ModelosTonnerTableFilterComposer
+    extends Composer<_$AppDatabase, $ModelosTonnerTable> {
+  $$ModelosTonnerTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get nombre => $composableBuilder(
+      column: $table.nombre, builder: (column) => ColumnFilters(column));
+
+  Expression<bool> toneresRefs(
+      Expression<bool> Function($$ToneresTableFilterComposer f) f) {
+    final $$ToneresTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.toneres,
+        getReferencedColumn: (t) => t.modeloTonnerId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ToneresTableFilterComposer(
+              $db: $db,
+              $table: $db.toneres,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<bool> modeloTonnerCompatibleRefs(
+      Expression<bool> Function($$ModeloTonnerCompatibleTableFilterComposer f)
+          f) {
+    final $$ModeloTonnerCompatibleTableFilterComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.modeloTonnerCompatible,
+            getReferencedColumn: (t) => t.modeloTonnerId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$ModeloTonnerCompatibleTableFilterComposer(
+                  $db: $db,
+                  $table: $db.modeloTonnerCompatible,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return f(composer);
+  }
+}
+
+class $$ModelosTonnerTableOrderingComposer
+    extends Composer<_$AppDatabase, $ModelosTonnerTable> {
+  $$ModelosTonnerTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get nombre => $composableBuilder(
+      column: $table.nombre, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ModelosTonnerTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ModelosTonnerTable> {
+  $$ModelosTonnerTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get nombre =>
+      $composableBuilder(column: $table.nombre, builder: (column) => column);
+
+  Expression<T> toneresRefs<T extends Object>(
+      Expression<T> Function($$ToneresTableAnnotationComposer a) f) {
+    final $$ToneresTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.toneres,
+        getReferencedColumn: (t) => t.modeloTonnerId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ToneresTableAnnotationComposer(
+              $db: $db,
+              $table: $db.toneres,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<T> modeloTonnerCompatibleRefs<T extends Object>(
+      Expression<T> Function($$ModeloTonnerCompatibleTableAnnotationComposer a)
+          f) {
+    final $$ModeloTonnerCompatibleTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.modeloTonnerCompatible,
+            getReferencedColumn: (t) => t.modeloTonnerId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$ModeloTonnerCompatibleTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.modeloTonnerCompatible,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return f(composer);
+  }
+}
+
+class $$ModelosTonnerTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $ModelosTonnerTable,
+    ModelosTonnerData,
+    $$ModelosTonnerTableFilterComposer,
+    $$ModelosTonnerTableOrderingComposer,
+    $$ModelosTonnerTableAnnotationComposer,
+    $$ModelosTonnerTableCreateCompanionBuilder,
+    $$ModelosTonnerTableUpdateCompanionBuilder,
+    (ModelosTonnerData, $$ModelosTonnerTableReferences),
+    ModelosTonnerData,
+    PrefetchHooks Function(
+        {bool toneresRefs, bool modeloTonnerCompatibleRefs})> {
+  $$ModelosTonnerTableTableManager(_$AppDatabase db, $ModelosTonnerTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ModelosTonnerTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ModelosTonnerTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ModelosTonnerTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> nombre = const Value.absent(),
+          }) =>
+              ModelosTonnerCompanion(
+            id: id,
+            nombre: nombre,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String nombre,
+          }) =>
+              ModelosTonnerCompanion.insert(
+            id: id,
+            nombre: nombre,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$ModelosTonnerTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: (
+              {toneresRefs = false, modeloTonnerCompatibleRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (toneresRefs) db.toneres,
+                if (modeloTonnerCompatibleRefs) db.modeloTonnerCompatible
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (toneresRefs)
+                    await $_getPrefetchedData<ModelosTonnerData, $ModelosTonnerTable,
+                            Tonere>(
+                        currentTable: table,
+                        referencedTable: $$ModelosTonnerTableReferences
+                            ._toneresRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$ModelosTonnerTableReferences(db, table, p0)
+                                .toneresRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.modeloTonnerId == item.id),
+                        typedResults: items),
+                  if (modeloTonnerCompatibleRefs)
+                    await $_getPrefetchedData<ModelosTonnerData,
+                            $ModelosTonnerTable, ModeloTonnerCompatibleData>(
+                        currentTable: table,
+                        referencedTable: $$ModelosTonnerTableReferences
+                            ._modeloTonnerCompatibleRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$ModelosTonnerTableReferences(db, table, p0)
+                                .modeloTonnerCompatibleRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.modeloTonnerId == item.id),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$ModelosTonnerTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $ModelosTonnerTable,
+    ModelosTonnerData,
+    $$ModelosTonnerTableFilterComposer,
+    $$ModelosTonnerTableOrderingComposer,
+    $$ModelosTonnerTableAnnotationComposer,
+    $$ModelosTonnerTableCreateCompanionBuilder,
+    $$ModelosTonnerTableUpdateCompanionBuilder,
+    (ModelosTonnerData, $$ModelosTonnerTableReferences),
+    ModelosTonnerData,
+    PrefetchHooks Function(
+        {bool toneresRefs, bool modeloTonnerCompatibleRefs})>;
 typedef $$ToneresTableCreateCompanionBuilder = ToneresCompanion Function({
   Value<int> id,
   required int impresoraId,
+  Value<int?> modeloTonnerId,
   required String color,
   Value<String> estado,
   Value<DateTime?> fechaInstalacion,
@@ -2741,6 +3503,7 @@ typedef $$ToneresTableCreateCompanionBuilder = ToneresCompanion Function({
 typedef $$ToneresTableUpdateCompanionBuilder = ToneresCompanion Function({
   Value<int> id,
   Value<int> impresoraId,
+  Value<int?> modeloTonnerId,
   Value<String> color,
   Value<String> estado,
   Value<DateTime?> fechaInstalacion,
@@ -2762,6 +3525,21 @@ final class $$ToneresTableReferences
     final manager = $$ImpresorasTableTableManager($_db, $_db.impresoras)
         .filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_impresoraIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+
+  static $ModelosTonnerTable _modeloTonnerIdTable(_$AppDatabase db) =>
+      db.modelosTonner.createAlias(
+          $_aliasNameGenerator(db.toneres.modeloTonnerId, db.modelosTonner.id));
+
+  $$ModelosTonnerTableProcessedTableManager? get modeloTonnerId {
+    final $_column = $_itemColumn<int>('modelo_tonner_id');
+    if ($_column == null) return null;
+    final manager = $$ModelosTonnerTableTableManager($_db, $_db.modelosTonner)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_modeloTonnerIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: [item]));
@@ -2825,6 +3603,26 @@ class $$ToneresTableFilterComposer
             $$ImpresorasTableFilterComposer(
               $db: $db,
               $table: $db.impresoras,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  $$ModelosTonnerTableFilterComposer get modeloTonnerId {
+    final $$ModelosTonnerTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.modeloTonnerId,
+        referencedTable: $db.modelosTonner,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ModelosTonnerTableFilterComposer(
+              $db: $db,
+              $table: $db.modelosTonner,
               $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
               joinBuilder: joinBuilder,
               $removeJoinBuilderFromRootComposer:
@@ -2904,6 +3702,26 @@ class $$ToneresTableOrderingComposer
             ));
     return composer;
   }
+
+  $$ModelosTonnerTableOrderingComposer get modeloTonnerId {
+    final $$ModelosTonnerTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.modeloTonnerId,
+        referencedTable: $db.modelosTonner,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ModelosTonnerTableOrderingComposer(
+              $db: $db,
+              $table: $db.modelosTonner,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$ToneresTableAnnotationComposer
@@ -2953,6 +3771,26 @@ class $$ToneresTableAnnotationComposer
     return composer;
   }
 
+  $$ModelosTonnerTableAnnotationComposer get modeloTonnerId {
+    final $$ModelosTonnerTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.modeloTonnerId,
+        referencedTable: $db.modelosTonner,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ModelosTonnerTableAnnotationComposer(
+              $db: $db,
+              $table: $db.modelosTonner,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
   Expression<T> requisicionesRefs<T extends Object>(
       Expression<T> Function($$RequisicionesTableAnnotationComposer a) f) {
     final $$RequisicionesTableAnnotationComposer composer = $composerBuilder(
@@ -2986,7 +3824,8 @@ class $$ToneresTableTableManager extends RootTableManager<
     $$ToneresTableUpdateCompanionBuilder,
     (Tonere, $$ToneresTableReferences),
     Tonere,
-    PrefetchHooks Function({bool impresoraId, bool requisicionesRefs})> {
+    PrefetchHooks Function(
+        {bool impresoraId, bool modeloTonnerId, bool requisicionesRefs})> {
   $$ToneresTableTableManager(_$AppDatabase db, $ToneresTable table)
       : super(TableManagerState(
           db: db,
@@ -3000,6 +3839,7 @@ class $$ToneresTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
             Value<int> impresoraId = const Value.absent(),
+            Value<int?> modeloTonnerId = const Value.absent(),
             Value<String> color = const Value.absent(),
             Value<String> estado = const Value.absent(),
             Value<DateTime?> fechaInstalacion = const Value.absent(),
@@ -3009,6 +3849,7 @@ class $$ToneresTableTableManager extends RootTableManager<
               ToneresCompanion(
             id: id,
             impresoraId: impresoraId,
+            modeloTonnerId: modeloTonnerId,
             color: color,
             estado: estado,
             fechaInstalacion: fechaInstalacion,
@@ -3018,6 +3859,7 @@ class $$ToneresTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
             required int impresoraId,
+            Value<int?> modeloTonnerId = const Value.absent(),
             required String color,
             Value<String> estado = const Value.absent(),
             Value<DateTime?> fechaInstalacion = const Value.absent(),
@@ -3027,6 +3869,7 @@ class $$ToneresTableTableManager extends RootTableManager<
               ToneresCompanion.insert(
             id: id,
             impresoraId: impresoraId,
+            modeloTonnerId: modeloTonnerId,
             color: color,
             estado: estado,
             fechaInstalacion: fechaInstalacion,
@@ -3038,7 +3881,9 @@ class $$ToneresTableTableManager extends RootTableManager<
                   (e.readTable(table), $$ToneresTableReferences(db, table, e)))
               .toList(),
           prefetchHooksCallback: (
-              {impresoraId = false, requisicionesRefs = false}) {
+              {impresoraId = false,
+              modeloTonnerId = false,
+              requisicionesRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [
@@ -3065,6 +3910,16 @@ class $$ToneresTableTableManager extends RootTableManager<
                         $$ToneresTableReferences._impresoraIdTable(db),
                     referencedColumn:
                         $$ToneresTableReferences._impresoraIdTable(db).id,
+                  ) as T;
+                }
+                if (modeloTonnerId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.modeloTonnerId,
+                    referencedTable:
+                        $$ToneresTableReferences._modeloTonnerIdTable(db),
+                    referencedColumn:
+                        $$ToneresTableReferences._modeloTonnerIdTable(db).id,
                   ) as T;
                 }
 
@@ -3103,7 +3958,256 @@ typedef $$ToneresTableProcessedTableManager = ProcessedTableManager<
     $$ToneresTableUpdateCompanionBuilder,
     (Tonere, $$ToneresTableReferences),
     Tonere,
-    PrefetchHooks Function({bool impresoraId, bool requisicionesRefs})>;
+    PrefetchHooks Function(
+        {bool impresoraId, bool modeloTonnerId, bool requisicionesRefs})>;
+typedef $$ModeloTonnerCompatibleTableCreateCompanionBuilder
+    = ModeloTonnerCompatibleCompanion Function({
+  Value<int> id,
+  required String modeloImpresora,
+  required int modeloTonnerId,
+});
+typedef $$ModeloTonnerCompatibleTableUpdateCompanionBuilder
+    = ModeloTonnerCompatibleCompanion Function({
+  Value<int> id,
+  Value<String> modeloImpresora,
+  Value<int> modeloTonnerId,
+});
+
+final class $$ModeloTonnerCompatibleTableReferences extends BaseReferences<
+    _$AppDatabase, $ModeloTonnerCompatibleTable, ModeloTonnerCompatibleData> {
+  $$ModeloTonnerCompatibleTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $ModelosTonnerTable _modeloTonnerIdTable(_$AppDatabase db) =>
+      db.modelosTonner.createAlias($_aliasNameGenerator(
+          db.modeloTonnerCompatible.modeloTonnerId, db.modelosTonner.id));
+
+  $$ModelosTonnerTableProcessedTableManager get modeloTonnerId {
+    final $_column = $_itemColumn<int>('modelo_tonner_id')!;
+
+    final manager = $$ModelosTonnerTableTableManager($_db, $_db.modelosTonner)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_modeloTonnerIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$ModeloTonnerCompatibleTableFilterComposer
+    extends Composer<_$AppDatabase, $ModeloTonnerCompatibleTable> {
+  $$ModeloTonnerCompatibleTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get modeloImpresora => $composableBuilder(
+      column: $table.modeloImpresora,
+      builder: (column) => ColumnFilters(column));
+
+  $$ModelosTonnerTableFilterComposer get modeloTonnerId {
+    final $$ModelosTonnerTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.modeloTonnerId,
+        referencedTable: $db.modelosTonner,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ModelosTonnerTableFilterComposer(
+              $db: $db,
+              $table: $db.modelosTonner,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$ModeloTonnerCompatibleTableOrderingComposer
+    extends Composer<_$AppDatabase, $ModeloTonnerCompatibleTable> {
+  $$ModeloTonnerCompatibleTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get modeloImpresora => $composableBuilder(
+      column: $table.modeloImpresora,
+      builder: (column) => ColumnOrderings(column));
+
+  $$ModelosTonnerTableOrderingComposer get modeloTonnerId {
+    final $$ModelosTonnerTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.modeloTonnerId,
+        referencedTable: $db.modelosTonner,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ModelosTonnerTableOrderingComposer(
+              $db: $db,
+              $table: $db.modelosTonner,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$ModeloTonnerCompatibleTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ModeloTonnerCompatibleTable> {
+  $$ModeloTonnerCompatibleTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get modeloImpresora => $composableBuilder(
+      column: $table.modeloImpresora, builder: (column) => column);
+
+  $$ModelosTonnerTableAnnotationComposer get modeloTonnerId {
+    final $$ModelosTonnerTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.modeloTonnerId,
+        referencedTable: $db.modelosTonner,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ModelosTonnerTableAnnotationComposer(
+              $db: $db,
+              $table: $db.modelosTonner,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$ModeloTonnerCompatibleTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $ModeloTonnerCompatibleTable,
+    ModeloTonnerCompatibleData,
+    $$ModeloTonnerCompatibleTableFilterComposer,
+    $$ModeloTonnerCompatibleTableOrderingComposer,
+    $$ModeloTonnerCompatibleTableAnnotationComposer,
+    $$ModeloTonnerCompatibleTableCreateCompanionBuilder,
+    $$ModeloTonnerCompatibleTableUpdateCompanionBuilder,
+    (ModeloTonnerCompatibleData, $$ModeloTonnerCompatibleTableReferences),
+    ModeloTonnerCompatibleData,
+    PrefetchHooks Function({bool modeloTonnerId})> {
+  $$ModeloTonnerCompatibleTableTableManager(
+      _$AppDatabase db, $ModeloTonnerCompatibleTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ModeloTonnerCompatibleTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ModeloTonnerCompatibleTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ModeloTonnerCompatibleTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> modeloImpresora = const Value.absent(),
+            Value<int> modeloTonnerId = const Value.absent(),
+          }) =>
+              ModeloTonnerCompatibleCompanion(
+            id: id,
+            modeloImpresora: modeloImpresora,
+            modeloTonnerId: modeloTonnerId,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String modeloImpresora,
+            required int modeloTonnerId,
+          }) =>
+              ModeloTonnerCompatibleCompanion.insert(
+            id: id,
+            modeloImpresora: modeloImpresora,
+            modeloTonnerId: modeloTonnerId,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$ModeloTonnerCompatibleTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({modeloTonnerId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (modeloTonnerId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.modeloTonnerId,
+                    referencedTable: $$ModeloTonnerCompatibleTableReferences
+                        ._modeloTonnerIdTable(db),
+                    referencedColumn: $$ModeloTonnerCompatibleTableReferences
+                        ._modeloTonnerIdTable(db)
+                        .id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$ModeloTonnerCompatibleTableProcessedTableManager
+    = ProcessedTableManager<
+        _$AppDatabase,
+        $ModeloTonnerCompatibleTable,
+        ModeloTonnerCompatibleData,
+        $$ModeloTonnerCompatibleTableFilterComposer,
+        $$ModeloTonnerCompatibleTableOrderingComposer,
+        $$ModeloTonnerCompatibleTableAnnotationComposer,
+        $$ModeloTonnerCompatibleTableCreateCompanionBuilder,
+        $$ModeloTonnerCompatibleTableUpdateCompanionBuilder,
+        (ModeloTonnerCompatibleData, $$ModeloTonnerCompatibleTableReferences),
+        ModeloTonnerCompatibleData,
+        PrefetchHooks Function({bool modeloTonnerId})>;
 typedef $$RequisicionesTableCreateCompanionBuilder = RequisicionesCompanion
     Function({
   Value<int> id,
@@ -4222,8 +5326,13 @@ class $AppDatabaseManager {
   $AppDatabaseManager(this._db);
   $$ImpresorasTableTableManager get impresoras =>
       $$ImpresorasTableTableManager(_db, _db.impresoras);
+  $$ModelosTonnerTableTableManager get modelosTonner =>
+      $$ModelosTonnerTableTableManager(_db, _db.modelosTonner);
   $$ToneresTableTableManager get toneres =>
       $$ToneresTableTableManager(_db, _db.toneres);
+  $$ModeloTonnerCompatibleTableTableManager get modeloTonnerCompatible =>
+      $$ModeloTonnerCompatibleTableTableManager(
+          _db, _db.modeloTonnerCompatible);
   $$RequisicionesTableTableManager get requisiciones =>
       $$RequisicionesTableTableManager(_db, _db.requisiciones);
   $$MantenimientosTableTableManager get mantenimientos =>
