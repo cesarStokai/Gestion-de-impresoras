@@ -71,6 +71,29 @@ class ContadoresDao extends DatabaseAccessor<AppDatabase> with _$ContadoresDaoMi
     }).toList();
   }
 
+  Future<List<Map<String, dynamic>>> getContadoresPorMeses() async {
+  final query = select(contadores).join([
+    innerJoin(impresoras, impresoras.id.equalsExp(contadores.impresoraId)),
+  ]);
+  final rows = await query.get();
+  return rows.map((row) {
+    final cont = row.readTable(contadores);
+    final imp = row.readTable(impresoras);
+    return {
+      'id': cont.id,
+      'impresoraId': cont.impresoraId,
+      'mes': cont.mes, // Ej: "2024-06"
+      'contador': cont.contador,
+      'marca': imp.marca,
+      'modelo': imp.modelo,
+      'area': imp.area,
+      'serie': imp.serie,
+      'observaciones': cont.observaciones,
+    };
+  }).toList();
+}
+
+
   /// Obtiene todos los registros de contadores (con datos de impresora) en un rango de fechas
   Future<List<Map<String, dynamic>>> getContadoresPorRangoFechas(DateTime desde, DateTime hasta) async {
     final query = select(contadores).join([

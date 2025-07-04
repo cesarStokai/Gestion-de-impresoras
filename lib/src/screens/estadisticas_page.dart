@@ -16,10 +16,16 @@ class EstadisticasPage extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          const Text('Resumen y comparativas',
+          const Text('Dashboard de impresión',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
+          const SizedBox(height: 18),
+          // Pie chart distribución anual
+          _PieChartAnualImpresoras(),
           const SizedBox(height: 24),
-          // TOP IMPRESORAS
+          // Tendencia total de impresiones
+          _LineChartTotalMensual(),
+          const SizedBox(height: 24),
+          // Top impresoras
           Card(
             elevation: 4,
             margin: const EdgeInsets.only(bottom: 32),
@@ -37,7 +43,7 @@ class EstadisticasPage extends ConsumerWidget {
               ),
             ),
           ),
-          // PROMEDIO POR IMPRESORA
+          // Promedio mensual por impresora
           Card(
             elevation: 4,
             margin: const EdgeInsets.only(bottom: 32),
@@ -47,11 +53,158 @@ class EstadisticasPage extends ConsumerWidget {
               child: _GraficaPromedioPorImpresora(),
             ),
           ),
-          // 12 GRAFICAS (1 POR MES)
-          const SizedBox(height: 10),
+          // Ranking impresoras más y menos usadas
+          _RankingMasMenosUsadas(),
+          // 12 gráficas (1 por mes)
+          const SizedBox(height: 16),
           const _GraficasMesPorMes(),
         ],
       ),
+    );
+  }
+}
+
+// ---------- PIE CHART DISTRIBUCIÓN ANUAL ----------
+class _PieChartAnualImpresoras extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final now = DateTime.now();
+    final currentYear = now.year.toString();
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: ref.read(contadoresDaoProvider).getContadoresPorMeses(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+        final registros = snapshot.data!;
+        final Map<String, num> hojasPorImpresora = {};
+        for (final reg in registros) {
+          final mesStr = reg['mes'] as String? ?? '';
+          if (!mesStr.startsWith(currentYear)) continue;
+          final impresora = '${reg['marca']} ${reg['modelo']}';
+          hojasPorImpresora[impresora] = (hojasPorImpresora[impresora] ?? 0) + (reg['contador'] ?? 0);
+        }
+        final total = hojasPorImpresora.values.fold<num>(0, (a, b) => a + b);
+        if (total == 0) return const Text('No hay datos para este año.');
+        return Card(
+          elevation: 5,
+          margin: const EdgeInsets.only(bottom: 22),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Distribución anual de impresiones',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 5),
+                SizedBox(
+                  height: 400,
+                  child: PieChart(
+                    PieChartData(
+                      sections: hojasPorImpresora.entries.map((e) {
+                        final idx = hojasPorImpresora.keys.toList().indexOf(e.key);
+                        return PieChartSectionData(
+                          color: Colors.primaries[idx % Colors.primaries.length],
+                          value: (e.value / total * 100),
+                          title: '${e.key}\n${(e.value / total * 100).toStringAsFixed(1)}%',
+                          radius: 110,
+                          titleStyle: const TextStyle(fontSize: 8, color: Colors.white),
+                        );
+                      }).toList(),
+                      sectionsSpace: 2,
+                      centerSpaceRadius: 40,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+// ---------- LINE CHART TENDENCIA TOTAL POR MES ----------
+class _LineChartTotalMensual extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final now = DateTime.now();
+    final currentYear = now.year.toString();
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: ref.read(contadoresDaoProvider).getContadoresPorMeses(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+        final registros = snapshot.data!;
+        final List<num> totalPorMes = List.generate(12, (i) => 0);
+        for (final reg in registros) {
+          final mesStr = reg['mes'] as String? ?? '';
+          if (!mesStr.startsWith(currentYear)) continue;
+          final mes = int.parse(mesStr.substring(5, 7));
+          totalPorMes[mes - 1] += (reg['contador'] ?? 0);
+        }
+        final maxY = totalPorMes.fold<num>(0, (a, b) => a > b ? a : b);
+        return Card(
+          elevation: 3,
+          margin: const EdgeInsets.only(bottom: 32),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Tendencia total de hojas impresas por mes',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 20),
+                SizedBox(
+                  height: 500,
+                  child: LineChart(
+                    LineChartData(
+                      minY: 0,
+                      maxY: maxY * 1.2,
+                      titlesData: FlTitlesData(
+                        leftTitles: AxisTitles(
+                          sideTitles: SideTitles(showTitles: true),
+                        ),
+                        bottomTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            getTitlesWidget: (value, meta) {
+                              final idx = value.toInt();
+                              final meses = [
+                                'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+                                'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
+                              ];
+                              return idx >= 0 && idx < meses.length
+                                  ? Padding(
+                                      padding: const EdgeInsets.only(top: 1),
+                                      child: Text(meses[idx]),
+                                    )
+                                  : const SizedBox.shrink();
+                            },
+                          ),
+                        ),
+                      ),
+                      gridData: FlGridData(show: true),
+                      borderData: FlBorderData(show: false),
+                      lineBarsData: [
+                        LineChartBarData(
+                          spots: List.generate(
+                            12, (i) => FlSpot(i.toDouble(), totalPorMes[i].toDouble()),
+                          ),
+                          isCurved: true,
+                          color: Colors.deepPurple,
+                          barWidth: 4,
+                          dotData: FlDotData(show: true),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -62,14 +215,17 @@ class _ResumenYGraficaPorImpresora extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final now = DateTime.now();
+    final currentYear = now.year.toString();
     return FutureBuilder<List<Map<String, dynamic>>>(
-      future: ref.read(contadoresDaoProvider)
-          .getContadoresPorRangoFechas(DateTime(2020, 1, 1), DateTime.now()),
+      future: ref.read(contadoresDaoProvider).getContadoresPorMeses(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
         final registros = snapshot.data!;
         final Map<String, num> hojasPorImpresora = {};
         for (final reg in registros) {
+          final mesStr = reg['mes'] as String? ?? '';
+          if (!mesStr.startsWith(currentYear)) continue;
           final impresora = '${reg['marca']} ${reg['modelo']}';
           hojasPorImpresora[impresora] = (hojasPorImpresora[impresora] ?? 0) + (reg['contador'] ?? 0);
         }
@@ -173,19 +329,20 @@ class _GraficaPromedioPorImpresora extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final now = DateTime.now();
+    final currentYear = now.year.toString();
     return FutureBuilder<List<Map<String, dynamic>>>(
-      future: ref.read(contadoresDaoProvider)
-          .getContadoresPorRangoFechas(DateTime(now.year, 1, 1), DateTime(now.year, 12, 31)),
+      future: ref.read(contadoresDaoProvider).getContadoresPorMeses(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
         final registros = snapshot.data!;
         final Map<String, List<num>> hojasPorImpresora = {};
         for (final reg in registros) {
-          final fecha = reg['fechaRegistro'] as DateTime?;
-          if (fecha == null || fecha.year != now.year) continue;
+          final mesStr = reg['mes'] as String? ?? '';
+          if (!mesStr.startsWith(currentYear)) continue;
+          final mes = int.parse(mesStr.substring(5, 7));
           final impresora = '${reg['marca']} ${reg['modelo']}';
           hojasPorImpresora.putIfAbsent(impresora, () => List.filled(12, 0));
-          hojasPorImpresora[impresora]![fecha.month - 1] += (reg['contador'] ?? 0);
+          hojasPorImpresora[impresora]![mes - 1] += (reg['contador'] ?? 0);
         }
         final impresoras = hojasPorImpresora.keys.toList();
         final promedios = impresoras.map((imp) {
@@ -264,6 +421,76 @@ class _GraficaPromedioPorImpresora extends ConsumerWidget {
   }
 }
 
+// ---------- RANKING IMPRESORAS MÁS Y MENOS USADAS ----------
+class _RankingMasMenosUsadas extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final now = DateTime.now();
+    final currentYear = now.year.toString();
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: ref.read(contadoresDaoProvider).getContadoresPorMeses(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+        final registros = snapshot.data!;
+        final Map<String, num> hojasPorImpresora = {};
+        for (final reg in registros) {
+          final mesStr = reg['mes'] as String? ?? '';
+          if (!mesStr.startsWith(currentYear)) continue;
+          final impresora = '${reg['marca']} ${reg['modelo']}';
+          hojasPorImpresora[impresora] = (hojasPorImpresora[impresora] ?? 0) + (reg['contador'] ?? 0);
+        }
+        final impresorasOrdenadas = hojasPorImpresora.keys.toList()
+          ..sort((a, b) => hojasPorImpresora[b]!.compareTo(hojasPorImpresora[a]!));
+        return Card(
+          elevation: 2,
+          margin: const EdgeInsets.only(bottom: 32),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Ranking de impresoras más y menos usadas',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 15),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Más usadas', style: TextStyle(fontWeight: FontWeight.bold)),
+                          ...impresorasOrdenadas.take(3).map((imp) => Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: Text('${imp}: ${hojasPorImpresora[imp]} hojas'),
+                          )),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Menos usadas', style: TextStyle(fontWeight: FontWeight.bold)),
+                          ...impresorasOrdenadas.reversed.take(3).map((imp) => Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: Text('${imp}: ${hojasPorImpresora[imp]} hojas'),
+                          )),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
 // ---------- 12 GRAFICAS (MES POR MES) ----------
 class _GraficasMesPorMes extends ConsumerWidget {
   const _GraficasMesPorMes();
@@ -271,21 +498,21 @@ class _GraficasMesPorMes extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final now = DateTime.now();
+    final currentYear = now.year.toString();
     return FutureBuilder<List<Map<String, dynamic>>>(
-      future: ref.read(contadoresDaoProvider)
-          .getContadoresPorRangoFechas(DateTime(now.year, 1, 1), DateTime(now.year, 12, 31)),
+      future: ref.read(contadoresDaoProvider).getContadoresPorMeses(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
         final registros = snapshot.data!;
+        // Agrupa: mes (1-12) -> impresora -> contador
         final Map<int, Map<String, num>> dataPorMes = {};
         for (int m = 1; m <= 12; m++) {
           dataPorMes[m] = {};
         }
         for (final reg in registros) {
-          final fecha = reg['fechaRegistro'] as DateTime?;
-          if (fecha == null) continue;
-          if (fecha.year != now.year) continue;
-          final mes = fecha.month;
+          final mesStr = reg['mes'] as String? ?? '';
+          if (!mesStr.startsWith(currentYear)) continue;
+          final mes = int.parse(mesStr.substring(5, 7));
           final impresora = '${reg['marca']} ${reg['modelo']}';
           dataPorMes[mes]![impresora] = (dataPorMes[mes]![impresora] ?? 0) + (reg['contador'] ?? 0);
         }
