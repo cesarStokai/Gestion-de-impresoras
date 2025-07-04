@@ -1,7 +1,5 @@
 import 'package:drift/drift.dart';
-import 'package:drift/drift.dart' as drift;
 import '../base/database.dart';
-import '../daos/toneres_dao.dart';
 
 part 'impresoras_dao.g.dart';
 

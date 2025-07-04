@@ -5,6 +5,18 @@ part 'modelos_tonner_dao.g.dart';
 
 @DriftAccessor(tables: [ModelosTonner, ModeloTonnerCompatible, Toneres, Impresoras])
 class ModelosTonnerDao extends DatabaseAccessor<AppDatabase> with _$ModelosTonnerDaoMixin {
+  // Crear un nuevo modelo de tóner
+  Future<int> crearModeloTonner({required String nombre}) {
+    return into(modelosTonner).insert(ModelosTonnerCompanion(
+      nombre: Value(nombre),
+    ));
+  }
+  /// Elimina la compatibilidad entre un modelo de tóner y un modelo de impresora
+  Future<int> eliminarCompatibilidad({required String modeloImpresora, required int modeloTonnerId}) {
+    return (delete(modeloTonnerCompatible)
+      ..where((tbl) => tbl.modeloImpresora.equals(modeloImpresora) & tbl.modeloTonnerId.equals(modeloTonnerId)))
+      .go();
+  }
   ModelosTonnerDao(AppDatabase db) : super(db);
 
   // Obtener todos los modelos de tóner
@@ -34,5 +46,13 @@ class ModelosTonnerDao extends DatabaseAccessor<AppDatabase> with _$ModelosTonne
       modeloImpresora: Value(modeloImpresora),
       modeloTonnerId: Value(modeloTonnerId),
     ));
+  }
+
+  // Devuelve la lista de modelos de impresora compatibles para un modelo de tóner dado
+  Future<List<String>> getModelosImpresoraCompatiblesPorToner(int modeloTonnerId) async {
+    final query = select(modeloTonnerCompatible)
+      ..where((tbl) => tbl.modeloTonnerId.equals(modeloTonnerId));
+    final rows = await query.get();
+    return rows.map((row) => row.modeloImpresora).toList();
   }
 }

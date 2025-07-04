@@ -1,3 +1,4 @@
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../base/database.dart';
 import '../daos/impresoras_dao.dart';
@@ -7,6 +8,12 @@ import '../daos/mantenimientos_dao.dart';
 import '../daos/documentos_dao.dart';
 import '../daos/contadores_dao.dart';
 import '../daos/modelos_tonner_dao.dart';
+
+/// Provider para acceder a la lista de modelos de tóner (ModelosTonner)
+final modelosTonnerListProvider = FutureProvider.autoDispose((ref) async {
+  final dao = ref.read(modelosTonnerDaoProvider);
+  return await dao.getAllModelosTonner();
+});
 
 /// Base de datos
 final databaseProvider = Provider<AppDatabase>((ref) {

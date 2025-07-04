@@ -11,7 +11,20 @@ class ToneresPage extends ConsumerStatefulWidget {
   ConsumerState<ToneresPage> createState() => _ToneresPageState();
 }
 
-class _ToneresPageState extends ConsumerState<ToneresPage> {
+class _ToneresPageState extends ConsumerState<ToneresPage> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    // _deleteOrphanToners(); // Removed unused method
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
   static const _tonerStates = ['almacenado', 'instalado', 'en_pedido'];
   static const _tonerColors = ['Negro', 'Cian', 'Magenta', 'Amarillo'];
   static const _stateColors = {
@@ -31,59 +44,217 @@ class _ToneresPageState extends ConsumerState<ToneresPage> {
 
   @override
   Widget build(BuildContext context) {
-    final tonerAsync = ref.watch(toneresListStreamProvider);
-    final printersAsync = ref.watch(impresorasListStreamProvider);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Gestión de Tóneres'),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(text: 'Registro de Tóner'),
+            Tab(text: 'Asignación de Tóner'),
+          ],
+        ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_alt),
-            onPressed: _showFilterDialog,
-            tooltip: 'Filtrar tóneres',
+          // if (_tabController.index == 1)
+          //   IconButton(
+          //     icon: const Icon(Icons.filter_alt),
+          //     onPressed: _showFilterDialog,
+          //     tooltip: 'Filtrar tóneres',
+          //   ),
+        ],
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          // Tab 0: Registro de tóner
+          _buildRegistroTab(),
+          // Tab 1: Asignación de tóner
+          _buildAsignacionTab(),
+        ],
+      ),
+      floatingActionButton: _tabController.index == 0
+          ? FloatingActionButton.extended(
+              icon: const Icon(Icons.add),
+              label: const Text('Nuevo Tóner'),
+              onPressed: () => _showForm(),
+            )
+          : null,
+    );
+  }
+
+  Widget _buildRegistroTab() {
+    final tonerAsync = ref.watch(toneresListStreamProvider);
+    final modelosTonnerAsync = ref.watch(modelosTonnerListProvider);
+    return Padding(
+      padding: const EdgeInsets.all(9.0),
+      child: Column(
+        children: [
+          // Ayuda visual para el nuevo flujo unificado
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: Row(
+              children: const [
+                Icon(Icons.info_outline, color: Colors.blueGrey, size: 20),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Ahora puedes gestionar la compatibilidad de modelos de impresora directamente al registrar o editar un tóner.',
+                    style: TextStyle(color: Colors.blueGrey, fontSize: 13),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: tonerAsync.when(
+              data: (toners) {
+                final almacenados = toners.where((t) => t.estado == 'almacenado').toList();
+                return modelosTonnerAsync.when(
+                  loading: () => const Center(child: CircularProgressIndicator()),
+                  error: (e, _) => Center(child: Text('Error: $e')),
+                  data: (modelosTonner) {
+                    if (almacenados.isEmpty) {
+                      return const Center(
+                        child: Text('No hay tóneres almacenados. Usa el botón + para registrar.'),
+                      );
+                    }
+                    return ListView.separated(
+                      itemCount: almacenados.length,
+                      separatorBuilder: (_, __) => const Divider(height: 1),
+                      itemBuilder: (_, i) => _buildTonerTileV2(almacenados[i], const [], modelosTonner),
+                    );
+                  },
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => Center(child: Text('Error: $e')),
+            ),
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(9.0),
-        child: tonerAsync.when(
-          data: (toners) => printersAsync.when(
-            data: (printers) {
-              final enPedido = toners.where((t) => t.estado == 'en_pedido').length;
-              return Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        _buildTonerCounter(Icons.local_shipping, 'En pedido', enPedido, Colors.orange),
-                      ],
-                    ),
+    );
+  }
+
+  void _showCompatibilidadDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Consumer(
+          builder: (context, ref, _) {
+            final modelosTonnerAsync = ref.watch(modelosTonnerListProvider);
+            final impresorasAsync = ref.watch(impresorasListStreamProvider);
+            return modelosTonnerAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => AlertDialog(title: const Text('Error'), content: Text('Error: $e')),
+              data: (modelosTonner) {
+                return impresorasAsync.when(
+                  loading: () => const Center(child: CircularProgressIndicator()),
+                  error: (e, _) => AlertDialog(title: const Text('Error'), content: Text('Error: $e')),
+                  data: (impresoras) {
+                    int? selectedModeloTonerId;
+                    String? selectedModeloImpresora;
+                    return StatefulBuilder(
+                      builder: (context, setState) {
+                        return AlertDialog(
+                          title: const Text('Registrar compatibilidad'),
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              DropdownButtonFormField<int>(
+                                value: selectedModeloTonerId,
+                                decoration: const InputDecoration(labelText: 'Modelo de Tóner'),
+                                items: modelosTonner.map((m) => DropdownMenuItem(
+                                  value: m.id,
+                                  child: Text(m.nombre),
+                                )).toList(),
+                                onChanged: (v) => setState(() => selectedModeloTonerId = v),
+                              ),
+                              const SizedBox(height: 16),
+                              DropdownButtonFormField<String>(
+                                value: selectedModeloImpresora,
+                                decoration: const InputDecoration(labelText: 'Modelo de Impresora'),
+                                items: impresoras.map((imp) => imp.modelo).toSet().map((modelo) => DropdownMenuItem(
+                                  value: modelo,
+                                  child: Text(modelo),
+                                )).toList(),
+                                onChanged: (v) => setState(() => selectedModeloImpresora = v),
+                              ),
+                            ],
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('Cancelar'),
+                            ),
+                            ElevatedButton(
+                              onPressed: (selectedModeloTonerId != null && selectedModeloImpresora != null)
+                                  ? () async {
+                                      final dao = ref.read(modelosTonnerDaoProvider);
+                                      await dao.agregarCompatibilidad(
+                                        modeloImpresora: selectedModeloImpresora!,
+                                        modeloTonnerId: selectedModeloTonerId!,
+                                      );
+                                      Navigator.pop(context);
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Compatibilidad registrada'),
+                                          backgroundColor: Colors.green,
+                                        ),
+                                      );
+                                    }
+                                  : null,
+                              child: const Text('Registrar'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildAsignacionTab() {
+    final tonerAsync = ref.watch(toneresListStreamProvider);
+    final printersAsync = ref.watch(impresorasListStreamProvider);
+    return Padding(
+      padding: const EdgeInsets.all(9.0),
+      child: tonerAsync.when(
+        data: (toners) => printersAsync.when(
+          data: (printers) {
+            final enPedido = toners.where((t) => t.estado == 'en_pedido').length;
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      _buildTonerCounter(Icons.local_shipping, 'En pedido', enPedido, Colors.orange),
+                    ],
                   ),
-                  Expanded(child: _buildTonerList(
-                    toners.where((t) {
-                      final matchEstado = _filterEstado == null || t.estado == _filterEstado;
-                      final matchColor = _filterColor == null || t.color == _filterColor;
-                      return matchEstado && matchColor;
-                    }).toList(),
-                    printers,
-                  )),
-                ],
-              );
-            },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Center(child: Text('Error: $e')),
-          ),
+                ),
+                Expanded(child: _buildTonerList(
+                  toners.where((t) {
+                    final matchEstado = _filterEstado == null || t.estado == _filterEstado;
+                    final matchColor = _filterColor == null || t.color == _filterColor;
+                    return matchEstado && matchColor;
+                  }).toList(),
+                  printers,
+                )),
+              ],
+            );
+          },
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, _) => Center(child: Text('Error: $e')),
         ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        icon: const Icon(Icons.add),
-        label: const Text('Nuevo Tóner'),
-        onPressed: () => _showForm(),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => Center(child: Text('Error: $e')),
       ),
     );
   }
@@ -115,49 +286,49 @@ class _ToneresPageState extends ConsumerState<ToneresPage> {
     }
 
   Widget _buildTonerList(List<Tonere> toners, List<Impresora> printers) {
-    if (toners.isEmpty) {
-      return const Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.tonality, size: 64, color: Colors.grey),
-            SizedBox(height: 16),
-            Text(
-              'No hay tóneres registrados',
-              style: TextStyle(fontSize: 18, color: Colors.grey),
-            ),
-            Text(
-              'Presiona el botón + para agregar uno',
-              style: TextStyle(color: Colors.grey),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return RefreshIndicator(
-      onRefresh: () async => ref.refresh(toneresListStreamProvider),
-      child: ListView.separated(
-        itemCount: toners.length,
-        separatorBuilder: (_, __) => const Divider(height: 1),
-        itemBuilder: (_, i) => _buildTonerTile(toners[i], printers),
-      ),
+    return Consumer(
+      builder: (context, ref, _) {
+        final modelosTonnerAsync = ref.watch(modelosTonnerListProvider);
+        return modelosTonnerAsync.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, _) => Center(child: Text('Error: $e')),
+          data: (modelosTonner) {
+            if (toners.isEmpty) {
+              return const Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.tonality, size: 64, color: Colors.grey),
+                    SizedBox(height: 16),
+                    Text(
+                      'No hay tóneres registrados',
+                      style: TextStyle(fontSize: 18, color: Colors.grey),
+                    ),
+                    Text(
+                      'Presiona el botón + para agregar uno',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  ],
+                ),
+              );
+            }
+            return RefreshIndicator(
+              onRefresh: () async => ref.refresh(toneresListStreamProvider),
+              child: ListView.separated(
+                itemCount: toners.length,
+                separatorBuilder: (_, __) => const Divider(height: 1),
+                itemBuilder: (_, i) => _buildTonerTileV2(toners[i], printers, modelosTonner),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
-  Widget _buildTonerTile(Tonere t, List<Impresora> printers) {
-    final printer = printers.firstWhere(
-      (p) => p.id == t.impresoraId,
-      orElse: () => Impresora(
-        id: 0,
-        marca: 'Desconocida',
-        modelo: '',
-        serie: '',
-        area: '',
-        estado: '',
-        esAColor: false,
-      ),
-    );
+  Widget _buildTonerTileV2(Tonere t, List<Impresora> printers, List modelosTonner) {
+    final modelo = modelosTonner.where((m) => m.id == t.modeloTonnerId).isNotEmpty ? modelosTonner.firstWhere((m) => m.id == t.modeloTonnerId) : null;
+    final printer = printers.where((p) => p.id == t.impresoraId).isNotEmpty ? printers.firstWhere((p) => p.id == t.impresoraId) : null;
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4),
@@ -176,7 +347,7 @@ class _ToneresPageState extends ConsumerState<ToneresPage> {
           ),
           child: Center(
             child: Text(
-              t.color[0],
+              t.color.isNotEmpty ? t.color[0] : '?',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: _colorColors[t.color] ?? Colors.grey,
@@ -185,14 +356,17 @@ class _ToneresPageState extends ConsumerState<ToneresPage> {
           ),
         ),
         title: Text(
-          '${t.color}',
+          modelo != null ? modelo.nombre : 'Modelo desconocido',
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('${printer.marca} ${printer.modelo}'),
-            Text('Área: ${printer.area}'),
+            Text('Color: ${t.color}'),
+            if (printer != null)
+              Text('Instalado en: ${printer.marca} ${printer.modelo} (${printer.area})'),
+            if (printer == null)
+              const Text('En almacén'),
           ],
         ),
         trailing: Row(
@@ -205,6 +379,12 @@ class _ToneresPageState extends ConsumerState<ToneresPage> {
                 color: _stateColors[t.estado] ?? Colors.grey,
               ),
             ),
+            if (t.estado == 'almacenado')
+              IconButton(
+                icon: const Icon(Icons.input, color: Colors.blue),
+                tooltip: 'Instalar en impresora',
+                onPressed: () => _showAsignarTonerDialog(t),
+              ),
             IconButton(
               icon: const Icon(Icons.delete, color: Colors.red),
               onPressed: () => _confirmDelete(t.id),
@@ -214,6 +394,93 @@ class _ToneresPageState extends ConsumerState<ToneresPage> {
         onTap: () => _showForm(t),
         contentPadding: const EdgeInsets.symmetric(horizontal: 10),
       ),
+    );
+  }
+
+  void _showAsignarTonerDialog(Tonere t) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Consumer(
+          builder: (context, ref, child) {
+            final impresorasAsync = ref.watch(impresorasListStreamProvider);
+            final modelosTonnerAsync = ref.watch(modelosTonnerListProvider);
+            final modelosTonnerDao = ref.read(modelosTonnerDaoProvider);
+            return impresorasAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => AlertDialog(title: const Text('Error'), content: Text('Error: $e')),
+              data: (impresoras) {
+                return modelosTonnerAsync.when(
+                  loading: () => const Center(child: CircularProgressIndicator()),
+                  error: (e, _) => AlertDialog(title: const Text('Error'), content: Text('Error: $e')),
+                  data: (modelosTonner) {
+                    // final modeloToner = modelosTonner.firstWhereOrNull((m) => m.id == t.modeloTonnerId); // No se usa
+                    // Obtener modelos de impresora compatibles para este modelo de tóner
+                    return FutureBuilder<List<String>>(
+                      future: modelosTonnerDao.getModelosImpresoraCompatiblesPorToner(t.modeloTonnerId!),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) {
+                          return const Center(child: CircularProgressIndicator());
+                        }
+                        final modelosCompatibles = snapshot.data!;
+                        // Filtrar impresoras activas y compatibles
+                        final compatibles = impresoras.where((imp) =>
+                          imp.estado == 'activa' && modelosCompatibles.contains(imp.modelo)
+                        ).toList();
+                        int? selectedImpresoraId;
+                        return StatefulBuilder(
+                          builder: (context, setState) {
+                            return AlertDialog(
+                              title: const Text('Instalar tóner en impresora'),
+                              content: compatibles.isEmpty
+                                  ? const Text('No hay impresoras compatibles disponibles.')
+                                  : DropdownButtonFormField<int>(
+                                      decoration: const InputDecoration(labelText: 'Selecciona impresora'),
+                                      value: selectedImpresoraId,
+                                      items: compatibles.map((imp) => DropdownMenuItem(
+                                            value: imp.id,
+                                            child: Text('${imp.marca} ${imp.modelo} (${imp.area})'),
+                                          )).toList(),
+                                      onChanged: (impresoraId) async {
+                                        setState(() {
+                                          selectedImpresoraId = impresoraId;
+                                        });
+                                        if (impresoraId == null) return;
+                                        final dao = ref.read(toneresDaoProvider);
+                                        await dao.updateOne(
+                                          t.copyWith(
+                                            impresoraId: impresoraId,
+                                            estado: 'instalado',
+                                            fechaInstalacion: drift.Value(DateTime.now()),
+                                          ),
+                                        );
+                                        Navigator.pop(context);
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text('Tóner instalado en impresora'),
+                                            backgroundColor: Colors.blue,
+                                          ),
+                                        );
+                                      },
+                                    ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('Cancelar'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+            );
+          },
+        );
+      },
     );
   }
 
@@ -247,127 +514,91 @@ class _ToneresPageState extends ConsumerState<ToneresPage> {
   }
 
   void _showForm([Tonere? t]) {
+    // ...existing code for _showForm (unified, optimized version)...
+    // (The legacy/duplicated form code block has been removed)
     final isNew = t == null;
-    final colorC = TextEditingController(text: t?.color);
-    int? impresoraId = t?.impresoraId;
+    int? modeloTonnerId = t?.modeloTonnerId;
     String estado = t?.estado ?? _tonerStates.first;
-    String? selectedColor = t?.color;
-
+    bool esColor = false;
+    List<String> coloresSeleccionados = [];
+    String color = t?.color ?? '';
+    int? impresoraIdSeleccionada = t?.impresoraId;
     showDialog(
       context: context,
       builder: (_) => StatefulBuilder(
         builder: (context, setState) {
+          final TextEditingController _nuevoModeloController = TextEditingController();
+          bool creandoModelo = false;
+          String? errorNuevoModelo;
+          // impresoraIdSeleccionada ahora se inicializa arriba y se mantiene en el scope correcto
           return AlertDialog(
             title: Text(isNew ? 'Nuevo Tóner' : 'Editar Tóner'),
             content: SingleChildScrollView(
               child: Consumer(
                 builder: (ctx, ref, _) {
-                  final printersAsync = ref.watch(impresorasListStreamProvider);
-
-                  return printersAsync.when(
+                  final modelosTonnerAsync = ref.watch(modelosTonnerListProvider);
+                  final impresorasAsync = ref.watch(impresorasListStreamProvider);
+                  final modelosTonnerDao = ref.read(modelosTonnerDaoProvider);
+                  return impresorasAsync.when(
                     loading: () => const Center(child: CircularProgressIndicator()),
                     error: (e, _) => Text('Error: $e'),
-                    data: (printers) {
-                      final selectedPrinter = printers.firstWhereOrNull((p) => p.id == impresoraId);
-                      
-                      // Solo HP y Lexmark pueden elegir color
-                      final isHpOrLexmark = selectedPrinter != null &&
-                        (selectedPrinter.marca.toLowerCase() == 'hp' || selectedPrinter.marca.toLowerCase() == 'lexmark');
-                      if (!isHpOrLexmark) {
-                        selectedColor = 'Negro';
-                        colorC.text = 'Negro';
-                      }
-
-                      return ConstrainedBox(
-                        constraints: const BoxConstraints(minWidth: 300),
-                        child: Column(
+                    data: (impresoras) {
+                      final impresorasColor = impresoras.where((i) => i.esAColor).toList();
+                      final impresorasMono = impresoras.where((i) => !i.esAColor).toList();
+                      if (esColor) {
+                        // Solo impresora a color y selección de cartuchos
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
+                            Row(
+                              children: [
+                                Checkbox(
+                                  value: esColor,
+                                  onChanged: (v) {
+                                    setState(() {
+                                      esColor = v ?? false;
+                                      coloresSeleccionados = [];
+                                      color = '';
+                                      impresoraIdSeleccionada = null;
+                                    });
+                                  },
+                                ),
+                                const Text('¿Impresora a color?'),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            const Text('Selecciona impresora a color:'),
                             DropdownButtonFormField<int>(
-                              value: impresoraId,
+                              value: impresoraIdSeleccionada,
                               decoration: const InputDecoration(
-                                labelText: 'Impresora *',
+                                labelText: 'Impresora a color',
                                 border: OutlineInputBorder(),
                               ),
-                              items: printers.map((p) {
-                                return DropdownMenuItem(
-                                  value: p.id,
-                                  child: Text('${p.marca} ${p.modelo}'),
-                                );
-                              }).toList(),
-                              onChanged: (v) {
-                                setState(() {
-                                  impresoraId = v;
-                                  final printer = printers.firstWhere((p) => p.id == v);
-                                  final isHpOrLexmark = printer.marca.toLowerCase() == 'hp' || printer.marca.toLowerCase() == 'lexmark';
-                                  if (!isHpOrLexmark) {
-                                    selectedColor = 'Negro';
-                                    colorC.text = 'Negro';
-                                  }
-                                });
-                              },
+                              items: impresorasColor.map((i) => DropdownMenuItem(
+                                value: i.id,
+                                child: Text('${i.marca} ${i.modelo}'),
+                              )).toList(),
+                              onChanged: (v) => setState(() => impresoraIdSeleccionada = v),
                             ),
-                            const SizedBox(height: 16),
-                            if (isHpOrLexmark)
-                              DropdownButtonFormField<String>(
-                                value: selectedColor,
-                                decoration: const InputDecoration(
-                                  labelText: 'Color *',
-                                  border: OutlineInputBorder(),
-                                ),
-                                items: _tonerColors.map((color) {
-                                  return DropdownMenuItem(
-                                    value: color,
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                          width: 20,
-                                          height: 20,
-                                          margin: const EdgeInsets.only(right: 12),
-                                          decoration: BoxDecoration(
-                                            color: _colorColors[color]?.withOpacity(0.2),
-                                            border: Border.all(
-                                              color: _colorColors[color] ?? Colors.grey,
-                                              width: 2,
-                                            ),
-                                            shape: BoxShape.circle,
-                                          ),
-                                        ),
-                                        Text(color),
-                                      ],
-                                    ),
-                                  );
-                                }).toList(),
-                                onChanged: (v) {
+                            const SizedBox(height: 8),
+                            const Text('Colores disponibles:'),
+                            Wrap(
+                              spacing: 8,
+                              children: _tonerColors.map((c) => FilterChip(
+                                label: Text(c),
+                                selected: coloresSeleccionados.contains(c),
+                                onSelected: (selected) {
                                   setState(() {
-                                    selectedColor = v;
-                                    colorC.text = v ?? '';
+                                    if (selected) {
+                                      coloresSeleccionados.add(c);
+                                    } else {
+                                      coloresSeleccionados.remove(c);
+                                    }
                                   });
                                 },
-                              )
-                            else ...[
-                              TextField(
-                                controller: colorC,
-                                decoration: const InputDecoration(
-                                  labelText: 'Color',
-                                  border: OutlineInputBorder(),
-                                ),
-                                enabled: false,
-                              ),
-                              const SizedBox(height: 6),
-                              Row(
-                                children: [
-                                  const Icon(Icons.info_outline, color: Colors.grey, size: 18),
-                                  const SizedBox(width: 6),
-                                  Expanded(
-                                    child: Text(
-                                      'Solo HP y Lexmark pueden elegir color. Para Ricoh y otras marcas, el color siempre será Negro.',
-                                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                              )).toList(),
+                            ),
                             const SizedBox(height: 16),
                             DropdownButtonFormField<String>(
                               value: estado,
@@ -390,8 +621,208 @@ class _ToneresPageState extends ConsumerState<ToneresPage> {
                               onChanged: (v) => setState(() => estado = v!),
                             ),
                           ],
-                        ),
-                      );
+                        );
+                      } else {
+                        // Monocromática: modelo de tóner y compatibilidad
+                        return modelosTonnerAsync.when(
+                          loading: () => const Center(child: CircularProgressIndicator()),
+                          error: (e, _) => Text('Error: $e'),
+                          data: (modelosTonner) {
+                            final selectedModelo = modelosTonner.where((m) => m.id == modeloTonnerId).isNotEmpty ? modelosTonner.firstWhere((m) => m.id == modeloTonnerId) : null;
+                            // Modelos de impresora únicos para compatibilidad
+                            final modelosImpresora = impresoras.map((i) => i.modelo).toSet().toList();
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Row(
+                                  children: [
+                                    Checkbox(
+                                      value: esColor,
+                                      onChanged: (v) {
+                                        setState(() {
+                                          esColor = v ?? false;
+                                          coloresSeleccionados = [];
+                                          color = '';
+                                          impresoraIdSeleccionada = null;
+                                        });
+                                      },
+                                    ),
+                                    const Text('¿Impresora a color?'),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: DropdownButtonFormField<int>(
+                                        value: modeloTonnerId,
+                                        decoration: const InputDecoration(
+                                          labelText: 'Modelo de Tóner *',
+                                          border: OutlineInputBorder(),
+                                        ),
+                                        items: modelosTonner.map((m) {
+                                          return DropdownMenuItem(
+                                            value: m.id,
+                                            child: Text(m.nombre),
+                                          );
+                                        }).toList(),
+                                        onChanged: (v) {
+                                          setState(() {
+                                            modeloTonnerId = v;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Tooltip(
+                                      message: 'Registrar nuevo modelo de tóner',
+                                      child: IconButton(
+                                        icon: const Icon(Icons.add),
+                                        onPressed: () async {
+                                          await showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return StatefulBuilder(
+                                                builder: (context, setStateDialog) {
+                                                  return AlertDialog(
+                                                    title: const Text('Nuevo modelo de tóner'),
+                                                    content: TextField(
+                                                      controller: _nuevoModeloController,
+                                                      decoration: InputDecoration(
+                                                        labelText: 'Nombre del modelo',
+                                                        errorText: errorNuevoModelo,
+                                                      ),
+                                                    ),
+                                                    actions: [
+                                                      TextButton(
+                                                        onPressed: () => Navigator.pop(context),
+                                                        child: const Text('Cancelar'),
+                                                      ),
+                                                      ElevatedButton(
+                                                        onPressed: creandoModelo
+                                                            ? null
+                                                            : () async {
+                                                                final nombre = _nuevoModeloController.text.trim();
+                                                                if (nombre.isEmpty) {
+                                                                  setStateDialog(() => errorNuevoModelo = 'El nombre es obligatorio');
+                                                                  return;
+                                                                }
+                                                                setStateDialog(() => creandoModelo = true);
+                                                                final id = await modelosTonnerDao.crearModeloTonner(nombre: nombre);
+                                                                setState(() {
+                                                                  modeloTonnerId = id;
+                                                                });
+                                                                Navigator.pop(context);
+                                                              },
+                                                        child: const Text('Guardar'),
+                                                      ),
+                                                    ],
+                                                  );
+                                                },
+                                              );
+                                            },
+                                          );
+                                          _nuevoModeloController.clear();
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                const Text('Selecciona impresora monocromática:'),
+                                DropdownButtonFormField<int>(
+                                  value: impresoraIdSeleccionada,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Impresora monocromática',
+                                    border: OutlineInputBorder(),
+                                  ),
+                                  items: impresorasMono.map((i) => DropdownMenuItem(
+                                    value: i.id,
+                                    child: Text('${i.marca} ${i.modelo}'),
+                                  )).toList(),
+                                  onChanged: (v) => setState(() => impresoraIdSeleccionada = v),
+                                ),
+                                const SizedBox(height: 8),
+                                const Text('Color: Negro'),
+                                const SizedBox(height: 16),
+                                // Compatibilidad UI y estado
+                                FutureBuilder<List<String>>(
+                                  future: modeloTonnerId != null
+                                      ? modelosTonnerDao.getModelosImpresoraCompatiblesPorToner(modeloTonnerId!)
+                                      : Future.value([]),
+                                  builder: (context, snapshot) {
+                                    final modelosCompatibles = snapshot.data ?? [];
+                                    return Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        if (modeloTonnerId != null) ...[
+                                          const Text('Compatibilidad con modelos de impresora:', style: TextStyle(fontWeight: FontWeight.bold)),
+                                          const SizedBox(height: 6),
+                                          Wrap(
+                                            spacing: 6,
+                                            runSpacing: 6,
+                                            children: modelosImpresora.map((modelo) {
+                                              final isCompatible = modelosCompatibles.contains(modelo);
+                                              return FilterChip(
+                                                label: Text(modelo),
+                                                selected: isCompatible,
+                                                onSelected: (_) async {
+                                                  if (modeloTonnerId == null) return;
+                                                  if (isCompatible) {
+                                                    await modelosTonnerDao.eliminarCompatibilidad(
+                                                      modeloImpresora: modelo,
+                                                      modeloTonnerId: modeloTonnerId!,
+                                                    );
+                                                  } else {
+                                                    await modelosTonnerDao.agregarCompatibilidad(
+                                                      modeloImpresora: modelo,
+                                                      modeloTonnerId: modeloTonnerId!,
+                                                    );
+                                                  }
+                                                  setState(() {});
+                                                },
+                                                selectedColor: Colors.green.withOpacity(0.2),
+                                                checkmarkColor: Colors.green,
+                                              );
+                                            }).toList(),
+                                          ),
+                                          if (modelosCompatibles.isEmpty)
+                                            const Padding(
+                                              padding: EdgeInsets.only(top: 8.0),
+                                              child: Text('¡Agrega al menos una compatibilidad antes de guardar!', style: TextStyle(color: Colors.red)),
+                                            ),
+                                          const SizedBox(height: 16),
+                                        ],
+                                        DropdownButtonFormField<String>(
+                                          value: estado,
+                                          decoration: const InputDecoration(
+                                            labelText: 'Estado *',
+                                            border: OutlineInputBorder(),
+                                          ),
+                                          items: _tonerStates.map((state) {
+                                            return DropdownMenuItem(
+                                              value: state,
+                                              child: Chip(
+                                                label: Text(state),
+                                                backgroundColor: _stateColors[state]?.withOpacity(0.2),
+                                                labelStyle: TextStyle(
+                                                  color: _stateColors[state] ?? Colors.grey,
+                                                ),
+                                              ),
+                                            );
+                                          }).toList(),
+                                          onChanged: (v) => setState(() => estado = v!),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      }
                     },
                   );
                 },
@@ -406,44 +837,99 @@ class _ToneresPageState extends ConsumerState<ToneresPage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).primaryColor,
                 ),
-                onPressed: (impresoraId != null && colorC.text.isNotEmpty && estado.isNotEmpty)
-                    ? () async {
-                        final dao = ref.read(toneresDaoProvider);
-                        final companion = ToneresCompanion(
-                          id: isNew ? const drift.Value.absent() : drift.Value(t.id),
-                          impresoraId: drift.Value(impresoraId!),
-                          color: drift.Value(colorC.text),
-                          estado: drift.Value(estado),
-                        );
-
-                        if (isNew) {
-                          await dao.insertOne(companion);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text('Tóner creado'),
-                              behavior: SnackBarBehavior.floating,
-                            )
-                          );
-                        } else {
-                          await dao.updateOne(companion);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text('Tóner actualizado'),
-                              behavior: SnackBarBehavior.floating,
-                            )
-                          );
-                        }
-                        Navigator.pop(context);
-                      }
-                    : null,
-                child: Text(isNew ? 'Crear' : 'Guardar'),
+                onPressed: () async {
+                  final dao = ref.read(toneresDaoProvider);
+                  if (esColor) {
+                    if (impresoraIdSeleccionada == null || coloresSeleccionados.isEmpty || estado.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Selecciona impresora y al menos un color.'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+                    for (final c in coloresSeleccionados) {
+                      await dao.insertOne(ToneresCompanion(
+                        modeloTonnerId: const drift.Value.absent(),
+                        color: drift.Value(c),
+                        estado: drift.Value(estado),
+                        impresoraId: drift.Value(impresoraIdSeleccionada!),
+                      ));
+                    }
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Tóner(es) registrado(s) correctamente.'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  } else {
+                    if (modeloTonnerId == null || estado.isEmpty || impresoraIdSeleccionada == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Completa todos los campos obligatorios.'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+                    // Buscar la impresora seleccionada (de cualquier tipo)
+                    final impresorasAsync = ref.read(impresorasListStreamProvider);
+                    List<Impresora> impresoras = impresorasAsync.maybeWhen(
+                      data: (list) => list,
+                      orElse: () => <Impresora>[],
+                    );
+                    Impresora? impresoraSeleccionada;
+                    try {
+                      impresoraSeleccionada = impresoras.firstWhere((i) => i.id == impresoraIdSeleccionada);
+                    } catch (_) {
+                      impresoraSeleccionada = null;
+                    }
+                    final esRicoh = impresoraSeleccionada != null && impresoraSeleccionada.marca.toLowerCase().contains('ricoh');
+                    final modelosTonnerDao = ref.read(modelosTonnerDaoProvider);
+                    final compatibles = await modelosTonnerDao.getModelosImpresoraCompatiblesPorToner(modeloTonnerId!);
+                    if (compatibles.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Agrega al menos una compatibilidad antes de guardar.'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+                    // Validar que la impresora seleccionada sea compatible
+                    if (impresoraSeleccionada == null || !compatibles.contains(impresoraSeleccionada.modelo)) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('La impresora seleccionada no es compatible con el modelo de tóner.'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+                    await dao.insertOne(ToneresCompanion(
+                      modeloTonnerId: drift.Value(modeloTonnerId!),
+                      color: drift.Value('Negro'),
+                      estado: drift.Value(estado),
+                      impresoraId: drift.Value(impresoraIdSeleccionada!),
+                    ));
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(esRicoh ? 'Tóner Ricoh registrado correctamente.' : 'Tóner registrado correctamente.'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
+                },
+                child: const Text('Guardar'),
               ),
             ],
           );
         },
       ),
     );
-  }
 
   void _showFilterDialog() {
     String? selectedEstado = _filterEstado;
@@ -560,78 +1046,7 @@ class _ToneresPageState extends ConsumerState<ToneresPage> {
     );
   }
 
-  void _deleteOrphanToners() {
-    final dao = ref.read(toneresDaoProvider);
-    final printersAsync = ref.read(impresorasListStreamProvider);
-    final tonersAsync = ref.read(toneresListStreamProvider);
 
-    printersAsync.whenData((printers) {
-      tonersAsync.whenData((toners) {
-        for (final toner in toners) {
-          final printerExists = printers.any((printer) => printer.id == toner.impresoraId);
-          if (!printerExists) {
-            dao.deleteById(toner.id);
-          }
-        }
-      });
-    });
-  }
 
-  void _deletePrinterAndAssociatedToners(int printerId) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Confirmar eliminación'),
-        content: const Text('¿Seguro que quieres eliminar esta impresora y sus tóneres asociados?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final printerDao = ref.read(impresorasDaoProvider);
-              final tonerDao = ref.read(toneresDaoProvider);
-
-              // Eliminar impresora
-              printerDao.deleteById(printerId);
-
-              // Eliminar tóneres asociados
-              ref.read(toneresListStreamProvider).whenData((toners) {
-                for (final toner in toners) {
-                  if (toner.impresoraId == printerId) {
-                    tonerDao.deleteById(toner.id);
-                  }
-                }
-              });
-
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Impresora y tóneres asociados eliminados'),
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
-            },
-            child: const Text('Eliminar'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _deleteOrphanToners();
-  }
 }
-
-extension FirstWhereOrNullExtension<E> on Iterable<E> {
-  E? firstWhereOrNull(bool Function(E) test) {
-    for (E element in this) {
-      if (test(element)) return element;
-    }
-    return null;
-  }
 }
