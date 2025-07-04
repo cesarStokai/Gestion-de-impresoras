@@ -17,12 +17,31 @@ class ContadoresPage extends ConsumerStatefulWidget {
 class _ContadoresPageState extends ConsumerState<ContadoresPage> {
   late DateTime _selectedMonth;
   final Map<int, TextEditingController> _controllers = {};
+  String _searchText = '';
+  int? _hoveredIndex; // Para sombreado en web
+  int? _selectedIndex; // Para sombreado al tap en móvil
+
+  final _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _selectedMonth = DateTime.now();
     initializeDateFormatting('es');
+    _searchController.addListener(() {
+      setState(() {
+        _searchText = _searchController.text;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    for (final c in _controllers.values) {
+      c.dispose();
+    }
+    super.dispose();
   }
 
   String get mesString => DateFormat('yyyy-MM').format(_selectedMonth);
@@ -66,6 +85,7 @@ class _ContadoresPageState extends ConsumerState<ContadoresPage> {
   Widget build(BuildContext context) {
     final impresorasAsync = ref.watch(impresorasDaoProvider).getAllImpresoras().asStream();
     final contadoresDao = ref.read(contadoresDaoProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Contadores mensuales'),
@@ -100,6 +120,25 @@ class _ContadoresPageState extends ConsumerState<ContadoresPage> {
                   },
                   child: Text(DateFormat('MMMM yyyy', 'es').format(_selectedMonth)),
                 ),
+                const Spacer(),
+                SizedBox(
+                  width: 260,
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Buscar impresora, modelo, área...',
+                      prefixIcon: const Icon(Icons.search),
+                      suffixIcon: _searchText.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () => _searchController.clear(),
+                            )
+                          : null,
+                      border: const OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 24),
@@ -119,19 +158,45 @@ class _ContadoresPageState extends ConsumerState<ContadoresPage> {
                   if (impresoras.isEmpty) {
                     return const Center(child: Text('No hay impresoras registradas.'));
                   }
+
+                  // Filtrado según el texto de búsqueda
+                  final filteredImpresoras = _searchText.isEmpty
+                      ? impresoras
+                      : impresoras.where((imp) {
+                          final text = (_searchText).toLowerCase();
+                          return imp.marca.toLowerCase().contains(text) ||
+                              imp.modelo.toLowerCase().contains(text) ||
+                              imp.area.toLowerCase().contains(text) ||
+                              imp.serie.toLowerCase().contains(text);
+                        }).toList();
+
+                  if (filteredImpresoras.isEmpty) {
+                    return const Center(child: Text('No se encontraron coincidencias.'));
+                  }
+
                   return ListView.separated(
-                    itemCount: impresoras.length,
-                    separatorBuilder: (_, __) => const Divider(),
+                    itemCount: filteredImpresoras.length,
+                    separatorBuilder: (_, __) => const Divider(height: 1),
                     itemBuilder: (context, i) {
-                      final imp = impresoras[i];
+                      final imp = filteredImpresoras[i];
                       final contadorExistente = contadoresMap[imp.id];
                       final controller = _controllers.putIfAbsent(imp.id, () => TextEditingController());
                       if (contadorExistente != null) {
                         controller.text = contadorExistente.contador.toString();
-                      } else {
+                      } else if (!controller.text.endsWith('')) {
                         controller.text = '';
                       }
-                      return ListTile(
+
+                      final bool isHovered = _hoveredIndex == i;
+                      final bool isSelected = _selectedIndex == i;
+
+                      Color? bgColor;
+                      if (isHovered || isSelected) {
+                        bgColor = Colors.orange.withOpacity(0.13); // Color suave
+                      }
+
+                      Widget tile = ListTile(
+                        tileColor: bgColor,
                         title: Text('${imp.marca} ${imp.modelo}'),
                         subtitle: Text('Área: ${imp.area} | Serie: ${imp.serie}' + (contadorExistente != null ? '  |  Ya registrado' : '')),
                         trailing: SizedBox(
@@ -147,7 +212,17 @@ class _ContadoresPageState extends ConsumerState<ContadoresPage> {
                             ),
                           ),
                         ),
+                        onTap: () => setState(() => _selectedIndex = i),
                       );
+
+                      // Sombreado al pasar el mouse (solo web)
+                      tile = MouseRegion(
+                        onEnter: (_) => setState(() => _hoveredIndex = i),
+                        onExit: (_) => setState(() => _hoveredIndex = null),
+                        child: tile,
+                      );
+
+                      return tile;
                     },
                   );
                 },
