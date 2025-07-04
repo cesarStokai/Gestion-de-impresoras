@@ -5,6 +5,8 @@ import 'requisiciones_page.dart';
 import 'mantenimientos_page.dart';
 import 'historial_page.dart';
 import 'exportar_datos_page.dart'; // Asegúrate de crear este archivo
+import 'estadisticas_page.dart';
+import 'nobrakes_page.dart';
 import 'importar_datos_page.dart';
 import 'respaldo_datos_page.dart';
 import 'contadores_page.dart';
@@ -25,11 +27,12 @@ class _HomePageState extends State<HomePage> {
     RequisicionesPage(),
     MantenimientosPage(),
     HistorialPage(),
+    EstadisticasPage(),
     ExportarDatosPage(),
-    ImportarDatosPage(),
     RespaldoDatosPage(),
     ContadoresPage(),
-    ContadoresHistorialPage(), // Nueva página de historial de contadores
+    ContadoresHistorialPage(),
+    NoBrakesPage(),
   ];
 
   @override
@@ -70,11 +73,12 @@ class _HomePageState extends State<HomePage> {
                 NavigationRailDestination(icon: Icon(Icons.request_page), label: Text('Requisiciones')),
                 NavigationRailDestination(icon: Icon(Icons.build), label: Text('Mantenimientos')),
                 NavigationRailDestination(icon: Icon(Icons.history), label: Text('Historial')),
+                NavigationRailDestination(icon: Icon(Icons.bar_chart), label: Text('Estadísticas')),
                 NavigationRailDestination(icon: Icon(Icons.file_download), label: Text('Exportar')),
-                NavigationRailDestination(icon: Icon(Icons.file_upload), label: Text('Importar')),
-                NavigationRailDestination(icon: Icon(Icons.backup), label: Text('Respaldo')), // Nueva opción
-                NavigationRailDestination(icon: Icon(Icons.countertops), label: Text('Contadores')), // Nueva opción
-                NavigationRailDestination(icon: Icon(Icons.history_edu), label: Text('Historial Contadores')), // Nueva opción
+                NavigationRailDestination(icon: Icon(Icons.backup), label: Text('Respaldo')),
+                NavigationRailDestination(icon: Icon(Icons.countertops), label: Text('Contadores')),
+                NavigationRailDestination(icon: Icon(Icons.history_edu), label: Text('Historial Contadores')),
+                NavigationRailDestination(icon: Icon(Icons.battery_charging_full), label: Text('No-brakes')),
               ],
               labelType: NavigationRailLabelType.all,
               minWidth: 75,

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../providers/database_provider.dart';
 
@@ -63,6 +62,39 @@ class _ContadoresHistorialPageState extends ConsumerState<ContadoresHistorialPag
       ),
       body: Column(
         children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    icon: const Icon(Icons.calendar_month),
+                    label: Text('${_focusedDay.year} - ${_focusedDay.month.toString().padLeft(2, '0')}'),
+                    onPressed: () async {
+                      final now = DateTime.now();
+                      final picked = await showDatePicker(
+                        context: context,
+                        initialDate: _focusedDay,
+                        firstDate: DateTime(2020, 1, 1),
+                        lastDate: DateTime(now.year + 1, 12, 31),
+                        helpText: 'Selecciona mes y año',
+                        fieldLabelText: 'Mes/Año',
+                        initialEntryMode: DatePickerEntryMode.calendar,
+                        selectableDayPredicate: (date) => true,
+                      );
+                      if (picked != null) {
+                        setState(() {
+                          _focusedDay = DateTime(picked.year, picked.month, 1);
+                          _selectedDay = null;
+                        });
+                        await _loadEventsForMonth(_focusedDay);
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
           TableCalendar(
             locale: 'es_ES',
             firstDay: DateTime(2020, 1, 1),
@@ -71,6 +103,7 @@ class _ContadoresHistorialPageState extends ConsumerState<ContadoresHistorialPag
             selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
             eventLoader: _getEventsForDay,
             calendarFormat: CalendarFormat.month,
+            availableCalendarFormats: const { CalendarFormat.month: 'Mes' },
             startingDayOfWeek: StartingDayOfWeek.monday,
             onDaySelected: (selectedDay, focusedDay) {
               setState(() {

@@ -6,6 +6,12 @@ part 'documentos_dao.g.dart';
 
 @DriftAccessor(tables: [Documentos])
 class DocumentosDao extends DatabaseAccessor<AppDatabase> with _$DocumentosDaoMixin {
+  /// Obtiene los documentos por entidad y entidadId
+  Future<List<Documento>> getByEntidad(String entidad, int entidadId) async {
+    return await (select(documentos)
+      ..where((tbl) => tbl.entidad.equals(entidad) & tbl.entidadId.equals(entidadId)))
+      .get();
+  }
   DocumentosDao(super.db);
 
   // Observa todos los documentos

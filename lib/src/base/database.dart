@@ -99,15 +99,41 @@ class Contadores extends Table {
 }
 
 
+// --- NO-BRAKES (UPS) ---
+class NoBrakes extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get marca => text().customConstraint('NOT NULL')();
+  TextColumn get modelo => text().customConstraint('NOT NULL')();
+  TextColumn get serie => text().customConstraint('NOT NULL')();
+  TextColumn get ubicacion => text().customConstraint('NOT NULL')();
+  TextColumn get usuarioAsignado => text().customConstraint('NOT NULL')();
+  TextColumn get estado => text().withDefault(const Constant('activo')).customConstraint("NOT NULL CHECK(estado IN ('activo','en_reparacion','baja'))")();
+  TextColumn get observaciones => text().nullable()();
+  DateTimeColumn get fechaRegistro => dateTime().withDefault(currentDateAndTime)();
+}
+
+class NoBrakeEventos extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get noBrakeId => integer().customConstraint('NOT NULL REFERENCES no_brakes(id)')();
+  DateTimeColumn get fecha => dateTime().withDefault(currentDateAndTime)();
+  TextColumn get tipoEvento => text().customConstraint("NOT NULL CHECK(tipo_evento IN ('reporte','diagnostico','reparacion','baja','reasignacion'))")();
+  TextColumn get descripcion => text().customConstraint('NOT NULL')();
+  TextColumn get usuario => text().nullable()();
+  BlobColumn get adjunto => blob().nullable()();
+  TextColumn get nombreAdjunto => text().nullable()();
+}
+
 @DriftDatabase(
-  tables: [Impresoras, Toneres, ModelosTonner, ModeloTonnerCompatible, Requisiciones, Mantenimientos, Documentos, Contadores],
+  tables: [Impresoras, Toneres, ModelosTonner, ModeloTonnerCompatible, Requisiciones, Mantenimientos, Documentos, Contadores, NoBrakes, NoBrakeEventos],
   daos: [
     ImpresorasDao,
     ToneresDao,
     RequisicionesDao,
     MantenimientosDao,
-    DocumentosDao
+    DocumentosDao,
     // Puedes agregar un ContadoresDao si lo necesitas
+    // DAOs para NoBrakes y NoBrakeEventos
+    // (Recuerda generar el archivo .g.dart después de agregar los DAOs)
   ],
 )
 class AppDatabase extends _$AppDatabase {

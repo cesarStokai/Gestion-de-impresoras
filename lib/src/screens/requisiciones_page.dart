@@ -160,33 +160,6 @@ class _RequisicionesPageState extends ConsumerState<RequisicionesPage> {
     );
   }
 
-  void _confirmarEliminacion(int id) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Confirmar eliminación'),
-        content: const Text('¿Estás seguro de eliminar esta requisición?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              await ref.read(requisicionesDaoProvider).deleteById(id);
-              if (mounted) {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Requisición eliminada')),
-                );
-              }
-            },
-            child: const Text('Eliminar'),
-          ),
-        ],
-      ),
-    );
-  }
 
   void _showForm([Requisicione? r]) async {
     final isNew = r == null;

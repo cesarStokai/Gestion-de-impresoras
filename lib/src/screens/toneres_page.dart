@@ -135,89 +135,7 @@ class _ToneresPageState extends ConsumerState<ToneresPage> with SingleTickerProv
     );
   }
 
-  void _showCompatibilidadDialog() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return Consumer(
-          builder: (context, ref, _) {
-            final modelosTonnerAsync = ref.watch(modelosTonnerListProvider);
-            final impresorasAsync = ref.watch(impresorasListStreamProvider);
-            return modelosTonnerAsync.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => AlertDialog(title: const Text('Error'), content: Text('Error: $e')),
-              data: (modelosTonner) {
-                return impresorasAsync.when(
-                  loading: () => const Center(child: CircularProgressIndicator()),
-                  error: (e, _) => AlertDialog(title: const Text('Error'), content: Text('Error: $e')),
-                  data: (impresoras) {
-                    int? selectedModeloTonerId;
-                    String? selectedModeloImpresora;
-                    return StatefulBuilder(
-                      builder: (context, setState) {
-                        return AlertDialog(
-                          title: const Text('Registrar compatibilidad'),
-                          content: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              DropdownButtonFormField<int>(
-                                value: selectedModeloTonerId,
-                                decoration: const InputDecoration(labelText: 'Modelo de Tóner'),
-                                items: modelosTonner.map((m) => DropdownMenuItem(
-                                  value: m.id,
-                                  child: Text(m.nombre),
-                                )).toList(),
-                                onChanged: (v) => setState(() => selectedModeloTonerId = v),
-                              ),
-                              const SizedBox(height: 16),
-                              DropdownButtonFormField<String>(
-                                value: selectedModeloImpresora,
-                                decoration: const InputDecoration(labelText: 'Modelo de Impresora'),
-                                items: impresoras.map((imp) => imp.modelo).toSet().map((modelo) => DropdownMenuItem(
-                                  value: modelo,
-                                  child: Text(modelo),
-                                )).toList(),
-                                onChanged: (v) => setState(() => selectedModeloImpresora = v),
-                              ),
-                            ],
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text('Cancelar'),
-                            ),
-                            ElevatedButton(
-                              onPressed: (selectedModeloTonerId != null && selectedModeloImpresora != null)
-                                  ? () async {
-                                      final dao = ref.read(modelosTonnerDaoProvider);
-                                      await dao.agregarCompatibilidad(
-                                        modeloImpresora: selectedModeloImpresora!,
-                                        modeloTonnerId: selectedModeloTonerId!,
-                                      );
-                                      Navigator.pop(context);
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                          content: Text('Compatibilidad registrada'),
-                                          backgroundColor: Colors.green,
-                                        ),
-                                      );
-                                    }
-                                  : null,
-                              child: const Text('Registrar'),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                );
-              },
-            );
-          },
-        );
-      },
-    );
-  }
+ 
 
   Widget _buildAsignacionTab() {
     final tonerAsync = ref.watch(toneresListStreamProvider);
@@ -629,8 +547,12 @@ class _ToneresPageState extends ConsumerState<ToneresPage> with SingleTickerProv
                           error: (e, _) => Text('Error: $e'),
                           data: (modelosTonner) {
                             final selectedModelo = modelosTonner.where((m) => m.id == modeloTonnerId).isNotEmpty ? modelosTonner.firstWhere((m) => m.id == modeloTonnerId) : null;
-                            // Modelos de impresora únicos para compatibilidad
-                            final modelosImpresora = impresoras.map((i) => i.modelo).toSet().toList();
+                            // Solo mostrar modelos de impresora monocromática para compatibilidad
+                            final modelosImpresora = impresoras
+                                .where((i) => !i.esAColor)
+                                .map((i) => i.modelo)
+                                .toSet()
+                                .toList();
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisSize: MainAxisSize.min,
@@ -836,6 +758,8 @@ class _ToneresPageState extends ConsumerState<ToneresPage> with SingleTickerProv
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).primaryColor,
+                  foregroundColor: Colors.white, // Asegura texto blanco
+                  textStyle: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 onPressed: () async {
                   final dao = ref.read(toneresDaoProvider);
@@ -931,120 +855,6 @@ class _ToneresPageState extends ConsumerState<ToneresPage> with SingleTickerProv
       ),
     );
 
-  void _showFilterDialog() {
-    String? selectedEstado = _filterEstado;
-    String? selectedColor = _filterColor;
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setStateDialog) {
-            return AlertDialog(
-              title: const Text('Filtrar Tóneres'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  DropdownButtonFormField<String>(
-                    value: selectedEstado,
-                    decoration: const InputDecoration(
-                      labelText: 'Estado',
-                      border: OutlineInputBorder(),
-                    ),
-                    items: [
-                      const DropdownMenuItem(
-                        value: null,
-                        child: Text('Todos los estados'),
-                      ),
-                      ..._tonerStates.map((state) {
-                        return DropdownMenuItem(
-                          value: state,
-                          child: Chip(
-                            label: Text(state),
-                            backgroundColor: _stateColors[state]?.withOpacity(0.2),
-                            labelStyle: TextStyle(
-                              color: _stateColors[state] ?? Colors.grey,
-                            ),
-                          ),
-                        );
-                      }),
-                    ],
-                    onChanged: (value) => setStateDialog(() => selectedEstado = value),
-                  ),
-                  const SizedBox(height: 16),
-                  DropdownButtonFormField<String>(
-                    value: selectedColor,
-                    decoration: const InputDecoration(
-                      labelText: 'Color',
-                      border: OutlineInputBorder(),
-                    ),
-                    items: [
-                      const DropdownMenuItem(
-                        value: null,
-                        child: Text('Todos los colores'),
-                      ),
-                      ..._tonerColors.map((color) {
-                        return DropdownMenuItem(
-                          value: color,
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 20,
-                                height: 20,
-                                margin: const EdgeInsets.only(right: 12),
-                                decoration: BoxDecoration(
-                                  color: _colorColors[color]?.withOpacity(0.2),
-                                  border: Border.all(
-                                    color: _colorColors[color] ?? Colors.grey,
-                                    width: 2,
-                                  ),
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                              Text(color),
-                            ],
-                          ),
-                        );
-                      }),
-                    ],
-                    onChanged: (value) => setStateDialog(() => selectedColor = value),
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancelar'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    setStateDialog(() {
-                      selectedEstado = null;
-                      selectedColor = null;
-                    });
-                  },
-                  child: const Text('Limpiar'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    // Aquí usamos setState del widget principal
-                    if (mounted) {
-                      setState(() {
-                        _filterEstado = selectedEstado;
-                        _filterColor = selectedColor;
-                      });
-                    }
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Aplicar'),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
 
 
 

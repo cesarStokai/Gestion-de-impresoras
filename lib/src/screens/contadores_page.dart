@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import '../providers/database_provider.dart';
-import '../daos/contadores_dao.dart';
 import '../utils/error_handler.dart';
 import 'package:drift/drift.dart' show Value;
 

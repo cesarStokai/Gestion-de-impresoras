@@ -2668,6 +2668,922 @@ class ContadoresCompanion extends UpdateCompanion<Contadore> {
   }
 }
 
+class $NoBrakesTable extends NoBrakes with TableInfo<$NoBrakesTable, NoBrake> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $NoBrakesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _marcaMeta = const VerificationMeta('marca');
+  @override
+  late final GeneratedColumn<String> marca = GeneratedColumn<String>(
+      'marca', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
+  static const VerificationMeta _modeloMeta = const VerificationMeta('modelo');
+  @override
+  late final GeneratedColumn<String> modelo = GeneratedColumn<String>(
+      'modelo', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
+  static const VerificationMeta _serieMeta = const VerificationMeta('serie');
+  @override
+  late final GeneratedColumn<String> serie = GeneratedColumn<String>(
+      'serie', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
+  static const VerificationMeta _ubicacionMeta =
+      const VerificationMeta('ubicacion');
+  @override
+  late final GeneratedColumn<String> ubicacion = GeneratedColumn<String>(
+      'ubicacion', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
+  static const VerificationMeta _usuarioAsignadoMeta =
+      const VerificationMeta('usuarioAsignado');
+  @override
+  late final GeneratedColumn<String> usuarioAsignado = GeneratedColumn<String>(
+      'usuario_asignado', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
+  static const VerificationMeta _estadoMeta = const VerificationMeta('estado');
+  @override
+  late final GeneratedColumn<String> estado = GeneratedColumn<String>(
+      'estado', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints:
+          'NOT NULL CHECK(estado IN (\'activo\',\'en_reparacion\',\'baja\'))',
+      defaultValue: const Constant('activo'));
+  static const VerificationMeta _observacionesMeta =
+      const VerificationMeta('observaciones');
+  @override
+  late final GeneratedColumn<String> observaciones = GeneratedColumn<String>(
+      'observaciones', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _fechaRegistroMeta =
+      const VerificationMeta('fechaRegistro');
+  @override
+  late final GeneratedColumn<DateTime> fechaRegistro =
+      GeneratedColumn<DateTime>('fecha_registro', aliasedName, false,
+          type: DriftSqlType.dateTime,
+          requiredDuringInsert: false,
+          defaultValue: currentDateAndTime);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        marca,
+        modelo,
+        serie,
+        ubicacion,
+        usuarioAsignado,
+        estado,
+        observaciones,
+        fechaRegistro
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'no_brakes';
+  @override
+  VerificationContext validateIntegrity(Insertable<NoBrake> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('marca')) {
+      context.handle(
+          _marcaMeta, marca.isAcceptableOrUnknown(data['marca']!, _marcaMeta));
+    } else if (isInserting) {
+      context.missing(_marcaMeta);
+    }
+    if (data.containsKey('modelo')) {
+      context.handle(_modeloMeta,
+          modelo.isAcceptableOrUnknown(data['modelo']!, _modeloMeta));
+    } else if (isInserting) {
+      context.missing(_modeloMeta);
+    }
+    if (data.containsKey('serie')) {
+      context.handle(
+          _serieMeta, serie.isAcceptableOrUnknown(data['serie']!, _serieMeta));
+    } else if (isInserting) {
+      context.missing(_serieMeta);
+    }
+    if (data.containsKey('ubicacion')) {
+      context.handle(_ubicacionMeta,
+          ubicacion.isAcceptableOrUnknown(data['ubicacion']!, _ubicacionMeta));
+    } else if (isInserting) {
+      context.missing(_ubicacionMeta);
+    }
+    if (data.containsKey('usuario_asignado')) {
+      context.handle(
+          _usuarioAsignadoMeta,
+          usuarioAsignado.isAcceptableOrUnknown(
+              data['usuario_asignado']!, _usuarioAsignadoMeta));
+    } else if (isInserting) {
+      context.missing(_usuarioAsignadoMeta);
+    }
+    if (data.containsKey('estado')) {
+      context.handle(_estadoMeta,
+          estado.isAcceptableOrUnknown(data['estado']!, _estadoMeta));
+    }
+    if (data.containsKey('observaciones')) {
+      context.handle(
+          _observacionesMeta,
+          observaciones.isAcceptableOrUnknown(
+              data['observaciones']!, _observacionesMeta));
+    }
+    if (data.containsKey('fecha_registro')) {
+      context.handle(
+          _fechaRegistroMeta,
+          fechaRegistro.isAcceptableOrUnknown(
+              data['fecha_registro']!, _fechaRegistroMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  NoBrake map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return NoBrake(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      marca: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}marca'])!,
+      modelo: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}modelo'])!,
+      serie: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}serie'])!,
+      ubicacion: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}ubicacion'])!,
+      usuarioAsignado: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}usuario_asignado'])!,
+      estado: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}estado'])!,
+      observaciones: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}observaciones']),
+      fechaRegistro: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}fecha_registro'])!,
+    );
+  }
+
+  @override
+  $NoBrakesTable createAlias(String alias) {
+    return $NoBrakesTable(attachedDatabase, alias);
+  }
+}
+
+class NoBrake extends DataClass implements Insertable<NoBrake> {
+  final int id;
+  final String marca;
+  final String modelo;
+  final String serie;
+  final String ubicacion;
+  final String usuarioAsignado;
+  final String estado;
+  final String? observaciones;
+  final DateTime fechaRegistro;
+  const NoBrake(
+      {required this.id,
+      required this.marca,
+      required this.modelo,
+      required this.serie,
+      required this.ubicacion,
+      required this.usuarioAsignado,
+      required this.estado,
+      this.observaciones,
+      required this.fechaRegistro});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['marca'] = Variable<String>(marca);
+    map['modelo'] = Variable<String>(modelo);
+    map['serie'] = Variable<String>(serie);
+    map['ubicacion'] = Variable<String>(ubicacion);
+    map['usuario_asignado'] = Variable<String>(usuarioAsignado);
+    map['estado'] = Variable<String>(estado);
+    if (!nullToAbsent || observaciones != null) {
+      map['observaciones'] = Variable<String>(observaciones);
+    }
+    map['fecha_registro'] = Variable<DateTime>(fechaRegistro);
+    return map;
+  }
+
+  NoBrakesCompanion toCompanion(bool nullToAbsent) {
+    return NoBrakesCompanion(
+      id: Value(id),
+      marca: Value(marca),
+      modelo: Value(modelo),
+      serie: Value(serie),
+      ubicacion: Value(ubicacion),
+      usuarioAsignado: Value(usuarioAsignado),
+      estado: Value(estado),
+      observaciones: observaciones == null && nullToAbsent
+          ? const Value.absent()
+          : Value(observaciones),
+      fechaRegistro: Value(fechaRegistro),
+    );
+  }
+
+  factory NoBrake.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return NoBrake(
+      id: serializer.fromJson<int>(json['id']),
+      marca: serializer.fromJson<String>(json['marca']),
+      modelo: serializer.fromJson<String>(json['modelo']),
+      serie: serializer.fromJson<String>(json['serie']),
+      ubicacion: serializer.fromJson<String>(json['ubicacion']),
+      usuarioAsignado: serializer.fromJson<String>(json['usuarioAsignado']),
+      estado: serializer.fromJson<String>(json['estado']),
+      observaciones: serializer.fromJson<String?>(json['observaciones']),
+      fechaRegistro: serializer.fromJson<DateTime>(json['fechaRegistro']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'marca': serializer.toJson<String>(marca),
+      'modelo': serializer.toJson<String>(modelo),
+      'serie': serializer.toJson<String>(serie),
+      'ubicacion': serializer.toJson<String>(ubicacion),
+      'usuarioAsignado': serializer.toJson<String>(usuarioAsignado),
+      'estado': serializer.toJson<String>(estado),
+      'observaciones': serializer.toJson<String?>(observaciones),
+      'fechaRegistro': serializer.toJson<DateTime>(fechaRegistro),
+    };
+  }
+
+  NoBrake copyWith(
+          {int? id,
+          String? marca,
+          String? modelo,
+          String? serie,
+          String? ubicacion,
+          String? usuarioAsignado,
+          String? estado,
+          Value<String?> observaciones = const Value.absent(),
+          DateTime? fechaRegistro}) =>
+      NoBrake(
+        id: id ?? this.id,
+        marca: marca ?? this.marca,
+        modelo: modelo ?? this.modelo,
+        serie: serie ?? this.serie,
+        ubicacion: ubicacion ?? this.ubicacion,
+        usuarioAsignado: usuarioAsignado ?? this.usuarioAsignado,
+        estado: estado ?? this.estado,
+        observaciones:
+            observaciones.present ? observaciones.value : this.observaciones,
+        fechaRegistro: fechaRegistro ?? this.fechaRegistro,
+      );
+  NoBrake copyWithCompanion(NoBrakesCompanion data) {
+    return NoBrake(
+      id: data.id.present ? data.id.value : this.id,
+      marca: data.marca.present ? data.marca.value : this.marca,
+      modelo: data.modelo.present ? data.modelo.value : this.modelo,
+      serie: data.serie.present ? data.serie.value : this.serie,
+      ubicacion: data.ubicacion.present ? data.ubicacion.value : this.ubicacion,
+      usuarioAsignado: data.usuarioAsignado.present
+          ? data.usuarioAsignado.value
+          : this.usuarioAsignado,
+      estado: data.estado.present ? data.estado.value : this.estado,
+      observaciones: data.observaciones.present
+          ? data.observaciones.value
+          : this.observaciones,
+      fechaRegistro: data.fechaRegistro.present
+          ? data.fechaRegistro.value
+          : this.fechaRegistro,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NoBrake(')
+          ..write('id: $id, ')
+          ..write('marca: $marca, ')
+          ..write('modelo: $modelo, ')
+          ..write('serie: $serie, ')
+          ..write('ubicacion: $ubicacion, ')
+          ..write('usuarioAsignado: $usuarioAsignado, ')
+          ..write('estado: $estado, ')
+          ..write('observaciones: $observaciones, ')
+          ..write('fechaRegistro: $fechaRegistro')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, marca, modelo, serie, ubicacion,
+      usuarioAsignado, estado, observaciones, fechaRegistro);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is NoBrake &&
+          other.id == this.id &&
+          other.marca == this.marca &&
+          other.modelo == this.modelo &&
+          other.serie == this.serie &&
+          other.ubicacion == this.ubicacion &&
+          other.usuarioAsignado == this.usuarioAsignado &&
+          other.estado == this.estado &&
+          other.observaciones == this.observaciones &&
+          other.fechaRegistro == this.fechaRegistro);
+}
+
+class NoBrakesCompanion extends UpdateCompanion<NoBrake> {
+  final Value<int> id;
+  final Value<String> marca;
+  final Value<String> modelo;
+  final Value<String> serie;
+  final Value<String> ubicacion;
+  final Value<String> usuarioAsignado;
+  final Value<String> estado;
+  final Value<String?> observaciones;
+  final Value<DateTime> fechaRegistro;
+  const NoBrakesCompanion({
+    this.id = const Value.absent(),
+    this.marca = const Value.absent(),
+    this.modelo = const Value.absent(),
+    this.serie = const Value.absent(),
+    this.ubicacion = const Value.absent(),
+    this.usuarioAsignado = const Value.absent(),
+    this.estado = const Value.absent(),
+    this.observaciones = const Value.absent(),
+    this.fechaRegistro = const Value.absent(),
+  });
+  NoBrakesCompanion.insert({
+    this.id = const Value.absent(),
+    required String marca,
+    required String modelo,
+    required String serie,
+    required String ubicacion,
+    required String usuarioAsignado,
+    this.estado = const Value.absent(),
+    this.observaciones = const Value.absent(),
+    this.fechaRegistro = const Value.absent(),
+  })  : marca = Value(marca),
+        modelo = Value(modelo),
+        serie = Value(serie),
+        ubicacion = Value(ubicacion),
+        usuarioAsignado = Value(usuarioAsignado);
+  static Insertable<NoBrake> custom({
+    Expression<int>? id,
+    Expression<String>? marca,
+    Expression<String>? modelo,
+    Expression<String>? serie,
+    Expression<String>? ubicacion,
+    Expression<String>? usuarioAsignado,
+    Expression<String>? estado,
+    Expression<String>? observaciones,
+    Expression<DateTime>? fechaRegistro,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (marca != null) 'marca': marca,
+      if (modelo != null) 'modelo': modelo,
+      if (serie != null) 'serie': serie,
+      if (ubicacion != null) 'ubicacion': ubicacion,
+      if (usuarioAsignado != null) 'usuario_asignado': usuarioAsignado,
+      if (estado != null) 'estado': estado,
+      if (observaciones != null) 'observaciones': observaciones,
+      if (fechaRegistro != null) 'fecha_registro': fechaRegistro,
+    });
+  }
+
+  NoBrakesCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? marca,
+      Value<String>? modelo,
+      Value<String>? serie,
+      Value<String>? ubicacion,
+      Value<String>? usuarioAsignado,
+      Value<String>? estado,
+      Value<String?>? observaciones,
+      Value<DateTime>? fechaRegistro}) {
+    return NoBrakesCompanion(
+      id: id ?? this.id,
+      marca: marca ?? this.marca,
+      modelo: modelo ?? this.modelo,
+      serie: serie ?? this.serie,
+      ubicacion: ubicacion ?? this.ubicacion,
+      usuarioAsignado: usuarioAsignado ?? this.usuarioAsignado,
+      estado: estado ?? this.estado,
+      observaciones: observaciones ?? this.observaciones,
+      fechaRegistro: fechaRegistro ?? this.fechaRegistro,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (marca.present) {
+      map['marca'] = Variable<String>(marca.value);
+    }
+    if (modelo.present) {
+      map['modelo'] = Variable<String>(modelo.value);
+    }
+    if (serie.present) {
+      map['serie'] = Variable<String>(serie.value);
+    }
+    if (ubicacion.present) {
+      map['ubicacion'] = Variable<String>(ubicacion.value);
+    }
+    if (usuarioAsignado.present) {
+      map['usuario_asignado'] = Variable<String>(usuarioAsignado.value);
+    }
+    if (estado.present) {
+      map['estado'] = Variable<String>(estado.value);
+    }
+    if (observaciones.present) {
+      map['observaciones'] = Variable<String>(observaciones.value);
+    }
+    if (fechaRegistro.present) {
+      map['fecha_registro'] = Variable<DateTime>(fechaRegistro.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NoBrakesCompanion(')
+          ..write('id: $id, ')
+          ..write('marca: $marca, ')
+          ..write('modelo: $modelo, ')
+          ..write('serie: $serie, ')
+          ..write('ubicacion: $ubicacion, ')
+          ..write('usuarioAsignado: $usuarioAsignado, ')
+          ..write('estado: $estado, ')
+          ..write('observaciones: $observaciones, ')
+          ..write('fechaRegistro: $fechaRegistro')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $NoBrakeEventosTable extends NoBrakeEventos
+    with TableInfo<$NoBrakeEventosTable, NoBrakeEvento> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $NoBrakeEventosTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _noBrakeIdMeta =
+      const VerificationMeta('noBrakeId');
+  @override
+  late final GeneratedColumn<int> noBrakeId = GeneratedColumn<int>(
+      'no_brake_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL REFERENCES no_brakes(id)');
+  static const VerificationMeta _fechaMeta = const VerificationMeta('fecha');
+  @override
+  late final GeneratedColumn<DateTime> fecha = GeneratedColumn<DateTime>(
+      'fecha', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _tipoEventoMeta =
+      const VerificationMeta('tipoEvento');
+  @override
+  late final GeneratedColumn<String> tipoEvento = GeneratedColumn<String>(
+      'tipo_evento', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      $customConstraints:
+          'NOT NULL CHECK(tipo_evento IN (\'reporte\',\'diagnostico\',\'reparacion\',\'baja\',\'reasignacion\'))');
+  static const VerificationMeta _descripcionMeta =
+      const VerificationMeta('descripcion');
+  @override
+  late final GeneratedColumn<String> descripcion = GeneratedColumn<String>(
+      'descripcion', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
+  static const VerificationMeta _usuarioMeta =
+      const VerificationMeta('usuario');
+  @override
+  late final GeneratedColumn<String> usuario = GeneratedColumn<String>(
+      'usuario', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _adjuntoMeta =
+      const VerificationMeta('adjunto');
+  @override
+  late final GeneratedColumn<Uint8List> adjunto = GeneratedColumn<Uint8List>(
+      'adjunto', aliasedName, true,
+      type: DriftSqlType.blob, requiredDuringInsert: false);
+  static const VerificationMeta _nombreAdjuntoMeta =
+      const VerificationMeta('nombreAdjunto');
+  @override
+  late final GeneratedColumn<String> nombreAdjunto = GeneratedColumn<String>(
+      'nombre_adjunto', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        noBrakeId,
+        fecha,
+        tipoEvento,
+        descripcion,
+        usuario,
+        adjunto,
+        nombreAdjunto
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'no_brake_eventos';
+  @override
+  VerificationContext validateIntegrity(Insertable<NoBrakeEvento> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('no_brake_id')) {
+      context.handle(
+          _noBrakeIdMeta,
+          noBrakeId.isAcceptableOrUnknown(
+              data['no_brake_id']!, _noBrakeIdMeta));
+    } else if (isInserting) {
+      context.missing(_noBrakeIdMeta);
+    }
+    if (data.containsKey('fecha')) {
+      context.handle(
+          _fechaMeta, fecha.isAcceptableOrUnknown(data['fecha']!, _fechaMeta));
+    }
+    if (data.containsKey('tipo_evento')) {
+      context.handle(
+          _tipoEventoMeta,
+          tipoEvento.isAcceptableOrUnknown(
+              data['tipo_evento']!, _tipoEventoMeta));
+    } else if (isInserting) {
+      context.missing(_tipoEventoMeta);
+    }
+    if (data.containsKey('descripcion')) {
+      context.handle(
+          _descripcionMeta,
+          descripcion.isAcceptableOrUnknown(
+              data['descripcion']!, _descripcionMeta));
+    } else if (isInserting) {
+      context.missing(_descripcionMeta);
+    }
+    if (data.containsKey('usuario')) {
+      context.handle(_usuarioMeta,
+          usuario.isAcceptableOrUnknown(data['usuario']!, _usuarioMeta));
+    }
+    if (data.containsKey('adjunto')) {
+      context.handle(_adjuntoMeta,
+          adjunto.isAcceptableOrUnknown(data['adjunto']!, _adjuntoMeta));
+    }
+    if (data.containsKey('nombre_adjunto')) {
+      context.handle(
+          _nombreAdjuntoMeta,
+          nombreAdjunto.isAcceptableOrUnknown(
+              data['nombre_adjunto']!, _nombreAdjuntoMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  NoBrakeEvento map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return NoBrakeEvento(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      noBrakeId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}no_brake_id'])!,
+      fecha: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}fecha'])!,
+      tipoEvento: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}tipo_evento'])!,
+      descripcion: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}descripcion'])!,
+      usuario: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}usuario']),
+      adjunto: attachedDatabase.typeMapping
+          .read(DriftSqlType.blob, data['${effectivePrefix}adjunto']),
+      nombreAdjunto: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}nombre_adjunto']),
+    );
+  }
+
+  @override
+  $NoBrakeEventosTable createAlias(String alias) {
+    return $NoBrakeEventosTable(attachedDatabase, alias);
+  }
+}
+
+class NoBrakeEvento extends DataClass implements Insertable<NoBrakeEvento> {
+  final int id;
+  final int noBrakeId;
+  final DateTime fecha;
+  final String tipoEvento;
+  final String descripcion;
+  final String? usuario;
+  final Uint8List? adjunto;
+  final String? nombreAdjunto;
+  const NoBrakeEvento(
+      {required this.id,
+      required this.noBrakeId,
+      required this.fecha,
+      required this.tipoEvento,
+      required this.descripcion,
+      this.usuario,
+      this.adjunto,
+      this.nombreAdjunto});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['no_brake_id'] = Variable<int>(noBrakeId);
+    map['fecha'] = Variable<DateTime>(fecha);
+    map['tipo_evento'] = Variable<String>(tipoEvento);
+    map['descripcion'] = Variable<String>(descripcion);
+    if (!nullToAbsent || usuario != null) {
+      map['usuario'] = Variable<String>(usuario);
+    }
+    if (!nullToAbsent || adjunto != null) {
+      map['adjunto'] = Variable<Uint8List>(adjunto);
+    }
+    if (!nullToAbsent || nombreAdjunto != null) {
+      map['nombre_adjunto'] = Variable<String>(nombreAdjunto);
+    }
+    return map;
+  }
+
+  NoBrakeEventosCompanion toCompanion(bool nullToAbsent) {
+    return NoBrakeEventosCompanion(
+      id: Value(id),
+      noBrakeId: Value(noBrakeId),
+      fecha: Value(fecha),
+      tipoEvento: Value(tipoEvento),
+      descripcion: Value(descripcion),
+      usuario: usuario == null && nullToAbsent
+          ? const Value.absent()
+          : Value(usuario),
+      adjunto: adjunto == null && nullToAbsent
+          ? const Value.absent()
+          : Value(adjunto),
+      nombreAdjunto: nombreAdjunto == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nombreAdjunto),
+    );
+  }
+
+  factory NoBrakeEvento.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return NoBrakeEvento(
+      id: serializer.fromJson<int>(json['id']),
+      noBrakeId: serializer.fromJson<int>(json['noBrakeId']),
+      fecha: serializer.fromJson<DateTime>(json['fecha']),
+      tipoEvento: serializer.fromJson<String>(json['tipoEvento']),
+      descripcion: serializer.fromJson<String>(json['descripcion']),
+      usuario: serializer.fromJson<String?>(json['usuario']),
+      adjunto: serializer.fromJson<Uint8List?>(json['adjunto']),
+      nombreAdjunto: serializer.fromJson<String?>(json['nombreAdjunto']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'noBrakeId': serializer.toJson<int>(noBrakeId),
+      'fecha': serializer.toJson<DateTime>(fecha),
+      'tipoEvento': serializer.toJson<String>(tipoEvento),
+      'descripcion': serializer.toJson<String>(descripcion),
+      'usuario': serializer.toJson<String?>(usuario),
+      'adjunto': serializer.toJson<Uint8List?>(adjunto),
+      'nombreAdjunto': serializer.toJson<String?>(nombreAdjunto),
+    };
+  }
+
+  NoBrakeEvento copyWith(
+          {int? id,
+          int? noBrakeId,
+          DateTime? fecha,
+          String? tipoEvento,
+          String? descripcion,
+          Value<String?> usuario = const Value.absent(),
+          Value<Uint8List?> adjunto = const Value.absent(),
+          Value<String?> nombreAdjunto = const Value.absent()}) =>
+      NoBrakeEvento(
+        id: id ?? this.id,
+        noBrakeId: noBrakeId ?? this.noBrakeId,
+        fecha: fecha ?? this.fecha,
+        tipoEvento: tipoEvento ?? this.tipoEvento,
+        descripcion: descripcion ?? this.descripcion,
+        usuario: usuario.present ? usuario.value : this.usuario,
+        adjunto: adjunto.present ? adjunto.value : this.adjunto,
+        nombreAdjunto:
+            nombreAdjunto.present ? nombreAdjunto.value : this.nombreAdjunto,
+      );
+  NoBrakeEvento copyWithCompanion(NoBrakeEventosCompanion data) {
+    return NoBrakeEvento(
+      id: data.id.present ? data.id.value : this.id,
+      noBrakeId: data.noBrakeId.present ? data.noBrakeId.value : this.noBrakeId,
+      fecha: data.fecha.present ? data.fecha.value : this.fecha,
+      tipoEvento:
+          data.tipoEvento.present ? data.tipoEvento.value : this.tipoEvento,
+      descripcion:
+          data.descripcion.present ? data.descripcion.value : this.descripcion,
+      usuario: data.usuario.present ? data.usuario.value : this.usuario,
+      adjunto: data.adjunto.present ? data.adjunto.value : this.adjunto,
+      nombreAdjunto: data.nombreAdjunto.present
+          ? data.nombreAdjunto.value
+          : this.nombreAdjunto,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NoBrakeEvento(')
+          ..write('id: $id, ')
+          ..write('noBrakeId: $noBrakeId, ')
+          ..write('fecha: $fecha, ')
+          ..write('tipoEvento: $tipoEvento, ')
+          ..write('descripcion: $descripcion, ')
+          ..write('usuario: $usuario, ')
+          ..write('adjunto: $adjunto, ')
+          ..write('nombreAdjunto: $nombreAdjunto')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, noBrakeId, fecha, tipoEvento, descripcion,
+      usuario, $driftBlobEquality.hash(adjunto), nombreAdjunto);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is NoBrakeEvento &&
+          other.id == this.id &&
+          other.noBrakeId == this.noBrakeId &&
+          other.fecha == this.fecha &&
+          other.tipoEvento == this.tipoEvento &&
+          other.descripcion == this.descripcion &&
+          other.usuario == this.usuario &&
+          $driftBlobEquality.equals(other.adjunto, this.adjunto) &&
+          other.nombreAdjunto == this.nombreAdjunto);
+}
+
+class NoBrakeEventosCompanion extends UpdateCompanion<NoBrakeEvento> {
+  final Value<int> id;
+  final Value<int> noBrakeId;
+  final Value<DateTime> fecha;
+  final Value<String> tipoEvento;
+  final Value<String> descripcion;
+  final Value<String?> usuario;
+  final Value<Uint8List?> adjunto;
+  final Value<String?> nombreAdjunto;
+  const NoBrakeEventosCompanion({
+    this.id = const Value.absent(),
+    this.noBrakeId = const Value.absent(),
+    this.fecha = const Value.absent(),
+    this.tipoEvento = const Value.absent(),
+    this.descripcion = const Value.absent(),
+    this.usuario = const Value.absent(),
+    this.adjunto = const Value.absent(),
+    this.nombreAdjunto = const Value.absent(),
+  });
+  NoBrakeEventosCompanion.insert({
+    this.id = const Value.absent(),
+    required int noBrakeId,
+    this.fecha = const Value.absent(),
+    required String tipoEvento,
+    required String descripcion,
+    this.usuario = const Value.absent(),
+    this.adjunto = const Value.absent(),
+    this.nombreAdjunto = const Value.absent(),
+  })  : noBrakeId = Value(noBrakeId),
+        tipoEvento = Value(tipoEvento),
+        descripcion = Value(descripcion);
+  static Insertable<NoBrakeEvento> custom({
+    Expression<int>? id,
+    Expression<int>? noBrakeId,
+    Expression<DateTime>? fecha,
+    Expression<String>? tipoEvento,
+    Expression<String>? descripcion,
+    Expression<String>? usuario,
+    Expression<Uint8List>? adjunto,
+    Expression<String>? nombreAdjunto,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (noBrakeId != null) 'no_brake_id': noBrakeId,
+      if (fecha != null) 'fecha': fecha,
+      if (tipoEvento != null) 'tipo_evento': tipoEvento,
+      if (descripcion != null) 'descripcion': descripcion,
+      if (usuario != null) 'usuario': usuario,
+      if (adjunto != null) 'adjunto': adjunto,
+      if (nombreAdjunto != null) 'nombre_adjunto': nombreAdjunto,
+    });
+  }
+
+  NoBrakeEventosCompanion copyWith(
+      {Value<int>? id,
+      Value<int>? noBrakeId,
+      Value<DateTime>? fecha,
+      Value<String>? tipoEvento,
+      Value<String>? descripcion,
+      Value<String?>? usuario,
+      Value<Uint8List?>? adjunto,
+      Value<String?>? nombreAdjunto}) {
+    return NoBrakeEventosCompanion(
+      id: id ?? this.id,
+      noBrakeId: noBrakeId ?? this.noBrakeId,
+      fecha: fecha ?? this.fecha,
+      tipoEvento: tipoEvento ?? this.tipoEvento,
+      descripcion: descripcion ?? this.descripcion,
+      usuario: usuario ?? this.usuario,
+      adjunto: adjunto ?? this.adjunto,
+      nombreAdjunto: nombreAdjunto ?? this.nombreAdjunto,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (noBrakeId.present) {
+      map['no_brake_id'] = Variable<int>(noBrakeId.value);
+    }
+    if (fecha.present) {
+      map['fecha'] = Variable<DateTime>(fecha.value);
+    }
+    if (tipoEvento.present) {
+      map['tipo_evento'] = Variable<String>(tipoEvento.value);
+    }
+    if (descripcion.present) {
+      map['descripcion'] = Variable<String>(descripcion.value);
+    }
+    if (usuario.present) {
+      map['usuario'] = Variable<String>(usuario.value);
+    }
+    if (adjunto.present) {
+      map['adjunto'] = Variable<Uint8List>(adjunto.value);
+    }
+    if (nombreAdjunto.present) {
+      map['nombre_adjunto'] = Variable<String>(nombreAdjunto.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NoBrakeEventosCompanion(')
+          ..write('id: $id, ')
+          ..write('noBrakeId: $noBrakeId, ')
+          ..write('fecha: $fecha, ')
+          ..write('tipoEvento: $tipoEvento, ')
+          ..write('descripcion: $descripcion, ')
+          ..write('usuario: $usuario, ')
+          ..write('adjunto: $adjunto, ')
+          ..write('nombreAdjunto: $nombreAdjunto')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2680,6 +3596,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $MantenimientosTable mantenimientos = $MantenimientosTable(this);
   late final $DocumentosTable documentos = $DocumentosTable(this);
   late final $ContadoresTable contadores = $ContadoresTable(this);
+  late final $NoBrakesTable noBrakes = $NoBrakesTable(this);
+  late final $NoBrakeEventosTable noBrakeEventos = $NoBrakeEventosTable(this);
   late final ImpresorasDao impresorasDao = ImpresorasDao(this as AppDatabase);
   late final ToneresDao toneresDao = ToneresDao(this as AppDatabase);
   late final RequisicionesDao requisicionesDao =
@@ -2699,7 +3617,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         requisiciones,
         mantenimientos,
         documentos,
-        contadores
+        contadores,
+        noBrakes,
+        noBrakeEventos
       ];
 }
 
@@ -5320,6 +6240,634 @@ typedef $$ContadoresTableProcessedTableManager = ProcessedTableManager<
     (Contadore, $$ContadoresTableReferences),
     Contadore,
     PrefetchHooks Function({bool impresoraId})>;
+typedef $$NoBrakesTableCreateCompanionBuilder = NoBrakesCompanion Function({
+  Value<int> id,
+  required String marca,
+  required String modelo,
+  required String serie,
+  required String ubicacion,
+  required String usuarioAsignado,
+  Value<String> estado,
+  Value<String?> observaciones,
+  Value<DateTime> fechaRegistro,
+});
+typedef $$NoBrakesTableUpdateCompanionBuilder = NoBrakesCompanion Function({
+  Value<int> id,
+  Value<String> marca,
+  Value<String> modelo,
+  Value<String> serie,
+  Value<String> ubicacion,
+  Value<String> usuarioAsignado,
+  Value<String> estado,
+  Value<String?> observaciones,
+  Value<DateTime> fechaRegistro,
+});
+
+final class $$NoBrakesTableReferences
+    extends BaseReferences<_$AppDatabase, $NoBrakesTable, NoBrake> {
+  $$NoBrakesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$NoBrakeEventosTable, List<NoBrakeEvento>>
+      _noBrakeEventosRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.noBrakeEventos,
+              aliasName: $_aliasNameGenerator(
+                  db.noBrakes.id, db.noBrakeEventos.noBrakeId));
+
+  $$NoBrakeEventosTableProcessedTableManager get noBrakeEventosRefs {
+    final manager = $$NoBrakeEventosTableTableManager($_db, $_db.noBrakeEventos)
+        .filter((f) => f.noBrakeId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_noBrakeEventosRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+}
+
+class $$NoBrakesTableFilterComposer
+    extends Composer<_$AppDatabase, $NoBrakesTable> {
+  $$NoBrakesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get marca => $composableBuilder(
+      column: $table.marca, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get modelo => $composableBuilder(
+      column: $table.modelo, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get serie => $composableBuilder(
+      column: $table.serie, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ubicacion => $composableBuilder(
+      column: $table.ubicacion, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get usuarioAsignado => $composableBuilder(
+      column: $table.usuarioAsignado,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get estado => $composableBuilder(
+      column: $table.estado, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get observaciones => $composableBuilder(
+      column: $table.observaciones, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get fechaRegistro => $composableBuilder(
+      column: $table.fechaRegistro, builder: (column) => ColumnFilters(column));
+
+  Expression<bool> noBrakeEventosRefs(
+      Expression<bool> Function($$NoBrakeEventosTableFilterComposer f) f) {
+    final $$NoBrakeEventosTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.noBrakeEventos,
+        getReferencedColumn: (t) => t.noBrakeId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$NoBrakeEventosTableFilterComposer(
+              $db: $db,
+              $table: $db.noBrakeEventos,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+}
+
+class $$NoBrakesTableOrderingComposer
+    extends Composer<_$AppDatabase, $NoBrakesTable> {
+  $$NoBrakesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get marca => $composableBuilder(
+      column: $table.marca, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get modelo => $composableBuilder(
+      column: $table.modelo, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get serie => $composableBuilder(
+      column: $table.serie, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ubicacion => $composableBuilder(
+      column: $table.ubicacion, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get usuarioAsignado => $composableBuilder(
+      column: $table.usuarioAsignado,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get estado => $composableBuilder(
+      column: $table.estado, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get observaciones => $composableBuilder(
+      column: $table.observaciones,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get fechaRegistro => $composableBuilder(
+      column: $table.fechaRegistro,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$NoBrakesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $NoBrakesTable> {
+  $$NoBrakesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get marca =>
+      $composableBuilder(column: $table.marca, builder: (column) => column);
+
+  GeneratedColumn<String> get modelo =>
+      $composableBuilder(column: $table.modelo, builder: (column) => column);
+
+  GeneratedColumn<String> get serie =>
+      $composableBuilder(column: $table.serie, builder: (column) => column);
+
+  GeneratedColumn<String> get ubicacion =>
+      $composableBuilder(column: $table.ubicacion, builder: (column) => column);
+
+  GeneratedColumn<String> get usuarioAsignado => $composableBuilder(
+      column: $table.usuarioAsignado, builder: (column) => column);
+
+  GeneratedColumn<String> get estado =>
+      $composableBuilder(column: $table.estado, builder: (column) => column);
+
+  GeneratedColumn<String> get observaciones => $composableBuilder(
+      column: $table.observaciones, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get fechaRegistro => $composableBuilder(
+      column: $table.fechaRegistro, builder: (column) => column);
+
+  Expression<T> noBrakeEventosRefs<T extends Object>(
+      Expression<T> Function($$NoBrakeEventosTableAnnotationComposer a) f) {
+    final $$NoBrakeEventosTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.noBrakeEventos,
+        getReferencedColumn: (t) => t.noBrakeId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$NoBrakeEventosTableAnnotationComposer(
+              $db: $db,
+              $table: $db.noBrakeEventos,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+}
+
+class $$NoBrakesTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $NoBrakesTable,
+    NoBrake,
+    $$NoBrakesTableFilterComposer,
+    $$NoBrakesTableOrderingComposer,
+    $$NoBrakesTableAnnotationComposer,
+    $$NoBrakesTableCreateCompanionBuilder,
+    $$NoBrakesTableUpdateCompanionBuilder,
+    (NoBrake, $$NoBrakesTableReferences),
+    NoBrake,
+    PrefetchHooks Function({bool noBrakeEventosRefs})> {
+  $$NoBrakesTableTableManager(_$AppDatabase db, $NoBrakesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$NoBrakesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$NoBrakesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$NoBrakesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> marca = const Value.absent(),
+            Value<String> modelo = const Value.absent(),
+            Value<String> serie = const Value.absent(),
+            Value<String> ubicacion = const Value.absent(),
+            Value<String> usuarioAsignado = const Value.absent(),
+            Value<String> estado = const Value.absent(),
+            Value<String?> observaciones = const Value.absent(),
+            Value<DateTime> fechaRegistro = const Value.absent(),
+          }) =>
+              NoBrakesCompanion(
+            id: id,
+            marca: marca,
+            modelo: modelo,
+            serie: serie,
+            ubicacion: ubicacion,
+            usuarioAsignado: usuarioAsignado,
+            estado: estado,
+            observaciones: observaciones,
+            fechaRegistro: fechaRegistro,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String marca,
+            required String modelo,
+            required String serie,
+            required String ubicacion,
+            required String usuarioAsignado,
+            Value<String> estado = const Value.absent(),
+            Value<String?> observaciones = const Value.absent(),
+            Value<DateTime> fechaRegistro = const Value.absent(),
+          }) =>
+              NoBrakesCompanion.insert(
+            id: id,
+            marca: marca,
+            modelo: modelo,
+            serie: serie,
+            ubicacion: ubicacion,
+            usuarioAsignado: usuarioAsignado,
+            estado: estado,
+            observaciones: observaciones,
+            fechaRegistro: fechaRegistro,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) =>
+                  (e.readTable(table), $$NoBrakesTableReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: ({noBrakeEventosRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (noBrakeEventosRefs) db.noBrakeEventos
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (noBrakeEventosRefs)
+                    await $_getPrefetchedData<NoBrake, $NoBrakesTable,
+                            NoBrakeEvento>(
+                        currentTable: table,
+                        referencedTable: $$NoBrakesTableReferences
+                            ._noBrakeEventosRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$NoBrakesTableReferences(db, table, p0)
+                                .noBrakeEventosRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.noBrakeId == item.id),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$NoBrakesTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $NoBrakesTable,
+    NoBrake,
+    $$NoBrakesTableFilterComposer,
+    $$NoBrakesTableOrderingComposer,
+    $$NoBrakesTableAnnotationComposer,
+    $$NoBrakesTableCreateCompanionBuilder,
+    $$NoBrakesTableUpdateCompanionBuilder,
+    (NoBrake, $$NoBrakesTableReferences),
+    NoBrake,
+    PrefetchHooks Function({bool noBrakeEventosRefs})>;
+typedef $$NoBrakeEventosTableCreateCompanionBuilder = NoBrakeEventosCompanion
+    Function({
+  Value<int> id,
+  required int noBrakeId,
+  Value<DateTime> fecha,
+  required String tipoEvento,
+  required String descripcion,
+  Value<String?> usuario,
+  Value<Uint8List?> adjunto,
+  Value<String?> nombreAdjunto,
+});
+typedef $$NoBrakeEventosTableUpdateCompanionBuilder = NoBrakeEventosCompanion
+    Function({
+  Value<int> id,
+  Value<int> noBrakeId,
+  Value<DateTime> fecha,
+  Value<String> tipoEvento,
+  Value<String> descripcion,
+  Value<String?> usuario,
+  Value<Uint8List?> adjunto,
+  Value<String?> nombreAdjunto,
+});
+
+final class $$NoBrakeEventosTableReferences
+    extends BaseReferences<_$AppDatabase, $NoBrakeEventosTable, NoBrakeEvento> {
+  $$NoBrakeEventosTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $NoBrakesTable _noBrakeIdTable(_$AppDatabase db) =>
+      db.noBrakes.createAlias(
+          $_aliasNameGenerator(db.noBrakeEventos.noBrakeId, db.noBrakes.id));
+
+  $$NoBrakesTableProcessedTableManager get noBrakeId {
+    final $_column = $_itemColumn<int>('no_brake_id')!;
+
+    final manager = $$NoBrakesTableTableManager($_db, $_db.noBrakes)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_noBrakeIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$NoBrakeEventosTableFilterComposer
+    extends Composer<_$AppDatabase, $NoBrakeEventosTable> {
+  $$NoBrakeEventosTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get fecha => $composableBuilder(
+      column: $table.fecha, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get tipoEvento => $composableBuilder(
+      column: $table.tipoEvento, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get descripcion => $composableBuilder(
+      column: $table.descripcion, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get usuario => $composableBuilder(
+      column: $table.usuario, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<Uint8List> get adjunto => $composableBuilder(
+      column: $table.adjunto, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get nombreAdjunto => $composableBuilder(
+      column: $table.nombreAdjunto, builder: (column) => ColumnFilters(column));
+
+  $$NoBrakesTableFilterComposer get noBrakeId {
+    final $$NoBrakesTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.noBrakeId,
+        referencedTable: $db.noBrakes,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$NoBrakesTableFilterComposer(
+              $db: $db,
+              $table: $db.noBrakes,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$NoBrakeEventosTableOrderingComposer
+    extends Composer<_$AppDatabase, $NoBrakeEventosTable> {
+  $$NoBrakeEventosTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get fecha => $composableBuilder(
+      column: $table.fecha, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get tipoEvento => $composableBuilder(
+      column: $table.tipoEvento, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get descripcion => $composableBuilder(
+      column: $table.descripcion, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get usuario => $composableBuilder(
+      column: $table.usuario, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<Uint8List> get adjunto => $composableBuilder(
+      column: $table.adjunto, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get nombreAdjunto => $composableBuilder(
+      column: $table.nombreAdjunto,
+      builder: (column) => ColumnOrderings(column));
+
+  $$NoBrakesTableOrderingComposer get noBrakeId {
+    final $$NoBrakesTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.noBrakeId,
+        referencedTable: $db.noBrakes,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$NoBrakesTableOrderingComposer(
+              $db: $db,
+              $table: $db.noBrakes,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$NoBrakeEventosTableAnnotationComposer
+    extends Composer<_$AppDatabase, $NoBrakeEventosTable> {
+  $$NoBrakeEventosTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get fecha =>
+      $composableBuilder(column: $table.fecha, builder: (column) => column);
+
+  GeneratedColumn<String> get tipoEvento => $composableBuilder(
+      column: $table.tipoEvento, builder: (column) => column);
+
+  GeneratedColumn<String> get descripcion => $composableBuilder(
+      column: $table.descripcion, builder: (column) => column);
+
+  GeneratedColumn<String> get usuario =>
+      $composableBuilder(column: $table.usuario, builder: (column) => column);
+
+  GeneratedColumn<Uint8List> get adjunto =>
+      $composableBuilder(column: $table.adjunto, builder: (column) => column);
+
+  GeneratedColumn<String> get nombreAdjunto => $composableBuilder(
+      column: $table.nombreAdjunto, builder: (column) => column);
+
+  $$NoBrakesTableAnnotationComposer get noBrakeId {
+    final $$NoBrakesTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.noBrakeId,
+        referencedTable: $db.noBrakes,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$NoBrakesTableAnnotationComposer(
+              $db: $db,
+              $table: $db.noBrakes,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$NoBrakeEventosTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $NoBrakeEventosTable,
+    NoBrakeEvento,
+    $$NoBrakeEventosTableFilterComposer,
+    $$NoBrakeEventosTableOrderingComposer,
+    $$NoBrakeEventosTableAnnotationComposer,
+    $$NoBrakeEventosTableCreateCompanionBuilder,
+    $$NoBrakeEventosTableUpdateCompanionBuilder,
+    (NoBrakeEvento, $$NoBrakeEventosTableReferences),
+    NoBrakeEvento,
+    PrefetchHooks Function({bool noBrakeId})> {
+  $$NoBrakeEventosTableTableManager(
+      _$AppDatabase db, $NoBrakeEventosTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$NoBrakeEventosTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$NoBrakeEventosTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$NoBrakeEventosTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<int> noBrakeId = const Value.absent(),
+            Value<DateTime> fecha = const Value.absent(),
+            Value<String> tipoEvento = const Value.absent(),
+            Value<String> descripcion = const Value.absent(),
+            Value<String?> usuario = const Value.absent(),
+            Value<Uint8List?> adjunto = const Value.absent(),
+            Value<String?> nombreAdjunto = const Value.absent(),
+          }) =>
+              NoBrakeEventosCompanion(
+            id: id,
+            noBrakeId: noBrakeId,
+            fecha: fecha,
+            tipoEvento: tipoEvento,
+            descripcion: descripcion,
+            usuario: usuario,
+            adjunto: adjunto,
+            nombreAdjunto: nombreAdjunto,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required int noBrakeId,
+            Value<DateTime> fecha = const Value.absent(),
+            required String tipoEvento,
+            required String descripcion,
+            Value<String?> usuario = const Value.absent(),
+            Value<Uint8List?> adjunto = const Value.absent(),
+            Value<String?> nombreAdjunto = const Value.absent(),
+          }) =>
+              NoBrakeEventosCompanion.insert(
+            id: id,
+            noBrakeId: noBrakeId,
+            fecha: fecha,
+            tipoEvento: tipoEvento,
+            descripcion: descripcion,
+            usuario: usuario,
+            adjunto: adjunto,
+            nombreAdjunto: nombreAdjunto,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$NoBrakeEventosTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({noBrakeId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (noBrakeId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.noBrakeId,
+                    referencedTable:
+                        $$NoBrakeEventosTableReferences._noBrakeIdTable(db),
+                    referencedColumn:
+                        $$NoBrakeEventosTableReferences._noBrakeIdTable(db).id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$NoBrakeEventosTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $NoBrakeEventosTable,
+    NoBrakeEvento,
+    $$NoBrakeEventosTableFilterComposer,
+    $$NoBrakeEventosTableOrderingComposer,
+    $$NoBrakeEventosTableAnnotationComposer,
+    $$NoBrakeEventosTableCreateCompanionBuilder,
+    $$NoBrakeEventosTableUpdateCompanionBuilder,
+    (NoBrakeEvento, $$NoBrakeEventosTableReferences),
+    NoBrakeEvento,
+    PrefetchHooks Function({bool noBrakeId})>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -5341,4 +6889,8 @@ class $AppDatabaseManager {
       $$DocumentosTableTableManager(_db, _db.documentos);
   $$ContadoresTableTableManager get contadores =>
       $$ContadoresTableTableManager(_db, _db.contadores);
+  $$NoBrakesTableTableManager get noBrakes =>
+      $$NoBrakesTableTableManager(_db, _db.noBrakes);
+  $$NoBrakeEventosTableTableManager get noBrakeEventos =>
+      $$NoBrakeEventosTableTableManager(_db, _db.noBrakeEventos);
 }
